@@ -24,6 +24,9 @@
     
     <!-- Alpine.js -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <!-- SheetJS (xlsx) CDN untuk Export Excel -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     
     <script>
         tailwind.config = {
@@ -79,7 +82,7 @@
         }
     </style>
     
-    <!-- Firebase SDK Modules (Ditambahkan deleteDoc) -->
+    <!-- Firebase SDK Modules -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
@@ -90,7 +93,6 @@
             getFirestore, doc, setDoc, deleteDoc, onSnapshot, collection, getDocs
         };
 
-        // Notify Alpine that Firebase SDK module is ready
         window.dispatchEvent(new CustomEvent('firebase-sdk-loaded'));
     </script>
 </head>
@@ -114,7 +116,7 @@
                         
                         <div class="h-8 w-px bg-slate-600/60"></div>
 
-                        <!-- Logo Teknik Sepeda Motor (TSM Direct Drive Link) -->
+                        <!-- Logo TSM -->
                         <div class="h-10 sm:h-12 w-10 sm:w-12 flex items-center justify-center overflow-hidden rounded-lg bg-white/10 p-0.5">
                             <img :src="settings.logoTsmUrl" 
                                  alt="Logo TSM SMKN 1 Gombong" 
@@ -133,10 +135,9 @@
                     </div>
                 </div>
 
-                <!-- Mode Switcher, Cloud Status & Quick Action -->
+                <!-- Mode Switcher & Actions -->
                 <div class="flex items-center space-x-2 sm:space-x-3">
                     
-                    <!-- Cloud Sync Indicator Badge -->
                     <button @click="reconnectCloud()" title="Klik untuk rekoneksi database online" class="hidden lg:flex items-center space-x-1.5 px-2.5 py-1 rounded-lg text-[11px] font-semibold border transition cursor-pointer"
                          :class="cloudConnected ? 'bg-emerald-950/60 text-emerald-300 border-emerald-700/50 hover:bg-emerald-900' : 'bg-slate-800 text-slate-400 border-slate-700 hover:bg-slate-700'">
                         <span class="w-2 h-2 rounded-full" :class="cloudConnected ? 'bg-emerald-400 animate-pulse' : 'bg-amber-500'"></span>
@@ -159,14 +160,12 @@
                         </button>
                     </div>
 
-                    <!-- HEADER SETTINGS ICON BUTTON (Khusus Admin) -->
                     <button @click="openSettings()" 
                             class="p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-amber-400 border border-slate-700 rounded-xl transition shadow-sm cursor-pointer"
-                            title="Pengaturan Bengkel & Logo (Khusus Mode Admin)">
+                            title="Pengaturan Bengkel & Logo">
                         <i class="fa-solid fa-gear text-sm"></i>
                     </button>
 
-                    <!-- Siswa Pinjam Quick Button -->
                     <button @click="openModal('studentLoan')" class="bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 font-bold px-3 py-2 rounded-xl text-xs flex items-center space-x-1.5 shadow-lg transition active:scale-95">
                         <i class="fa-solid fa-hand-holding-hand"></i>
                         <span class="hidden sm:inline">Ajukan</span> Pinjam Alat
@@ -266,10 +265,7 @@
         <!-- ================= TAB 1: DASHBOARD ================= -->
         <div x-show="activeTab === 'dashboard'" x-cloak class="space-y-6">
             
-            <!-- Quick Summary Cards -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                
-                <!-- Card 1: Pengajuan Menunggu Approval -->
                 <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200 hover:shadow-md transition">
                     <div class="flex justify-between items-start">
                         <div>
@@ -285,7 +281,6 @@
                     </div>
                 </div>
 
-                <!-- Card 2: Alat Sedang Dipinjam -->
                 <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200 hover:shadow-md transition">
                     <div class="flex justify-between items-start">
                         <div>
@@ -299,7 +294,6 @@
                     </div>
                 </div>
 
-                <!-- Card 3: Total Alat Inventaris -->
                 <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200 hover:shadow-md transition">
                     <div class="flex justify-between items-start">
                         <div>
@@ -313,7 +307,6 @@
                     </div>
                 </div>
 
-                <!-- Card 4: Bahan Kritis -->
                 <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200 hover:shadow-md transition">
                     <div class="flex justify-between items-start">
                         <div>
@@ -328,15 +321,11 @@
                         </div>
                     </div>
                 </div>
-
             </div>
 
-            <!-- Main Dashboard Panel -->
+            <!-- Dashboard Panels -->
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                
-                <!-- Pending Approvals & Active Loans Quick List -->
                 <div class="lg:col-span-2 space-y-6">
-                    
                     <!-- Pending Approvals Section -->
                     <div class="bg-white rounded-2xl p-5 shadow-sm border border-amber-200">
                         <div class="flex justify-between items-center mb-4 pb-3 border-b border-slate-100">
@@ -447,13 +436,9 @@
                             </table>
                         </div>
                     </div>
-
                 </div>
 
-                <!-- Right Side Widgets -->
                 <div class="space-y-6">
-                    
-                    <!-- Quick Student Loan Action Banner -->
                     <div class="bg-gradient-to-br from-amber-500 to-amber-600 text-slate-950 p-5 rounded-2xl shadow-md space-y-3">
                         <div class="flex items-center space-x-3">
                             <div class="w-10 h-10 bg-slate-900 text-amber-400 rounded-xl flex items-center justify-center text-lg font-bold">
@@ -470,7 +455,6 @@
                         </button>
                     </div>
 
-                    <!-- Alert Bahan Kritis -->
                     <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200">
                         <div class="flex items-center space-x-2 mb-3 pb-2 border-b border-slate-100 text-red-600">
                             <i class="fa-solid fa-triangle-exclamation"></i>
@@ -498,7 +482,6 @@
                         </div>
                     </div>
 
-                    <!-- Institutional Info -->
                     <div class="bg-slate-900 text-white rounded-2xl p-5 shadow-md relative overflow-hidden">
                         <div class="flex items-center space-x-3 mb-3">
                             <img :src="settings.logoKananUrl" class="h-10 w-auto object-contain" alt="Logo STEMSAGO" @error="$event.target.src=defaultStemsagoSvg">
@@ -510,15 +493,12 @@
                             Sistem Terpadu Inventarisasi Alat, Stok Opname, dan Pencatatan Peminjaman Mandiri Bengkel Teknik Sepeda Motor.
                         </p>
                     </div>
-
                 </div>
-
             </div>
         </div>
 
         <!-- ================= TAB 2: PEMINJAMAN ALAT ================= -->
         <div x-show="activeTab === 'peminjaman'" x-cloak class="space-y-4">
-            
             <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div class="flex items-center space-x-3">
                     <div class="w-10 h-10 bg-indigo-100 text-indigo-700 rounded-xl flex items-center justify-center text-lg">
@@ -538,7 +518,6 @@
                 </div>
             </div>
 
-            <!-- Loan Filter Sub-Tabs -->
             <div class="flex space-x-2 border-b border-slate-200 pb-2">
                 <button @click="loanFilter = 'pending'" 
                         :class="loanFilter === 'pending' ? 'bg-slate-800 text-amber-400 font-bold' : 'bg-white text-slate-600 hover:bg-slate-100'"
@@ -566,7 +545,6 @@
                 </button>
             </div>
 
-            <!-- Loans Master Table -->
             <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-xs">
@@ -608,8 +586,6 @@
                                         </span>
                                     </td>
                                     <td class="p-3.5 text-right no-print">
-                                        
-                                        <!-- Case 1: Status Menunggu Persetujuan -->
                                         <template x-if="loan.status === 'Menunggu Persetujuan'">
                                             <div>
                                                 <template x-if="userRole === 'admin'">
@@ -628,7 +604,6 @@
                                             </div>
                                         </template>
 
-                                        <!-- Case 2: Status Dipinjam (Active Loan) -->
                                         <template x-if="loan.status === 'Dipinjam'">
                                             <div>
                                                 <template x-if="userRole === 'admin'">
@@ -642,7 +617,6 @@
                                             </div>
                                         </template>
 
-                                        <!-- Case 3: Status Dikembalikan / Ditolak -->
                                         <template x-if="loan.status === 'Dikembalikan'">
                                             <span class="text-slate-500 text-[11px] italic">
                                                 Kondisi: <strong class="text-slate-800" x-text="loan.kondisiKembali || 'Baik'"></strong>
@@ -651,7 +625,6 @@
                                         <template x-if="loan.status === 'Ditolak'">
                                             <span class="text-red-500 text-[11px] italic">Pengajuan Ditolak</span>
                                         </template>
-
                                     </td>
                                 </tr>
                             </template>
@@ -687,14 +660,20 @@
                     </select>
                 </div>
 
-                <template x-if="userRole === 'admin'">
-                    <div class="flex items-center space-x-2">
+                <div class="flex items-center space-x-2">
+                    <!-- Tombol Export Excel Tab Alat -->
+                    <button @click="exportAlatToExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3.5 py-2 rounded-xl text-xs flex items-center space-x-1.5 transition shadow active:scale-95">
+                        <i class="fa-solid fa-file-excel text-sm"></i>
+                        <span>Export Excel</span>
+                    </button>
+
+                    <template x-if="userRole === 'admin'">
                         <button @click="openModal('addAlat')" class="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold px-4 py-2 rounded-xl text-xs flex items-center space-x-2 transition">
                             <i class="fa-solid fa-plus"></i>
                             <span>Tambah Alat Baru</span>
                         </button>
-                    </div>
-                </template>
+                    </template>
+                </div>
             </div>
 
             <!-- Tools Table -->
@@ -775,14 +754,20 @@
                     </div>
                 </div>
 
-                <template x-if="userRole === 'admin'">
-                    <div class="flex items-center space-x-2">
+                <div class="flex items-center space-x-2">
+                    <!-- Tombol Export Excel Tab Stok Opname Bahan -->
+                    <button @click="exportBahanToExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3.5 py-2 rounded-xl text-xs flex items-center space-x-1.5 transition shadow active:scale-95">
+                        <i class="fa-solid fa-file-excel text-sm"></i>
+                        <span>Export Excel</span>
+                    </button>
+
+                    <template x-if="userRole === 'admin'">
                         <button @click="openModal('addBahan')" class="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold px-4 py-2 rounded-xl text-xs flex items-center space-x-2 transition">
                             <i class="fa-solid fa-plus"></i>
                             <span>Tambah Bahan Praktik</span>
                         </button>
-                    </div>
-                </template>
+                    </template>
+                </div>
             </div>
 
             <!-- Bahan Stock Table -->
@@ -858,12 +843,20 @@
                     </div>
                 </div>
 
-                <template x-if="userRole === 'admin'">
-                    <button @click="openModal('usage')" class="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold px-4 py-2.5 rounded-xl text-xs flex items-center space-x-2 transition shadow">
-                        <i class="fa-solid fa-plus-circle"></i>
-                        <span>Catat Penggunaan Baru</span>
+                <div class="flex items-center space-x-2">
+                    <!-- Tombol Export Excel Tab Penggunaan Bahan -->
+                    <button @click="exportUsageToExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3.5 py-2.5 rounded-xl text-xs flex items-center space-x-1.5 transition shadow active:scale-95">
+                        <i class="fa-solid fa-file-excel text-sm"></i>
+                        <span>Export Excel</span>
                     </button>
-                </template>
+
+                    <template x-if="userRole === 'admin'">
+                        <button @click="openModal('usage')" class="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold px-4 py-2.5 rounded-xl text-xs flex items-center space-x-2 transition shadow">
+                            <i class="fa-solid fa-plus-circle"></i>
+                            <span>Catat Penggunaan Baru</span>
+                        </button>
+                    </template>
+                </div>
             </div>
 
             <!-- Penggunaan History Table -->
@@ -907,16 +900,13 @@
         <!-- ================= TAB 6: LAPORAN & RIWAYAT (PDF PRINT) ================= -->
         <div x-show="activeTab === 'laporan'" x-cloak class="space-y-6">
             
-            <!-- Printable Official Kop Surat Header (Visible Only on Print) -->
             <div class="hidden print-only text-center mb-4">
                 <div class="flex items-center justify-between">
-                    <!-- Left Logo: Pemprov Jateng -->
                     <div class="w-24 h-24 flex items-center justify-center">
                         <img :src="settings.logoKiriUrl" class="max-h-24 max-w-24 object-contain" alt="Logo Pemprov Jateng" 
                              onerror="this.onerror=null; this.src='https://upload.wikimedia.org/wikipedia/commons/a/a2/Jawa_Tengah_co_a.png';">
                     </div>
 
-                    <!-- Center Text -->
                     <div class="text-center flex-1 px-2 leading-tight">
                         <h2 class="text-sm font-bold tracking-wider uppercase text-black">PEMERINTAH PROVINSI JAWA TENGAH</h2>
                         <h3 class="text-sm font-bold tracking-wider uppercase text-black">DINAS PENDIDIKAN DAN KEBUDAYAAN</h3>
@@ -926,14 +916,12 @@
                         <p class="text-[11px] text-black">Faksimile 0287-473886, Surat Elektronik jaya@smkn1gombong.sch.id</p>
                     </div>
 
-                    <!-- Right Logo: Stemsago -->
                     <div class="w-24 h-24 flex items-center justify-center">
                         <img :src="settings.logoKananUrl" class="max-h-24 max-w-24 object-contain" alt="Logo STEMSAGO" 
                              @error="$event.target.onerror=null; $event.target.src=defaultStemsagoSvg">
                     </div>
                 </div>
 
-                <!-- Double Underline Separator -->
                 <div class="border-double-custom mt-2 mb-4"></div>
 
                 <div class="bg-slate-100 py-1 border border-slate-300">
@@ -943,7 +931,6 @@
                 </div>
             </div>
 
-            <!-- Action Controls & Month Filter (Screen Only) -->
             <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 no-print">
                 <div>
                     <h3 class="font-bold text-slate-800 text-base">Filter & Cetak Laporan Bulanan</h3>
@@ -951,7 +938,6 @@
                 </div>
 
                 <div class="flex flex-wrap items-center gap-3 w-full lg:w-auto">
-                    <!-- Month Selector -->
                     <div class="flex items-center space-x-2 bg-slate-50 p-1.5 rounded-xl border border-slate-200">
                         <i class="fa-solid fa-calendar-days text-amber-600 text-xs pl-2"></i>
                         <label class="text-xs font-bold text-slate-700">Bulan:</label>
@@ -959,7 +945,6 @@
                                class="bg-white border border-slate-200 rounded-lg text-xs font-bold px-2 py-1 focus:ring-2 focus:ring-amber-500 focus:outline-none">
                     </div>
 
-                    <!-- Category Selector -->
                     <div class="flex items-center space-x-2 bg-slate-50 p-1.5 rounded-xl border border-slate-200">
                         <i class="fa-solid fa-filter text-indigo-600 text-xs pl-2"></i>
                         <select x-model="selectedReportType" class="bg-white border border-slate-200 rounded-lg text-xs font-bold px-2 py-1 focus:ring-2 focus:ring-amber-500 focus:outline-none">
@@ -970,7 +955,6 @@
                         </select>
                     </div>
 
-                    <!-- Print Button -->
                     <button type="button" @click="triggerPrint()" class="bg-slate-900 hover:bg-slate-800 text-amber-400 font-bold px-4 py-2.5 rounded-xl text-xs flex items-center space-x-2 transition shadow-md active:scale-95 cursor-pointer">
                         <i class="fa-solid fa-print text-sm"></i>
                         <span>Cetak Laporan (PDF)</span>
@@ -978,7 +962,6 @@
                 </div>
             </div>
 
-            <!-- Periode Indicator Banner -->
             <div class="bg-amber-50 border border-amber-200 rounded-xl p-3 flex justify-between items-center text-xs text-amber-900 no-print">
                 <div class="flex items-center space-x-2">
                     <i class="fa-solid fa-circle-info text-amber-600"></i>
@@ -989,9 +972,7 @@
                 </div>
             </div>
 
-            <!-- Report Monthly Overview Cards -->
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                
                 <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm print-card">
                     <p class="text-[11px] font-bold text-slate-500 uppercase">Peminjaman Alat (<span x-text="formatMonthIndo(selectedReportMonth)"></span>)</p>
                     <h3 class="text-2xl font-black text-slate-800 mt-1" x-text="monthlyLoans.length + ' Transaksi'"></h3>
@@ -1012,12 +993,9 @@
                     <h3 class="text-2xl font-black text-slate-800 mt-1" x-text="bahanList.length + ' Jenis Item'"></h3>
                     <p class="text-xs text-red-600 font-bold mt-1" x-text="lowStockCount > 0 ? lowStockCount + ' Bahan Kritis/Habis' : 'Semua Stok Bahan Aman'"></p>
                 </div>
-
             </div>
 
-            <!-- DETAILED REPORT TABLES (PRINTABLE) -->
-
-            <!-- Section 1: Peminjaman Alat -->
+            <!-- Printable Tables -->
             <template x-if="selectedReportType === 'all' || selectedReportType === 'peminjaman'">
                 <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200 space-y-3 print-card">
                     <div class="flex justify-between items-center border-b pb-2">
@@ -1068,7 +1046,6 @@
                 </div>
             </template>
 
-            <!-- Section 2: Penggunaan Bahan Praktik -->
             <template x-if="selectedReportType === 'all' || selectedReportType === 'penggunaan'">
                 <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200 space-y-3 print-card">
                     <div class="flex justify-between items-center border-b pb-2">
@@ -1115,7 +1092,6 @@
                 </div>
             </template>
 
-            <!-- Section 3: Stok Opname Bahan Praktik -->
             <template x-if="selectedReportType === 'all' || selectedReportType === 'opname'">
                 <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200 space-y-3 print-card">
                     <div class="flex justify-between items-center border-b pb-2">
@@ -1162,7 +1138,7 @@
                 </div>
             </template>
 
-            <!-- Printable Signature Block -->
+            <!-- Printable Signature -->
             <div class="hidden print-only mt-8 pt-4">
                 <div class="flex justify-between items-start text-xs">
                     <div class="text-center w-64 space-y-12">
@@ -1195,7 +1171,7 @@
 
     <!-- MODALS CONTAINER -->
 
-    <!-- Modal Quick Settings -->
+    <!-- Modal Settings -->
     <div x-show="modals.settingsModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 no-print">
         <div class="bg-white rounded-2xl max-w-2xl w-full p-6 shadow-2xl space-y-5 max-h-[90vh] overflow-y-auto custom-scrollbar">
             <div class="flex justify-between items-center border-b pb-3">
@@ -1211,10 +1187,7 @@
                 <button @click="modals.settingsModal = false" class="text-slate-400 hover:text-slate-600 p-1"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
 
-            <!-- Form Pengaturan Identitas & Logo -->
             <form @submit.prevent="saveSettings()" class="space-y-4 text-xs">
-                
-                <!-- Logo Management Section -->
                 <div class="bg-amber-50/60 border border-amber-200 rounded-xl p-4 space-y-3">
                     <h4 class="font-bold text-slate-800 text-xs flex items-center space-x-2">
                         <i class="fa-solid fa-images text-amber-600"></i>
@@ -1222,7 +1195,6 @@
                     </h4>
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <!-- Logo Kiri -->
                         <div class="bg-white p-3 rounded-xl border border-slate-200 space-y-2">
                             <p class="font-bold text-slate-700">1. Logo Kop Kiri (Pemprov Jateng)</p>
                             <div class="flex items-center space-x-3">
@@ -1234,7 +1206,6 @@
                             </div>
                         </div>
 
-                        <!-- Logo Kanan -->
                         <div class="bg-white p-3 rounded-xl border border-slate-200 space-y-2">
                             <p class="font-bold text-slate-700">2. Logo Kop Kanan (STEMSAGO)</p>
                             <div class="flex items-center space-x-3">
@@ -1248,7 +1219,6 @@
                     </div>
                 </div>
 
-                <!-- Text Header Settings -->
                 <div class="space-y-3 bg-slate-50 p-4 rounded-xl border border-slate-200">
                     <h4 class="font-bold text-slate-800 text-xs flex items-center space-x-2">
                         <i class="fa-solid fa-building text-amber-600"></i>
@@ -1277,7 +1247,6 @@
                     </div>
                 </div>
 
-                <!-- Pengesahan Tanda Tangan -->
                 <div class="space-y-3 bg-slate-50 p-4 rounded-xl border border-slate-200">
                     <h4 class="font-bold text-slate-800 text-xs flex items-center space-x-2">
                         <i class="fa-solid fa-signature text-amber-600"></i>
@@ -1319,7 +1288,6 @@
                 </div>
             </form>
 
-            <!-- Ubah PIN Akses Admin Section -->
             <div class="bg-slate-900 text-white rounded-xl p-4 space-y-3 border border-slate-800">
                 <h4 class="font-bold text-amber-400 text-xs flex items-center space-x-2">
                     <i class="fa-solid fa-key"></i>
@@ -1351,14 +1319,13 @@
                 </form>
             </div>
 
-            <!-- Footer Close -->
             <div class="flex justify-end border-t pt-3">
                 <button type="button" @click="modals.settingsModal = false" class="px-5 py-2 bg-slate-200 hover:bg-slate-300 text-slate-800 rounded-xl font-bold transition">Tutup</button>
             </div>
         </div>
     </div>
 
-    <!-- Modal Admin Auth (PIN Check) -->
+    <!-- Modal Admin Auth -->
     <div x-show="modals.adminPin" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 no-print">
         <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl space-y-4" @click.away="modals.adminPin = false">
             <div class="text-center">
@@ -1381,7 +1348,6 @@
                 </div>
             </form>
 
-            <!-- Reset PIN Recovery Link -->
             <div class="text-center pt-2 border-t border-slate-100">
                 <button type="button" @click="resetAdminPinPrompt()" class="text-xs text-amber-700 hover:text-amber-800 font-semibold underline">
                     Lupa PIN Admin?
@@ -1390,7 +1356,7 @@
         </div>
     </div>
 
-    <!-- Modal Peminjaman Alat Mandiri (Siswa) -->
+    <!-- Modal Form Pinjam Mandiri -->
     <div x-show="modals.studentLoan" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 no-print" @click.away="modals.studentLoan = false">
         <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto custom-scrollbar">
             <div class="flex justify-between items-center border-b pb-3">
@@ -1407,7 +1373,6 @@
             </div>
 
             <form @submit.prevent="submitStudentLoan()" class="space-y-4 text-xs">
-                <!-- Peminjam Info -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-slate-50 p-3 rounded-xl border border-slate-200">
                     <div>
                         <label class="font-bold text-slate-700 block mb-1">Nama Peminjam <span class="text-red-500">*</span></label>
@@ -1426,7 +1391,6 @@
                     </div>
                 </div>
 
-                <!-- Section: Daftar Alat yang Dipinjam -->
                 <div class="space-y-3">
                     <div class="flex justify-between items-center border-b pb-1">
                         <label class="font-bold text-slate-800 text-xs flex items-center space-x-1.5">
@@ -1485,7 +1449,7 @@
         </div>
     </div>
 
-    <!-- Modal Tandai Pengembalian Alat (Perbaikan x-if) -->
+    <!-- Modal Tandai Kembali -->
     <div x-show="modals.return" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 no-print" @click.away="modals.return = false">
         <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
             <div class="flex justify-between items-center border-b pb-3">
@@ -1528,7 +1492,7 @@
         </div>
     </div>
 
-    <!-- Modal Form Inventaris Alat (Tambah / Edit) -->
+    <!-- Modal Form Alat -->
     <div x-show="modals.alat" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 no-print" @click.away="modals.alat = false">
         <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto custom-scrollbar">
             <div class="flex justify-between items-center border-b pb-3">
@@ -1608,7 +1572,7 @@
         </div>
     </div>
 
-    <!-- Modal Form Bahan Praktik (Tambah Baru) -->
+    <!-- Modal Form Bahan -->
     <div x-show="modals.bahan" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 no-print" @click.away="modals.bahan = false">
         <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
             <div class="flex justify-between items-center border-b pb-3">
@@ -1673,7 +1637,7 @@
         </div>
     </div>
 
-    <!-- Modal Adjust Stok Opname Bahan (Perbaikan x-if) -->
+    <!-- Modal Adjust Opname -->
     <div x-show="modals.opname" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 no-print" @click.away="modals.opname = false">
         <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
             <div class="flex justify-between items-center border-b pb-3">
@@ -1716,7 +1680,7 @@
         </div>
     </div>
 
-    <!-- Modal Catat Penggunaan Bahan Praktik -->
+    <!-- Modal Catat Penggunaan -->
     <div x-show="modals.usage" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 no-print" @click.away="modals.usage = false">
         <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
             <div class="flex justify-between items-center border-b pb-3">
@@ -1779,7 +1743,7 @@
         </div>
     </div>
 
-    <!-- Modal Konfirmasi Hapus Data -->
+    <!-- Modal Confirm Delete -->
     <div x-show="modals.confirmDelete.show" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 no-print" @click.away="modals.confirmDelete.show = false">
         <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl space-y-4 text-center">
             <div class="w-12 h-12 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto text-xl">
@@ -1796,14 +1760,12 @@
         </div>
     </div>
 
-    <!-- APPLICATION JAVASCRIPT LOGIC -->
+    <!-- JAVASCRIPT LOGIC -->
     <script>
-        // UTF-8 Safe Base64 Encoder
         function toUtf8Base64(str) {
             return btoa(unescape(encodeURIComponent(str)));
         }
 
-        // Global SVG Fallbacks
         window.defaultStemsagoSvg = "data:image/svg+xml;base64," + toUtf8Base64(`
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500">
                 <circle cx="250" cy="120" r="100" fill="#FFD700"/>
@@ -1856,7 +1818,6 @@
                 selectedReportMonth: new Date().toISOString().slice(0, 7),
                 selectedReportType: 'all',
 
-                // Settings
                 settings: {
                     namaAplikasi: 'SISTEM MANAJEMEN BENGKEL TSM',
                     namaSekolah: 'SMK NEGERI 1 GOMBONG',
@@ -1905,15 +1866,13 @@
                 ],
 
                 bahanList: [
-                    { id: '1', kodeBahan: 'BHN-TSM-01', namaBahan: 'Oli Mesin MPX2 10W-30 0.8L', spesifikasi: 'Oli Matic Honda', satuan: 'Botol', stokSistem: 24, stokFisik: 24, minStok: 5 },
-                    { id: '2', kodeBahan: 'BHN-TSM-02', namaBahan: 'Busi CPR9EA-9 (Vario/Beat)', spesifikasi: 'Busi Standard NGK', satuan: 'Pcs', stokSistem: 3, stokFisik: 3, minStok: 10 },
-                    { id: '3', kodeBahan: 'BHN-TSM-03', namaBahan: 'Cairan Injection Cleaner 500ml', spesifikasi: 'Spray Can Cleaner', satuan: 'Kaleng', stokSistem: 1, stokFisik: 1, minStok: 3 },
-                    { id: '4', kodeBahan: 'BHN-TSM-04', namaBahan: 'Kain Majun / Lap Praktik', spesifikasi: 'Katun Pembersih', satuan: 'Kg', stokSistem: 15, stokFisik: 15, minStok: 4 },
-                    { id: '5', kodeBahan: 'BHN-TSM-05', namaBahan: 'Minyak Rem DOT 4 Honda 50ml', spesifikasi: 'Brake Fluid', satuan: 'Botol', stokSistem: 8, stokFisik: 8, minStok: 3 }
+                    { id: '1', kodeBahan: 'BHN-TSM-01', namaBahan: 'Mata Gergaji Besi', spesifikasi: '12" inch 300 mm BAHCO SANDVIK - 18TPI', satuan: 'Pcs', stokSistem: 8, stokFisik: 8, minStok: 3 },
+                    { id: '2', kodeBahan: 'BHN-TSM-02', namaBahan: 'Thinner', spesifikasi: 'Impala Thinner 5 L', satuan: 'Kaleng', stokSistem: 5, stokFisik: 5, minStok: 2 },
+                    { id: '3', kodeBahan: 'BHN-TSM-03', namaBahan: 'Baut Bleeding (Niple)', spesifikasi: 'Drat Kasar Screw Bleeder Motor Honda', satuan: 'Pcs', stokSistem: 10, stokFisik: 10, minStok: 4 }
                 ],
 
                 usageLogs: [
-                    { id: '101', bahanId: '1', namaBahan: 'Oli Mesin MPX2 10W-30 0.8L', jumlah: 2, satuan: 'Botol', kelas: 'XI TSM 1', topik: 'Praktik Ganti Oli & Tune Up CVT', instruktur: 'Sugeng Wibowo, S.Pd.', timestamp: new Date().toISOString() }
+                    { id: '101', bahanId: '1', namaBahan: 'Mata Gergaji Besi', jumlah: 2, satuan: 'Pcs', kelas: 'XI TSM 1', topik: 'Praktik Pemotongan Logam Dasar', instruktur: 'Sugeng Wibowo, S.Pd.', timestamp: new Date().toISOString() }
                 ],
 
                 loanList: [
@@ -2048,14 +2007,12 @@
                     }
                 },
 
-                // INTEGRASI UTAMA 1: PERBAIKAN DELETEDOC CLOUD (MENCEGAH DATA KEMBALI MUNCUL)
                 async deleteCollectionItem(collectionName, itemId) {
                     try {
                         if (!this.cloudConnected || !this.db) return;
                         const { doc, deleteDoc } = window.FirebaseSDK;
                         const appId = typeof __app_id !== 'undefined' ? __app_id : 'tsm-bengkel-gombong';
                         await deleteDoc(doc(this.db, 'artifacts', appId, 'public', 'data', collectionName, itemId));
-                        console.log(`Document ${itemId} deleted from cloud.`);
                     } catch (err) {
                         console.log('Cloud delete error:', err);
                     }
@@ -2079,6 +2036,71 @@
                 showToast(title, message, type = 'success') {
                     this.toast = { show: true, title, message, type };
                     setTimeout(() => { this.toast.show = false; }, 3500);
+                },
+
+                // ================= EXPORT EXCEL FUNCTIONS =================
+                downloadExcel(dataArray, filenamePrefix) {
+                    if (!dataArray || dataArray.length === 0) {
+                        this.showToast('Data Kosong', 'Tidak ada data untuk diexport', 'error');
+                        return;
+                    }
+                    if (typeof XLSX === 'undefined') {
+                        this.showToast('Gagal', 'Pustaka Excel belum siap. Silakan coba lagi.', 'error');
+                        return;
+                    }
+                    const worksheet = XLSX.utils.json_to_sheet(dataArray);
+                    const workbook = XLSX.utils.book_new();
+                    XLSX.utils.book_append_sheet(workbook, worksheet, 'Data');
+                    
+                    const dateStr = new Date().toISOString().slice(0, 10);
+                    XLSX.writeFile(workbook, `${filenamePrefix}_${dateStr}.xlsx`);
+                    this.showToast('Export Berhasil', `File ${filenamePrefix}_${dateStr}.xlsx berhasil diunduh`);
+                },
+
+                exportAlatToExcel() {
+                    const data = this.filteredAlat.map((item, index) => ({
+                        'No': index + 1,
+                        'Kode Alat': item.kodeAlat,
+                        'Nama Alat': item.namaAlat,
+                        'Merk': item.merk || '-',
+                        'Kategori': item.kategori,
+                        'Lokasi Rak': item.lokasiRak,
+                        'Total Unit': item.jumlahTotal,
+                        'Unit Tersedia': item.jumlahTersedia,
+                        'Kondisi Baik': item.kondisiBaik,
+                        'Perlu Servis': item.kondisiServis,
+                        'Kondisi Rusak': item.kondisiRusak
+                    }));
+                    this.downloadExcel(data, 'Inventaris_Alat_TSM');
+                },
+
+                exportBahanToExcel() {
+                    const data = this.filteredBahan.map((item, index) => ({
+                        'No': index + 1,
+                        'Kode Bahan': item.kodeBahan,
+                        'Nama Bahan Praktik': item.namaBahan,
+                        'Spesifikasi': item.spesifikasi || '-',
+                        'Satuan': item.satuan,
+                        'Stok Sistem': item.stokSistem,
+                        'Fisik (Opname)': item.stokFisik,
+                        'Selisih': item.stokFisik - item.stokSistem,
+                        'Status Stok': item.stokSistem <= 0 ? 'Habis' : (item.stokSistem <= item.minStok ? 'Kritis' : 'Cukup')
+                    }));
+                    this.downloadExcel(data, 'Stok_Opname_Bahan_TSM');
+                },
+
+                exportUsageToExcel() {
+                    const data = this.usageLogs.map((item, index) => ({
+                        'No': index + 1,
+                        'Waktu & Tanggal': this.formatDateTime(item.timestamp),
+                        'Nama Bahan Praktik': item.namaBahan,
+                        'Jumlah Pakai': item.jumlah,
+                        'Satuan': item.satuan,
+                        'Kelas / Kelompok': item.kelas,
+                        'Topik Praktik': item.topik,
+                        'Instruktur': item.instruktur
+                    }));
+                    this.downloadExcel(data, 'Penggunaan_Bahan_TSM');
                 },
 
                 openSettings() {
@@ -2382,7 +2404,6 @@
                     this.showToast('Pengembalian Berhasil', `Alat yang dipinjam ${loan.namaPeminjam} telah ditandai kembali ke inventaris`);
                 },
 
-                // INTEGRASI UTAMA 2: PENENTUAN KODE BAHAN OTOMATIS ANTI-DUPLIKASI (NILAI MAKSIMAL + 1)
                 openModal(type) {
                     if (type === 'settingsModal') {
                         this.openSettings();
@@ -2420,7 +2441,6 @@
                     this.modals.alat = true;
                 },
 
-                // INTEGRASI UTAMA 3: PERHITUNGAN STOK TERSEDIA BERDASARKAN MULTI-ITEM LOAN
                 saveAlat() {
                     const total = Number(this.formAlat.jumlahTotal);
                     const baik = Number(this.formAlat.kondisiBaik);
@@ -2437,7 +2457,6 @@
                     if (this.formAlat.id) {
                         const index = this.alatList.findIndex(a => a.id === this.formAlat.id);
                         if (index !== -1) {
-                            // Kalkulasi mendukung single & multi item
                             const activeLoanForThis = this.loanList
                                 .filter(l => l.status === 'Dipinjam')
                                 .reduce((acc, loan) => {
@@ -2475,7 +2494,6 @@
                     this.modals.confirmDelete = { show: true, type, id, name };
                 },
 
-                // INTEGRASI UTAMA 4: EKSEKUSI HAPUS PERMANEN DI LOKAL DAN CLOUD FIRESTORE
                 async executeDelete() {
                     const { type, id } = this.modals.confirmDelete;
                     
