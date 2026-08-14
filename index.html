@@ -5,21 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistem Manajemen Bengkel TSM - SMKN 1 Gombong</title>
     
-    <!-- Preconnect & DNS Prefetch -->
-    <link rel="preconnect" href="https://cdn.tailwindcss.com" crossorigin>
-    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
-    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
-    <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
-
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     
     <!-- FontAwesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" media="print" onload="this.media='all'">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
     <!-- Alpine.js -->
@@ -59,42 +53,12 @@
             @page { size: A4 portrait; margin: 0.8cm; }
             table { width: 100% !important; border-collapse: collapse !important; }
         }
-        .custom-scrollbar::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-            background: #f1f5f9;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
-            border-radius: 4px;
-        }
-        .border-double-custom {
-            border-bottom: 3px solid black;
-            position: relative;
-        }
-        .border-double-custom::after {
-            content: '';
-            display: block;
-            border-bottom: 1px solid black;
-            margin-top: 2px;
-        }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        .border-double-custom { border-bottom: 3px solid black; position: relative; }
+        .border-double-custom::after { content: ''; display: block; border-bottom: 1px solid black; margin-top: 2px; }
     </style>
-    
-    <!-- Firebase SDK Modules -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, deleteDoc, onSnapshot, collection, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-        window.FirebaseSDK = {
-            initializeApp, getAuth, signInAnonymously, signInWithCustomToken,
-            getFirestore, doc, setDoc, deleteDoc, onSnapshot, collection, getDocs
-        };
-
-        window.dispatchEvent(new CustomEvent('firebase-sdk-loaded'));
-    </script>
 </head>
 <body class="bg-slate-100 text-slate-800 font-sans antialiased min-h-screen flex flex-col" x-data="tsmApp()" x-init="initApp()">
 
@@ -106,59 +70,63 @@
                 <!-- Dual Logos & Dynamic Title -->
                 <div class="flex items-center space-x-3 sm:space-x-4">
                     <div class="flex items-center space-x-2 sm:space-x-3 bg-white/10 p-1.5 rounded-xl backdrop-blur-sm border border-white/10">
-                        <!-- Logo SMKN 1 Gombong (STEMSAGO) -->
+                        <!-- Logo STEMSAGO -->
                         <div class="h-10 sm:h-12 w-10 sm:w-12 flex items-center justify-center overflow-hidden rounded-lg bg-white/10 p-0.5">
-                            <img :src="settings.logoKananUrl" 
+                            <img :src="settings.logoKananUrl || defaultLogo" 
                                  alt="Logo SMKN 1 Gombong" 
                                  class="max-h-full max-w-full object-contain transition-transform hover:scale-105"
-                                 @error="$event.target.onerror=null; $event.target.src=defaultStemsagoSvg">
+                                 @error="$event.target.onerror=null; $event.target.src=defaultLogo">
                         </div>
                         
                         <div class="h-8 w-px bg-slate-600/60"></div>
 
                         <!-- Logo TSM -->
                         <div class="h-10 sm:h-12 w-10 sm:w-12 flex items-center justify-center overflow-hidden rounded-lg bg-white/10 p-0.5">
-                            <img :src="settings.logoTsmUrl" 
+                            <img :src="settings.logoTsmUrl || defaultLogo" 
                                  alt="Logo TSM SMKN 1 Gombong" 
                                  class="max-h-full max-w-full object-contain transition-transform hover:scale-105"
-                                 @error="$event.target.onerror=null; $event.target.src=defaultTsmSvg">
+                                 @error="$event.target.onerror=null; $event.target.src=defaultLogo">
                         </div>
                     </div>
 
                     <div>
                         <div class="flex items-center space-x-2">
-                            <span class="bg-amber-500 text-slate-950 text-[10px] sm:text-xs font-black px-2 py-0.5 rounded tracking-wide uppercase" x-text="settings.singkatanBengkel">TSM STEMSAGO</span>
+                            <span class="bg-amber-500 text-slate-950 text-[10px] sm:text-xs font-black px-2 py-0.5 rounded tracking-wide uppercase" x-text="settings.singkatanBengkel || 'TSM STEMSAGO'">TSM STEMSAGO</span>
                             <span class="text-xs text-slate-400 hidden md:inline">Auto Service</span>
                         </div>
-                        <h1 class="text-base sm:text-xl font-bold tracking-tight text-white leading-tight" x-text="settings.namaAplikasi">SISTEM MANAJEMEN BENGKEL TSM</h1>
-                        <p class="text-xs text-slate-300 hidden sm:block" x-text="settings.namaSekolah"></p>
+                        <h1 class="text-base sm:text-xl font-bold tracking-tight text-white leading-tight" x-text="settings.namaAplikasi || 'SISTEM MANAJEMEN BENGKEL TSM'">SISTEM MANAJEMEN BENGKEL TSM</h1>
+                        <p class="text-xs text-slate-300 hidden sm:block" x-text="settings.namaSekolah || 'SMK NEGERI 1 GOMBONG'"></p>
                     </div>
                 </div>
 
-                <!-- Mode Switcher & Actions -->
+                <!-- User Auth Status & Action Buttons -->
                 <div class="flex items-center space-x-2 sm:space-x-3">
                     
-                    <button @click="reconnectCloud()" title="Status Koneksi Firebase Database" class="hidden lg:flex items-center space-x-1.5 px-2.5 py-1 rounded-lg text-[11px] font-semibold border transition cursor-pointer"
+                    <button @click="initApp()" title="Status Firebase Cloud" class="hidden lg:flex items-center space-x-1.5 px-2.5 py-1 rounded-lg text-[11px] font-semibold border transition cursor-pointer"
                          :class="cloudConnected ? 'bg-emerald-950/60 text-emerald-300 border-emerald-700/50 hover:bg-emerald-900' : 'bg-red-950/60 text-red-300 border-red-700/50 hover:bg-red-900'">
                         <span class="w-2 h-2 rounded-full" :class="cloudConnected ? 'bg-emerald-400 animate-pulse' : 'bg-red-500'"></span>
-                        <span x-text="cloudConnected ? 'Firebase Online (Utama)' : 'Terputus (Klik Hubungkan)'"></span>
+                        <span x-text="cloudConnected ? 'Firebase Online' : 'Terputus'"></span>
                     </button>
 
-                    <!-- ROLE BADGE / TOGGLE BUTTON -->
-                    <div class="flex items-center bg-slate-800 rounded-xl p-1 border border-slate-700 shadow-inner">
-                        <button @click="switchRole('pelihat')" 
-                                :class="userRole === 'pelihat' ? 'bg-amber-500 text-slate-950 font-bold shadow' : 'text-slate-400 hover:text-white'"
-                                class="px-2.5 sm:px-3 py-1.5 rounded-lg text-xs flex items-center space-x-1.5 transition">
-                            <i class="fa-solid fa-eye"></i>
-                            <span class="hidden sm:inline">Mode</span> Pelihat
-                        </button>
-                        <button @click="switchRole('admin')" 
-                                :class="userRole === 'admin' ? 'bg-amber-500 text-slate-950 font-bold shadow' : 'text-slate-400 hover:text-white'"
-                                class="px-2.5 sm:px-3 py-1.5 rounded-lg text-xs flex items-center space-x-1.5 transition">
+                    <!-- AUTH USER BADGE & LOGIN/LOGOUT -->
+                    <template x-if="currentUser">
+                        <div class="flex items-center space-x-2 bg-slate-800 px-3 py-1.5 rounded-xl border border-slate-700">
+                            <div class="text-right">
+                                <p class="text-[10px] text-amber-400 font-bold uppercase" x-text="userRole === 'admin' ? 'ADMIN BENGKEL' : 'PELIHAT'"></p>
+                                <p class="text-[11px] text-slate-300 font-mono truncate max-w-[120px]" x-text="currentUser.email"></p>
+                            </div>
+                            <button @click="logout()" class="p-1.5 bg-red-600/20 hover:bg-red-600 text-red-400 hover:text-white rounded-lg transition" title="Logout">
+                                <i class="fa-solid fa-right-from-bracket text-xs"></i>
+                            </button>
+                        </div>
+                    </template>
+
+                    <template x-if="!currentUser">
+                        <button @click="modals.login = true" class="bg-slate-800 hover:bg-slate-700 text-amber-400 border border-slate-700 px-3 py-2 rounded-xl text-xs font-bold flex items-center space-x-1.5 transition">
                             <i class="fa-solid fa-user-shield"></i>
-                            <span class="hidden sm:inline">Mode</span> Admin
+                            <span>Login Admin</span>
                         </button>
-                    </div>
+                    </template>
 
                     <button @click="openSettings()" 
                             class="p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-amber-400 border border-slate-700 rounded-xl transition shadow-sm cursor-pointer"
@@ -227,6 +195,15 @@
                     <i class="fa-solid fa-file-lines"></i>
                     <span>Laporan & Cetak</span>
                 </button>
+
+                <template x-if="userRole === 'admin'">
+                    <button @click="activeTab = 'audit'" 
+                            :class="activeTab === 'audit' ? 'bg-amber-500 text-slate-950 font-bold shadow' : 'text-slate-300 hover:bg-slate-700 hover:text-white'"
+                            class="px-3.5 py-2 rounded-lg text-xs sm:text-sm flex items-center space-x-2 whitespace-nowrap transition">
+                        <i class="fa-solid fa-list-check"></i>
+                        <span>Audit Log</span>
+                    </button>
+                </template>
             </div>
         </div>
     </nav>
@@ -262,2466 +239,196 @@
             </div>
         </div>
 
-        <!-- ================= TAB 1: DASHBOARD ================= -->
-        <div x-show="activeTab === 'dashboard'" x-cloak class="space-y-6">
-            
+        <!-- DASHBOARD TAB -->
+        <div x-show="activeTab === 'dashboard'" class="space-y-6">
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200 hover:shadow-md transition">
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Menunggu Persetujuan</p>
-                            <h3 class="text-2xl font-bold text-slate-800 mt-1" x-text="pendingLoansCount">0</h3>
-                            <p class="text-xs mt-1" :class="pendingLoansCount > 0 ? 'text-amber-600 font-bold' : 'text-slate-400'">
-                                <span x-text="pendingLoansCount > 0 ? 'Perlu tindakan Admin' : 'Tidak ada antrean'"></span>
-                            </p>
-                        </div>
-                        <div class="w-12 h-12 bg-amber-100 text-amber-700 rounded-xl flex items-center justify-center text-xl">
-                            <i class="fa-solid fa-hourglass-half"></i>
-                        </div>
-                    </div>
+                <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200">
+                    <p class="text-xs font-semibold text-slate-500 uppercase">Menunggu Persetujuan</p>
+                    <h3 class="text-2xl font-bold text-slate-800 mt-1" x-text="pendingLoansCount">0</h3>
                 </div>
-
-                <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200 hover:shadow-md transition">
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Alat Aktif Dipinjam</p>
-                            <h3 class="text-2xl font-bold text-slate-800 mt-1" x-text="activeLoansCount">0</h3>
-                            <p class="text-xs text-slate-500 mt-1">Siswa/Kelompok Praktik</p>
-                        </div>
-                        <div class="w-12 h-12 bg-indigo-100 text-indigo-600 rounded-xl flex items-center justify-center text-xl">
-                            <i class="fa-solid fa-toolbox"></i>
-                        </div>
-                    </div>
+                <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200">
+                    <p class="text-xs font-semibold text-slate-500 uppercase">Alat Aktif Dipinjam</p>
+                    <h3 class="text-2xl font-bold text-slate-800 mt-1" x-text="activeLoansCount">0</h3>
                 </div>
-
-                <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200 hover:shadow-md transition">
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Jenis Alat</p>
-                            <h3 class="text-2xl font-bold text-slate-800 mt-1" x-text="totalToolItems">0</h3>
-                            <p class="text-xs text-slate-500 mt-1">Total Unit: <span class="font-bold text-slate-700" x-text="totalToolUnits">0</span> Unit</p>
-                        </div>
-                        <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center text-xl">
-                            <i class="fa-solid fa-screwdriver-wrench"></i>
-                        </div>
-                    </div>
+                <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200">
+                    <p class="text-xs font-semibold text-slate-500 uppercase">Total Jenis Alat</p>
+                    <h3 class="text-2xl font-bold text-slate-800 mt-1" x-text="totalToolItems">0</h3>
                 </div>
-
-                <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200 hover:shadow-md transition">
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Stok Bahan Kritis</p>
-                            <h3 class="text-2xl font-bold text-slate-800 mt-1" x-text="lowStockCount">0</h3>
-                            <p class="text-xs mt-1" :class="lowStockCount > 0 ? 'text-red-600 font-bold' : 'text-emerald-600'">
-                                <span x-text="lowStockCount > 0 ? 'Perlu Restock Bahan' : 'Semua Stok Aman'"></span>
-                            </p>
-                        </div>
-                        <div class="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-xl flex items-center justify-center text-xl">
-                            <i class="fa-solid fa-boxes-packing"></i>
-                        </div>
-                    </div>
+                <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200">
+                    <p class="text-xs font-semibold text-slate-500 uppercase">Stok Bahan Kritis</p>
+                    <h3 class="text-2xl font-bold text-slate-800 mt-1" x-text="lowStockCount">0</h3>
                 </div>
             </div>
-
-            <!-- Dashboard Panels -->
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div class="lg:col-span-2 space-y-6">
-                    <!-- Pending Approvals Section -->
-                    <div class="bg-white rounded-2xl p-5 shadow-sm border border-amber-200">
-                        <div class="flex justify-between items-center mb-4 pb-3 border-b border-slate-100">
-                            <div class="flex items-center space-x-2">
-                                <span class="w-2.5 h-2.5 rounded-full bg-amber-500 animate-ping"></span>
-                                <h3 class="font-bold text-slate-800">Pengajuan Peminjaman Alat Mandiri (Siswa)</h3>
-                            </div>
-                            <span class="text-xs font-bold px-2.5 py-1 rounded-full bg-amber-100 text-amber-800" x-text="pendingLoans.length + ' Pengajuan'"></span>
-                        </div>
-
-                        <div class="overflow-x-auto">
-                            <table class="w-full text-left text-xs">
-                                <thead class="bg-slate-50 text-slate-500 uppercase tracking-wider font-semibold">
-                                    <tr>
-                                        <th class="p-2.5">Peminjam / NIS</th>
-                                        <th class="p-2.5">Kelas</th>
-                                        <th class="p-2.5">Alat & Jml</th>
-                                        <th class="p-2.5">Tgl Pengajuan</th>
-                                        <th class="p-2.5 text-right">Aksi Admin</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="divide-y divide-slate-100">
-                                    <template x-for="loan in pendingLoans" :key="loan.id">
-                                        <tr class="hover:bg-slate-50">
-                                            <td class="p-2.5 font-semibold text-slate-800">
-                                                <p x-text="loan.namaPeminjam"></p>
-                                                <p class="text-[10px] text-slate-400" x-text="'NIS: ' + (loan.nis || '-')"></p>
-                                            </td>
-                                            <td class="p-2.5 text-slate-600 font-medium" x-text="loan.kelas"></td>
-                                            <td class="p-2.5 font-bold text-amber-700" x-text="loan.namaAlat + ' (' + loan.jumlah + ' Unit)'"></td>
-                                            <td class="p-2.5 text-slate-500" x-text="formatDateTime(loan.tanggalPinjam)"></td>
-                                            <td class="p-2.5 text-right space-x-1">
-                                                <template x-if="userRole === 'admin'">
-                                                    <div class="flex items-center justify-end space-x-1">
-                                                        <button @click="approveLoan(loan.id)" class="bg-emerald-600 hover:bg-emerald-700 text-white px-2.5 py-1 rounded-lg text-[11px] font-bold transition shadow-sm">
-                                                            <i class="fa-solid fa-check mr-1"></i>Setujui
-                                                        </button>
-                                                        <button @click="rejectLoan(loan.id)" class="bg-red-50 hover:bg-red-100 text-red-600 px-2 py-1 rounded-lg text-[11px] font-semibold transition">
-                                                            Tolak
-                                                        </button>
-                                                    </div>
-                                                </template>
-                                                <template x-if="userRole !== 'admin'">
-                                                    <span class="text-[11px] italic text-amber-600 bg-amber-50 px-2 py-1 rounded">Menunggu Admin</span>
-                                                </template>
-                                            </td>
-                                        </tr>
-                                    </template>
-                                    <template x-if="pendingLoans.length === 0">
-                                        <tr>
-                                            <td colspan="5" class="p-6 text-center text-slate-400">Tidak ada pengajuan peminjaman yang menunggu persetujuan.</td>
-                                        </tr>
-                                    </template>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                    <!-- Active Loans Table -->
-                    <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200">
-                        <div class="flex justify-between items-center mb-4 pb-3 border-b border-slate-100">
-                            <div class="flex items-center space-x-2">
-                                <i class="fa-solid fa-clock-rotate-left text-amber-500"></i>
-                                <h3 class="font-bold text-slate-800">Daftar Alat Sedang Dipinjam</h3>
-                            </div>
-                            <button @click="activeTab = 'peminjaman'" class="text-xs font-semibold text-amber-600 hover:text-amber-700 flex items-center space-x-1">
-                                <span>Lihat Semua</span>
-                                <i class="fa-solid fa-chevron-right text-[10px]"></i>
-                            </button>
-                        </div>
-
-                        <div class="overflow-x-auto">
-                            <table class="w-full text-left text-xs">
-                                <thead class="bg-slate-50 text-slate-500 uppercase tracking-wider font-semibold">
-                                    <tr>
-                                        <th class="p-2.5">Peminjam</th>
-                                        <th class="p-2.5">Kelas</th>
-                                        <th class="p-2.5">Alat Dipinjam</th>
-                                        <th class="p-2.5">Waktu Pinjam</th>
-                                        <th class="p-2.5 text-right">Aksi Status</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="divide-y divide-slate-100">
-                                    <template x-for="loan in activeLoans.slice(0, 5)" :key="loan.id">
-                                        <tr class="hover:bg-slate-50">
-                                            <td class="p-2.5 font-semibold text-slate-800" x-text="loan.namaPeminjam"></td>
-                                            <td class="p-2.5 text-slate-600" x-text="loan.kelas"></td>
-                                            <td class="p-2.5 font-medium text-slate-700" x-text="loan.namaAlat + ' (' + loan.jumlah + ' Unit)'"></td>
-                                            <td class="p-2.5 text-slate-500" x-text="formatDateTime(loan.tanggalPinjam)"></td>
-                                            <td class="p-2.5 text-right">
-                                                <template x-if="userRole === 'admin'">
-                                                    <button @click="openReturnModal(loan)" class="bg-indigo-600 hover:bg-indigo-700 text-white px-2.5 py-1 rounded-lg text-[10px] font-bold transition shadow-sm">
-                                                        Tandai Kembali
-                                                    </button>
-                                                </template>
-                                                <template x-if="userRole !== 'admin'">
-                                                    <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800">Dipinjam</span>
-                                                </template>
-                                            </td>
-                                        </tr>
-                                    </template>
-                                    <template x-if="activeLoans.length === 0">
-                                        <tr>
-                                            <td colspan="5" class="p-6 text-center text-slate-400">Tidak ada peminjaman alat aktif saat ini.</td>
-                                        </tr>
-                                    </template>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="space-y-6">
-                    <div class="bg-gradient-to-br from-amber-500 to-amber-600 text-slate-950 p-5 rounded-2xl shadow-md space-y-3">
-                        <div class="flex items-center space-x-3">
-                            <div class="w-10 h-10 bg-slate-900 text-amber-400 rounded-xl flex items-center justify-center text-lg font-bold">
-                                <i class="fa-solid fa-hand-holding-hand"></i>
-                            </div>
-                            <div>
-                                <h4 class="font-black text-sm uppercase tracking-wide">Peminjaman Mandiri</h4>
-                                <p class="text-xs text-slate-900 font-medium">Siswa dapat mengisi alat yang ingin dipinjam</p>
-                            </div>
-                        </div>
-                        <button @click="openModal('studentLoan')" class="w-full bg-slate-900 hover:bg-slate-800 text-amber-400 font-bold py-2.5 rounded-xl text-xs flex items-center justify-center space-x-2 transition shadow">
-                            <i class="fa-solid fa-plus-circle"></i>
-                            <span>Isi Form Peminjaman Alat</span>
-                        </button>
-                    </div>
-
-                    <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200">
-                        <div class="flex items-center space-x-2 mb-3 pb-2 border-b border-slate-100 text-red-600">
-                            <i class="fa-solid fa-triangle-exclamation"></i>
-                            <h3 class="font-bold text-slate-800 text-sm">Peringatan Stok Bahan Low/Habis</h3>
-                        </div>
-
-                        <div class="space-y-2.5 max-h-56 overflow-y-auto custom-scrollbar">
-                            <template x-for="bahan in lowStockItems" :key="bahan.id">
-                                <div class="p-2.5 rounded-xl bg-red-50 border border-red-100 flex justify-between items-center text-xs">
-                                    <div>
-                                        <p class="font-bold text-slate-800" x-text="bahan.namaBahan"></p>
-                                        <p class="text-[11px] text-slate-500">Min. Stok: <span x-text="bahan.minStok"></span> <span x-text="bahan.satuan"></span></p>
-                                    </div>
-                                    <div class="text-right">
-                                        <span class="px-2 py-1 rounded-lg font-black text-xs bg-red-600 text-white" x-text="bahan.stokSistem + ' ' + bahan.satuan"></span>
-                                    </div>
-                                </div>
-                            </template>
-                            <template x-if="lowStockItems.length === 0">
-                                <div class="p-4 text-center text-xs text-slate-400 bg-emerald-50 rounded-xl text-emerald-700">
-                                    <i class="fa-solid fa-circle-check text-base mb-1"></i>
-                                    <p>Seluruh stok bahan dalam kondisi mencukupi.</p>
-                                </div>
-                            </template>
-                        </div>
-                    </div>
-
-                    <div class="bg-slate-900 text-white rounded-2xl p-5 shadow-md relative overflow-hidden">
-                        <div class="flex items-center space-x-3 mb-3">
-                            <img :src="settings.logoKananUrl" class="h-10 w-auto object-contain" alt="Logo STEMSAGO" @error="$event.target.src=defaultStemsagoSvg">
-                            <img :src="settings.logoTsmUrl" class="h-10 w-auto object-contain" alt="Logo TSM" @error="$event.target.src=defaultTsmSvg">
-                        </div>
-                        <h4 class="text-[10px] uppercase font-black tracking-wider text-amber-400" x-text="settings.namaSekolah">SMK NEGERI 1 GOMBONG</h4>
-                        <h3 class="text-sm font-bold mt-0.5" x-text="settings.namaKejuruan">Kompetensi Keahlian TSM</h3>
-                        <p class="text-xs text-slate-300 mt-2 leading-relaxed">
-                            Sistem Terpadu Inventarisasi Alat, Stok Opname, dan Pencatatan Peminjaman Mandiri Bengkel Teknik Sepeda Motor.
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- ================= TAB 2: PEMINJAMAN ALAT ================= -->
-        <div x-show="activeTab === 'peminjaman'" x-cloak class="space-y-4">
-            <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div class="flex items-center space-x-3">
-                    <div class="w-10 h-10 bg-indigo-100 text-indigo-700 rounded-xl flex items-center justify-center text-lg">
-                        <i class="fa-solid fa-arrow-right-arrow-left"></i>
-                    </div>
-                    <div>
-                        <h3 class="font-bold text-slate-800">Kelola Peminjaman & Pengembalian Alat</h3>
-                        <p class="text-xs text-slate-500">Siswa mengisi peminjaman secara mandiri & Admin memvalidasi pengembalian</p>
-                    </div>
-                </div>
-
-                <div class="flex items-center space-x-2">
-                    <button @click="openModal('studentLoan')" class="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold px-4 py-2.5 rounded-xl text-xs flex items-center space-x-2 transition shadow">
-                        <i class="fa-solid fa-plus-circle"></i>
-                        <span>Isi Form Peminjaman Alat</span>
-                    </button>
-                </div>
-            </div>
-
-            <div class="flex space-x-2 border-b border-slate-200 pb-2">
-                <button @click="loanFilter = 'pending'" 
-                        :class="loanFilter === 'pending' ? 'bg-slate-800 text-amber-400 font-bold' : 'bg-white text-slate-600 hover:bg-slate-100'"
-                        class="px-3.5 py-2 rounded-xl text-xs transition border border-slate-200 flex items-center space-x-2">
-                    <span>Menunggu Persetujuan</span>
-                    <template x-if="pendingLoansCount > 0">
-                        <span class="px-1.5 py-0.2 rounded-full bg-red-600 text-white font-bold text-[10px]" x-text="pendingLoansCount"></span>
-                    </template>
-                </button>
-                <button @click="loanFilter = 'active'" 
-                        :class="loanFilter === 'active' ? 'bg-slate-800 text-amber-400 font-bold' : 'bg-white text-slate-600 hover:bg-slate-100'"
-                        class="px-3.5 py-2 rounded-xl text-xs transition border border-slate-200 flex items-center space-x-2">
-                    <span>Sedang Dipinjam</span>
-                    <span class="px-1.5 py-0.2 rounded-full bg-indigo-600 text-white font-bold text-[10px]" x-text="activeLoansCount"></span>
-                </button>
-                <button @click="loanFilter = 'completed'" 
-                        :class="loanFilter === 'completed' ? 'bg-slate-800 text-amber-400 font-bold' : 'bg-white text-slate-600 hover:bg-slate-100'"
-                        class="px-3.5 py-2 rounded-xl text-xs transition border border-slate-200">
-                    Sudah Dikembalikan
-                </button>
-                <button @click="loanFilter = 'all'" 
-                        :class="loanFilter === 'all' ? 'bg-slate-800 text-amber-400 font-bold' : 'bg-white text-slate-600 hover:bg-slate-100'"
-                        class="px-3.5 py-2 rounded-xl text-xs transition border border-slate-200">
-                    Semua Riwayat
-                </button>
-            </div>
-
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+            
+            <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200">
+                <h3 class="font-bold text-slate-800 mb-4">Pengajuan Peminjaman Alat Mandiri (Siswa)</h3>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-xs">
-                        <thead class="bg-slate-800 text-slate-200 uppercase tracking-wider font-semibold">
+                        <thead class="bg-slate-50 text-slate-500 font-semibold uppercase">
                             <tr>
-                                <th class="p-3.5">Kode Transaksi</th>
-                                <th class="p-3.5">Nama Peminjam / NIS</th>
-                                <th class="p-3.5">Kelas</th>
-                                <th class="p-3.5">Alat Dipinjam</th>
-                                <th class="p-3.5 text-center">Jumlah</th>
-                                <th class="p-3.5">Tgl/Waktu Pinjam</th>
-                                <th class="p-3.5">Tgl/Waktu Kembali</th>
-                                <th class="p-3.5 text-center">Status</th>
-                                <th class="p-3.5 text-right no-print">Aksi Admin</th>
+                                <th class="p-2.5">Peminjam</th>
+                                <th class="p-2.5">Kelas</th>
+                                <th class="p-2.5">Alat</th>
+                                <th class="p-2.5 text-right">Aksi</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100">
-                            <template x-for="loan in filteredLoans" :key="loan.id">
-                                <tr class="hover:bg-slate-50 transition">
-                                    <td class="p-3.5 font-mono text-slate-500 font-bold" x-text="loan.kodePinjam"></td>
-                                    <td class="p-3.5">
-                                        <p class="font-bold text-slate-800" x-text="loan.namaPeminjam"></p>
-                                        <p class="text-[11px] text-slate-400" x-text="'NIS/NIP: ' + (loan.nis || '-')"></p>
-                                    </td>
-                                    <td class="p-3.5 font-medium text-slate-700" x-text="loan.kelas"></td>
-                                    <td class="p-3.5 font-bold text-amber-700" x-text="loan.namaAlat"></td>
-                                    <td class="p-3.5 text-center font-bold text-slate-800" x-text="loan.jumlah + ' Unit'"></td>
-                                    <td class="p-3.5 text-slate-500" x-text="formatDateTime(loan.tanggalPinjam)"></td>
-                                    <td class="p-3.5 text-slate-500" x-text="loan.tanggalKembali ? formatDateTime(loan.tanggalKembali) : '-'"></td>
-                                    <td class="p-3.5 text-center">
-                                        <span class="px-2.5 py-1 rounded-full font-bold text-[10px] uppercase tracking-wide"
-                                              :class="{
-                                                  'bg-amber-100 text-amber-800': loan.status === 'Menunggu Persetujuan',
-                                                  'bg-blue-100 text-blue-800': loan.status === 'Dipinjam',
-                                                  'bg-emerald-100 text-emerald-800': loan.status === 'Dikembalikan',
-                                                  'bg-red-100 text-red-800': loan.status === 'Ditolak'
-                                              }"
-                                              x-text="loan.status">
-                                        </span>
-                                    </td>
-                                    <td class="p-3.5 text-right no-print">
+                            <template x-for="loan in pendingLoans" :key="loan.id">
+                                <tr>
+                                    <td class="p-2.5 font-bold" x-text="loan.namaPeminjam"></td>
+                                    <td class="p-2.5" x-text="loan.kelas"></td>
+                                    <td class="p-2.5 text-amber-700 font-bold" x-text="loan.namaAlat"></td>
+                                    <td class="p-2.5 text-right">
                                         <template x-if="userRole === 'admin'">
-                                            <div class="flex items-center justify-end space-x-1">
-                                                <template x-if="loan.status === 'Menunggu Persetujuan'">
-                                                    <div class="flex items-center space-x-1">
-                                                        <button @click="approveLoan(loan.id)" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-2.5 py-1 rounded-lg text-xs transition shadow-sm">
-                                                            Setujui
-                                                        </button>
-                                                        <button @click="rejectLoan(loan.id)" class="bg-red-100 hover:bg-red-200 text-red-700 font-bold px-2 py-1 rounded-lg text-xs transition">
-                                                            Tolak
-                                                        </button>
-                                                    </div>
-                                                </template>
-
-                                                <template x-if="loan.status === 'Dipinjam'">
-                                                    <button @click="openReturnModal(loan)" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-2.5 py-1 rounded-lg text-xs transition shadow-sm">
-                                                        Tandai Kembali
-                                                    </button>
-                                                </template>
-
-                                                <template x-if="loan.status === 'Dikembalikan'">
-                                                    <span class="text-slate-500 text-[11px] italic mr-1">
-                                                        Kondisi: <strong class="text-slate-800" x-text="loan.kondisiKembali || 'Baik'"></strong>
-                                                    </span>
-                                                </template>
-
-                                                <template x-if="loan.status === 'Ditolak'">
-                                                    <span class="text-red-500 text-[11px] italic mr-1">Ditolak</span>
-                                                </template>
-
-                                                <!-- TOMBOL EDIT & DELETE PEMINJAMAN ALAT (MODE ADMIN) -->
-                                                <button @click="editLoan(loan)" class="p-1.5 text-slate-600 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition ml-1" title="Edit Peminjaman">
-                                                    <i class="fa-solid fa-pen-to-square"></i>
-                                                </button>
-                                                <button @click="confirmDelete('loan', loan.id, loan.kodePinjam + ' (' + loan.namaPeminjam + ')')" class="p-1.5 text-slate-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition" title="Hapus Peminjaman">
-                                                    <i class="fa-solid fa-trash-can"></i>
-                                                </button>
-                                            </div>
-                                        </template>
-
-                                        <template x-if="userRole !== 'admin'">
-                                            <div>
-                                                <template x-if="loan.status === 'Menunggu Persetujuan'">
-                                                    <span class="text-slate-400 text-[11px] italic">Menunggu Admin</span>
-                                                </template>
-                                                <template x-if="loan.status === 'Dipinjam'">
-                                                    <span class="text-indigo-600 font-bold text-[11px]">Sedang Dipinjam</span>
-                                                </template>
-                                                <template x-if="loan.status === 'Dikembalikan'">
-                                                    <span class="text-slate-500 text-[11px] italic">
-                                                        Kondisi: <strong class="text-slate-800" x-text="loan.kondisiKembali || 'Baik'"></strong>
-                                                    </span>
-                                                </template>
-                                                <template x-if="loan.status === 'Ditolak'">
-                                                    <span class="text-red-500 text-[11px] italic">Pengajuan Ditolak</span>
-                                                </template>
-                                            </div>
+                                            <button @click="approveLoan(loan.id)" class="bg-emerald-600 text-white px-2 py-1 rounded text-[10px] font-bold">Setujui</button>
                                         </template>
                                     </td>
                                 </tr>
                             </template>
-                            <template x-if="filteredLoans.length === 0">
-                                <tr>
-                                    <td colspan="9" class="p-8 text-center text-slate-400">Tidak ada data peminjaman yang sesuai dengan filter.</td>
-                                </tr>
+                            <template x-if="pendingLoans.length === 0">
+                                <tr><td colspan="4" class="p-4 text-center text-slate-400">Tidak ada pengajuan pending.</td></tr>
                             </template>
                         </tbody>
                     </table>
                 </div>
             </div>
-        </div>
-
-        <!-- ================= TAB 3: INVENTARIS ALAT ================= -->
-        <div x-show="activeTab === 'alat'" x-cloak class="space-y-4">
-            
-            <!-- Table Header Toolbar -->
-            <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div class="flex-1 flex flex-col sm:flex-row gap-2">
-                    <div class="relative flex-1">
-                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-slate-400 text-xs"></i>
-                        <input type="text" x-model="searchAlat" placeholder="Cari kode, nama alat, atau merk..." 
-                               class="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-amber-500 focus:outline-none">
-                    </div>
-                    <select x-model="filterKategoriAlat" class="bg-slate-50 border border-slate-200 rounded-xl text-xs px-3 py-2 focus:ring-2 focus:ring-amber-500">
-                        <option value="">Semua Kategori Alat</option>
-                        <option value="Hand Tools">Hand Tools</option>
-                        <option value="Special Service Tools (SST)">Special Service Tools (SST)</option>
-                        <option value="Power Tools">Power Tools</option>
-                        <option value="Measuring Tools">Measuring Tools (Alat Ukur)</option>
-                        <option value="Diagnostic Tools">Diagnostic Tools</option>
-                    </select>
-                </div>
-
-                <div class="flex items-center space-x-2">
-                    <button @click="exportAlatToExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3.5 py-2 rounded-xl text-xs flex items-center space-x-1.5 transition shadow active:scale-95">
-                        <i class="fa-solid fa-file-excel text-sm"></i>
-                        <span>Export Excel</span>
-                    </button>
-
-                    <template x-if="userRole === 'admin'">
-                        <button @click="openModal('addAlat')" class="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold px-4 py-2 rounded-xl text-xs flex items-center space-x-2 transition">
-                            <i class="fa-solid fa-plus"></i>
-                            <span>Tambah Alat Baru</span>
-                        </button>
-                    </template>
-                </div>
-            </div>
-
-            <!-- Tools Table -->
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-xs">
-                        <thead class="bg-slate-800 text-slate-200 uppercase tracking-wider font-semibold">
-                            <tr>
-                                <th class="p-3.5">Kode Alat</th>
-                                <th class="p-3.5">Nama Alat & Merk</th>
-                                <th class="p-3.5">Kategori</th>
-                                <th class="p-3.5 text-center">Lokasi Rak</th>
-                                <th class="p-3.5 text-center">Total Unit</th>
-                                <th class="p-3.5 text-center">Tersedia Saat Ini</th>
-                                <th class="p-3.5 text-center">Rincian Kondisi</th>
-                                <template x-if="userRole === 'admin'"><th class="p-3.5 text-right no-print">Aksi Admin</th></template>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-slate-100">
-                            <template x-for="alat in filteredAlat" :key="alat.id">
-                                <tr class="hover:bg-slate-50 transition">
-                                    <td class="p-3.5 font-mono font-bold text-amber-600" x-text="alat.kodeAlat"></td>
-                                    <td class="p-3.5">
-                                        <p class="font-bold text-slate-800" x-text="alat.namaAlat"></p>
-                                        <p class="text-[11px] text-slate-400" x-text="alat.merk || 'Tanpa Merk'"></p>
-                                    </td>
-                                    <td class="p-3.5">
-                                        <span class="px-2 py-1 rounded-md text-[10px] font-semibold bg-slate-100 text-slate-700" x-text="alat.kategori"></span>
-                                    </td>
-                                    <td class="p-3.5 text-center font-mono text-slate-600" x-text="alat.lokasiRak"></td>
-                                    <td class="p-3.5 text-center font-bold text-slate-800" x-text="alat.jumlahTotal"></td>
-                                    <td class="p-3.5 text-center">
-                                        <span class="px-2.5 py-1 rounded-full font-bold text-xs" 
-                                              :class="alat.jumlahTersedia > 0 ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'"
-                                              x-text="alat.jumlahTersedia + ' Unit'"></span>
-                                    </td>
-                                    <td class="p-3.5 text-center">
-                                        <div class="flex items-center justify-center space-x-1 text-[11px]">
-                                            <span class="bg-emerald-100 text-emerald-800 font-bold px-1.5 py-0.5 rounded" title="Kondisi Baik" x-text="'B:' + alat.kondisiBaik"></span>
-                                            <span class="bg-amber-100 text-amber-800 font-bold px-1.5 py-0.5 rounded" title="Perlu Servis" x-text="'S:' + alat.kondisiServis"></span>
-                                            <span class="bg-red-100 text-red-800 font-bold px-1.5 py-0.5 rounded" title="Rusak" x-text="'R:' + alat.kondisiRusak"></span>
-                                        </div>
-                                    </td>
-                                    <template x-if="userRole === 'admin'">
-                                        <td class="p-3.5 text-right no-print">
-                                            <div class="flex items-center justify-end space-x-1">
-                                                <button @click="editAlat(alat)" class="p-1.5 text-slate-600 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition" title="Edit Alat">
-                                                    <i class="fa-solid fa-pen-to-square"></i>
-                                                </button>
-                                                <button @click="confirmDelete('alat', alat.id, alat.namaAlat)" class="p-1.5 text-slate-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition" title="Hapus Alat">
-                                                    <i class="fa-solid fa-trash-can"></i>
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </template>
-                                </tr>
-                            </template>
-                            <template x-if="filteredAlat.length === 0">
-                                <tr>
-                                    <td colspan="8" class="p-8 text-center text-slate-400">Tidak ada data alat yang sesuai pencarian.</td>
-                                </tr>
-                            </template>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <!-- ================= TAB 4: STOK OPNAME BAHAN ================= -->
-        <div x-show="activeTab === 'opname'" x-cloak class="space-y-4">
-            
-            <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div class="flex-1 flex flex-col sm:flex-row gap-2">
-                    <div class="relative flex-1">
-                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-slate-400 text-xs"></i>
-                        <input type="text" x-model="searchBahan" placeholder="Cari kode atau nama bahan praktik..." 
-                               class="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-amber-500 focus:outline-none">
-                    </div>
-                </div>
-
-                <div class="flex items-center space-x-2">
-                    <button @click="exportBahanToExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3.5 py-2 rounded-xl text-xs flex items-center space-x-1.5 transition shadow active:scale-95">
-                        <i class="fa-solid fa-file-excel text-sm"></i>
-                        <span>Export Excel</span>
-                    </button>
-
-                    <template x-if="userRole === 'admin'">
-                        <button @click="openModal('addBahan')" class="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold px-4 py-2 rounded-xl text-xs flex items-center space-x-2 transition">
-                            <i class="fa-solid fa-plus"></i>
-                            <span>Tambah Bahan Praktik</span>
-                        </button>
-                    </template>
-                </div>
-            </div>
-
-            <!-- Bahan Stock Table -->
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-xs">
-                        <thead class="bg-slate-800 text-slate-200 uppercase tracking-wider font-semibold">
-                            <tr>
-                                <th class="p-3.5">Kode</th>
-                                <th class="p-3.5">Nama Bahan Praktik</th>
-                                <th class="p-3.5">Spesifikasi</th>
-                                <th class="p-3.5 text-center">Satuan</th>
-                                <th class="p-3.5 text-center">Stok Sistem</th>
-                                <th class="p-3.5 text-center">Fisik (Opname)</th>
-                                <th class="p-3.5 text-center">Selisih</th>
-                                <th class="p-3.5 text-center">Status Stok</th>
-                                <template x-if="userRole === 'admin'"><th class="p-3.5 text-right no-print">Aksi Opname</th></template>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-slate-100">
-                            <template x-for="bahan in filteredBahan" :key="bahan.id">
-                                <tr class="hover:bg-slate-50 transition">
-                                    <td class="p-3.5 font-mono font-bold text-amber-600" x-text="bahan.kodeBahan"></td>
-                                    <td class="p-3.5 font-bold text-slate-800" x-text="bahan.namaBahan"></td>
-                                    <td class="p-3.5 text-slate-500" x-text="bahan.spesifikasi"></td>
-                                    <td class="p-3.5 text-center font-medium text-slate-600" x-text="bahan.satuan"></td>
-                                    <td class="p-3.5 text-center font-bold text-slate-900 text-sm" x-text="bahan.stokSistem"></td>
-                                    <td class="p-3.5 text-center font-bold text-blue-700 text-sm" x-text="bahan.stokFisik"></td>
-                                    <td class="p-3.5 text-center">
-                                        <span class="font-bold px-2 py-0.5 rounded text-xs" 
-                                              :class="bahan.stokFisik - bahan.stokSistem === 0 ? 'bg-slate-100 text-slate-600' : (bahan.stokFisik - bahan.stokSistem < 0 ? 'bg-red-100 text-red-700' : 'bg-emerald-100 text-emerald-700')"
-                                              x-text="(bahan.stokFisik - bahan.stokSistem > 0 ? '+' : '') + (bahan.stokFisik - bahan.stokSistem)">
-                                        </span>
-                                    </td>
-                                    <td class="p-3.5 text-center">
-                                        <span class="px-2.5 py-1 rounded-full font-bold text-[10px] uppercase tracking-wide"
-                                              :class="bahan.stokSistem <= 0 ? 'bg-red-600 text-white' : (bahan.stokSistem <= bahan.minStok ? 'bg-amber-500 text-slate-950' : 'bg-emerald-100 text-emerald-800')"
-                                              x-text="bahan.stokSistem <= 0 ? 'Habis' : (bahan.stokSistem <= bahan.minStok ? 'Kritis' : 'Cukup')">
-                                        </span>
-                                    </td>
-                                    <template x-if="userRole === 'admin'">
-                                        <td class="p-3.5 text-right no-print">
-                                            <div class="flex items-center justify-end space-x-1">
-                                                <button @click="openOpnameModal(bahan)" class="bg-slate-800 hover:bg-slate-900 text-white font-bold px-2.5 py-1.5 rounded-lg text-xs flex items-center space-x-1 transition shadow-sm">
-                                                    <i class="fa-solid fa-pen-ruler text-amber-400"></i>
-                                                    <span>Adjust</span>
-                                                </button>
-                                                <button @click="confirmDelete('bahan', bahan.id, bahan.namaBahan)" class="p-1.5 text-slate-400 hover:text-red-600 rounded-lg transition" title="Hapus Bahan">
-                                                    <i class="fa-solid fa-trash-can"></i>
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </template>
-                                </tr>
-                            </template>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <!-- ================= TAB 5: PENGGUNAAN BAHAN PRAKTIK ================= -->
-        <div x-show="activeTab === 'penggunaan'" x-cloak class="space-y-4">
-            
-            <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4">
-                <div class="flex items-center space-x-3">
-                    <div class="w-10 h-10 bg-amber-100 text-amber-700 rounded-xl flex items-center justify-center text-lg">
-                        <i class="fa-solid fa-receipt"></i>
-                    </div>
-                    <div>
-                        <h3 class="font-bold text-slate-800">Catatan Penggunaan Bahan Praktik</h3>
-                        <p class="text-xs text-slate-500">Pencatatan ini terintegrasi langsung dengan pemotongan Stok Opname Bahan</p>
-                    </div>
-                </div>
-
-                <div class="flex items-center space-x-2">
-                    <button @click="exportUsageToExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3.5 py-2.5 rounded-xl text-xs flex items-center space-x-1.5 transition shadow active:scale-95">
-                        <i class="fa-solid fa-file-excel text-sm"></i>
-                        <span>Export Excel</span>
-                    </button>
-
-                    <template x-if="userRole === 'admin'">
-                        <button @click="openModal('usage')" class="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold px-4 py-2.5 rounded-xl text-xs flex items-center space-x-2 transition shadow">
-                            <i class="fa-solid fa-plus-circle"></i>
-                            <span>Catat Penggunaan Baru</span>
-                        </button>
-                    </template>
-                </div>
-            </div>
-
-            <!-- Penggunaan History Table -->
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-xs">
-                        <thead class="bg-slate-800 text-slate-200 uppercase tracking-wider font-semibold">
-                            <tr>
-                                <th class="p-3.5">Tgl & Waktu</th>
-                                <th class="p-3.5">Bahan Praktik</th>
-                                <th class="p-3.5 text-center">Jumlah Pakai</th>
-                                <th class="p-3.5">Kelas / Kelompok</th>
-                                <th class="p-3.5">Topik Praktik</th>
-                                <th class="p-3.5">Instruktur</th>
-                                <template x-if="userRole === 'admin'"><th class="p-3.5 text-right no-print">Aksi Admin</th></template>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-slate-100">
-                            <template x-for="item in usageLogs" :key="item.id">
-                                <tr class="hover:bg-slate-50 transition">
-                                    <td class="p-3.5 text-slate-500 font-mono" x-text="formatDateTime(item.timestamp)"></td>
-                                    <td class="p-3.5 font-bold text-slate-800" x-text="item.namaBahan"></td>
-                                    <td class="p-3.5 text-center">
-                                        <span class="px-2.5 py-1 rounded-md font-black bg-red-100 text-red-700" x-text="'-' + item.jumlah + ' ' + item.satuan"></span>
-                                    </td>
-                                    <td class="p-3.5 font-semibold text-slate-700" x-text="item.kelas"></td>
-                                    <td class="p-3.5 text-slate-600" x-text="item.topik"></td>
-                                    <td class="p-3.5 text-slate-800 font-medium" x-text="item.instruktur"></td>
-
-                                    <!-- TOMBOL EDIT & DELETE PENGGUNAAN BAHAN (MODE ADMIN) -->
-                                    <template x-if="userRole === 'admin'">
-                                        <td class="p-3.5 text-right no-print">
-                                            <div class="flex items-center justify-end space-x-1">
-                                                <button @click="editUsage(item)" class="p-1.5 text-slate-600 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition" title="Edit Penggunaan">
-                                                    <i class="fa-solid fa-pen-to-square"></i>
-                                                </button>
-                                                <button @click="confirmDelete('usage', item.id, item.namaBahan + ' (' + item.kelas + ')')" class="p-1.5 text-slate-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition" title="Hapus Penggunaan">
-                                                    <i class="fa-solid fa-trash-can"></i>
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </template>
-                                </tr>
-                            </template>
-                            <template x-if="usageLogs.length === 0">
-                                <tr>
-                                    <td colspan="7" class="p-8 text-center text-slate-400">Belum ada riwayat pencatatan penggunaan bahan.</td>
-                                </tr>
-                            </template>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <!-- ================= TAB 6: LAPORAN & RIWAYAT (PDF PRINT) ================= -->
-        <div x-show="activeTab === 'laporan'" x-cloak class="space-y-6">
-            
-            <div class="hidden print-only text-center mb-4">
-                <div class="flex items-center justify-between">
-                    <div class="w-24 h-24 flex items-center justify-center">
-                        <img :src="settings.logoKiriUrl" class="max-h-24 max-w-24 object-contain" alt="Logo Pemprov Jateng" 
-                             onerror="this.onerror=null; this.src='https://upload.wikimedia.org/wikipedia/commons/a/a2/Jawa_Tengah_co_a.png';">
-                    </div>
-
-                    <div class="text-center flex-1 px-2 leading-tight">
-                        <h2 class="text-sm font-bold tracking-wider uppercase text-black">PEMERINTAH PROVINSI JAWA TENGAH</h2>
-                        <h3 class="text-sm font-bold tracking-wider uppercase text-black">DINAS PENDIDIKAN DAN KEBUDAYAAN</h3>
-                        <h1 class="text-xl font-extrabold font-serif tracking-tight text-black mt-0.5">SEKOLAH MENENGAH KEJURUAN</h1>
-                        <h1 class="text-2xl font-black font-serif tracking-wider text-black">NEGERI 1 GOMBONG</h1>
-                        <p class="text-[11px] text-black mt-1">Jalan Wilis Nomor 15 Wero Gombong Kebumen, Kode Pos 54416, Telepon 0287-472828</p>
-                        <p class="text-[11px] text-black">Faksimile 0287-473886, Surat Elektronik jaya@smkn1gombong.sch.id</p>
-                    </div>
-
-                    <div class="w-24 h-24 flex items-center justify-center">
-                        <img :src="settings.logoKananUrl" class="max-h-24 max-w-24 object-contain" alt="Logo STEMSAGO" 
-                             @error="$event.target.onerror=null; $event.target.src=defaultStemsagoSvg">
-                    </div>
-                </div>
-
-                <div class="border-double-custom mt-2 mb-4"></div>
-
-                <div class="bg-slate-100 py-1 border border-slate-300">
-                    <h4 class="text-xs font-black uppercase tracking-wider text-slate-900">
-                        LAPORAN MANAJEMEN BENGKEL TSM — PERIODE <span x-text="formatMonthIndo(selectedReportMonth).toUpperCase()"></span>
-                    </h4>
-                </div>
-            </div>
-
-            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 no-print">
-                <div>
-                    <h3 class="font-bold text-slate-800 text-base">Filter & Cetak Laporan Bulanan</h3>
-                    <p class="text-xs text-slate-500">Pilih periode bulan dan jenis modul untuk dicetak ke PDF atau Printer</p>
-                </div>
-
-                <div class="flex flex-wrap items-center gap-3 w-full lg:w-auto">
-                    <div class="flex items-center space-x-2 bg-slate-50 p-1.5 rounded-xl border border-slate-200">
-                        <i class="fa-solid fa-calendar-days text-amber-600 text-xs pl-2"></i>
-                        <label class="text-xs font-bold text-slate-700">Bulan:</label>
-                        <input type="month" x-model="selectedReportMonth" 
-                               class="bg-white border border-slate-200 rounded-lg text-xs font-bold px-2 py-1 focus:ring-2 focus:ring-amber-500 focus:outline-none">
-                    </div>
-
-                    <div class="flex items-center space-x-2 bg-slate-50 p-1.5 rounded-xl border border-slate-200">
-                        <i class="fa-solid fa-filter text-indigo-600 text-xs pl-2"></i>
-                        <select x-model="selectedReportType" class="bg-white border border-slate-200 rounded-lg text-xs font-bold px-2 py-1 focus:ring-2 focus:ring-amber-500 focus:outline-none">
-                            <option value="all">Semua Laporan (Lengkap)</option>
-                            <option value="peminjaman">Laporan Peminjaman Alat</option>
-                            <option value="opname">Laporan Stok Opname Bahan</option>
-                            <option value="penggunaan">Laporan Penggunaan Bahan</option>
-                        </select>
-                    </div>
-
-                    <button type="button" @click="triggerPrint()" class="bg-slate-900 hover:bg-slate-800 text-amber-400 font-bold px-4 py-2.5 rounded-xl text-xs flex items-center space-x-2 transition shadow-md active:scale-95 cursor-pointer">
-                        <i class="fa-solid fa-print text-sm"></i>
-                        <span>Cetak Laporan (PDF)</span>
-                    </button>
-                </div>
-            </div>
-
-            <div class="bg-amber-50 border border-amber-200 rounded-xl p-3 flex justify-between items-center text-xs text-amber-900 no-print">
-                <div class="flex items-center space-x-2">
-                    <i class="fa-solid fa-circle-info text-amber-600"></i>
-                    <span>Menampilkan data periode: <strong x-text="formatMonthIndo(selectedReportMonth)"></strong></span>
-                </div>
-                <div class="font-mono text-[11px] text-amber-800">
-                    Status data: Firebase Firestore Realtime
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm print-card">
-                    <p class="text-[11px] font-bold text-slate-500 uppercase">Peminjaman Alat (<span x-text="formatMonthIndo(selectedReportMonth)"></span>)</p>
-                    <h3 class="text-2xl font-black text-slate-800 mt-1" x-text="monthlyLoans.length + ' Transaksi'"></h3>
-                    <p class="text-xs text-indigo-600 font-medium mt-1">
-                        Selesai: <span class="font-bold" x-text="monthlyLoans.filter(l => l.status === 'Dikembalikan').length"></span> | 
-                        Aktif: <span class="font-bold text-amber-600" x-text="monthlyLoans.filter(l => l.status === 'Dipinjam').length"></span>
-                    </p>
-                </div>
-
-                <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm print-card">
-                    <p class="text-[11px] font-bold text-slate-500 uppercase">Penggunaan Bahan (<span x-text="formatMonthIndo(selectedReportMonth)"></span>)</p>
-                    <h3 class="text-2xl font-black text-slate-800 mt-1" x-text="monthlyUsage.length + ' Kali Pakai'"></h3>
-                    <p class="text-xs text-slate-500 mt-1">Total pencatatan pemakaian praktik siswa</p>
-                </div>
-
-                <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm print-card">
-                    <p class="text-[11px] font-bold text-slate-500 uppercase">Kondisi Stok Opname Bahan</p>
-                    <h3 class="text-2xl font-black text-slate-800 mt-1" x-text="bahanList.length + ' Jenis Item'"></h3>
-                    <p class="text-xs text-red-600 font-bold mt-1" x-text="lowStockCount > 0 ? lowStockCount + ' Bahan Kritis/Habis' : 'Semua Stok Bahan Aman'"></p>
-                </div>
-            </div>
-
-            <!-- Printable Tables -->
-            <template x-if="selectedReportType === 'all' || selectedReportType === 'peminjaman'">
-                <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200 space-y-3 print-card">
-                    <div class="flex justify-between items-center border-b pb-2">
-                        <h4 class="font-bold text-slate-800 text-sm flex items-center space-x-2">
-                            <i class="fa-solid fa-wrench text-amber-500 no-print"></i>
-                            <span>1. Rekapitulasi Peminjaman Alat Praktik (<span x-text="formatMonthIndo(selectedReportMonth)"></span>)</span>
-                        </h4>
-                        <span class="text-xs font-mono text-slate-500" x-text="monthlyLoans.length + ' Data'"></span>
-                    </div>
-
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left text-xs border-collapse">
-                            <thead class="bg-slate-100 text-slate-700 font-bold border-b border-slate-300">
-                                <tr>
-                                    <th class="p-2 border border-slate-200">No</th>
-                                    <th class="p-2 border border-slate-200">Kode</th>
-                                    <th class="p-2 border border-slate-200">Peminjam / NIS</th>
-                                    <th class="p-2 border border-slate-200">Kelas/Bay</th>
-                                    <th class="p-2 border border-slate-200">Nama Alat</th>
-                                    <th class="p-2 border border-slate-200 text-center">Qty</th>
-                                    <th class="p-2 border border-slate-200">Tgl Pinjam</th>
-                                    <th class="p-2 border border-slate-200">Tgl Kembali</th>
-                                    <th class="p-2 border border-slate-200 text-center">Status</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-slate-200">
-                                <template x-for="(loan, idx) in monthlyLoans" :key="loan.id">
-                                    <tr>
-                                        <td class="p-2 border border-slate-200 text-center" x-text="idx + 1"></td>
-                                        <td class="p-2 border border-slate-200 font-mono text-[11px]" x-text="loan.kodePinjam"></td>
-                                        <td class="p-2 border border-slate-200 font-bold" x-text="loan.namaPeminjam + (loan.nis ? ' (' + loan.nis + ')' : '')"></td>
-                                        <td class="p-2 border border-slate-200" x-text="loan.kelas"></td>
-                                        <td class="p-2 border border-slate-200 font-medium" x-text="loan.namaAlat"></td>
-                                        <td class="p-2 border border-slate-200 text-center font-bold" x-text="loan.jumlah"></td>
-                                        <td class="p-2 border border-slate-200" x-text="formatDateTime(loan.tanggalPinjam)"></td>
-                                        <td class="p-2 border border-slate-200" x-text="loan.tanggalKembali ? formatDateTime(loan.tanggalKembali) : '-'"></td>
-                                        <td class="p-2 border border-slate-200 text-center font-bold" x-text="loan.status"></td>
-                                    </tr>
-                                </template>
-                                <template x-if="monthlyLoans.length === 0">
-                                    <tr>
-                                        <td colspan="9" class="p-4 text-center text-slate-400 italic">Tidak ada catatan peminjaman alat pada bulan ini.</td>
-                                    </tr>
-                                </template>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </template>
-
-            <template x-if="selectedReportType === 'all' || selectedReportType === 'penggunaan'">
-                <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200 space-y-3 print-card">
-                    <div class="flex justify-between items-center border-b pb-2">
-                        <h4 class="font-bold text-slate-800 text-sm flex items-center space-x-2">
-                            <i class="fa-solid fa-oil-can text-amber-500 no-print"></i>
-                            <span>2. Rekapitulasi Penggunaan Bahan Praktik (<span x-text="formatMonthIndo(selectedReportMonth)"></span>)</span>
-                        </h4>
-                        <span class="text-xs font-mono text-slate-500" x-text="monthlyUsage.length + ' Data'"></span>
-                    </div>
-
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left text-xs border-collapse">
-                            <thead class="bg-slate-100 text-slate-700 font-bold border-b border-slate-300">
-                                <tr>
-                                    <th class="p-2 border border-slate-200">No</th>
-                                    <th class="p-2 border border-slate-200">Waktu & Tanggal</th>
-                                    <th class="p-2 border border-slate-200">Bahan Praktik</th>
-                                    <th class="p-2 border border-slate-200 text-center">Jumlah Pemakaian</th>
-                                    <th class="p-2 border border-slate-200">Kelas / Kelompok</th>
-                                    <th class="p-2 border border-slate-200">Topik Praktik</th>
-                                    <th class="p-2 border border-slate-200">Guru / Instruktur</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-slate-200">
-                                <template x-for="(item, idx) in monthlyUsage" :key="item.id">
-                                    <tr>
-                                        <td class="p-2 border border-slate-200 text-center" x-text="idx + 1"></td>
-                                        <td class="p-2 border border-slate-200 font-mono text-[11px]" x-text="formatDateTime(item.timestamp)"></td>
-                                        <td class="p-2 border border-slate-200 font-bold" x-text="item.namaBahan"></td>
-                                        <td class="p-2 border border-slate-200 text-center font-bold text-red-700" x-text="item.jumlah + ' ' + item.satuan"></td>
-                                        <td class="p-2 border border-slate-200" x-text="item.kelas"></td>
-                                        <td class="p-2 border border-slate-200" x-text="item.topik"></td>
-                                        <td class="p-2 border border-slate-200 font-medium" x-text="item.instruktur"></td>
-                                    </tr>
-                                </template>
-                                <template x-if="monthlyUsage.length === 0">
-                                    <tr>
-                                        <td colspan="7" class="p-4 text-center text-slate-400 italic">Tidak ada catatan penggunaan bahan pada bulan ini.</td>
-                                    </tr>
-                                </template>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </template>
-
-            <template x-if="selectedReportType === 'all' || selectedReportType === 'opname'">
-                <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200 space-y-3 print-card">
-                    <div class="flex justify-between items-center border-b pb-2">
-                        <h4 class="font-bold text-slate-800 text-sm flex items-center space-x-2">
-                            <i class="fa-solid fa-boxes-packing text-amber-500 no-print"></i>
-                            <span>3. Laporan Status Stok Opname Bahan Praktik Saat Ini</span>
-                        </h4>
-                        <span class="text-xs font-mono text-slate-500" x-text="bahanList.length + ' Jenis Item'"></span>
-                    </div>
-
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left text-xs border-collapse">
-                            <thead class="bg-slate-100 text-slate-700 font-bold border-b border-slate-300">
-                                <tr>
-                                    <th class="p-2 border border-slate-200">No</th>
-                                    <th class="p-2 border border-slate-200">Kode</th>
-                                    <th class="p-2 border border-slate-200">Nama Bahan Praktik</th>
-                                    <th class="p-2 border border-slate-200">Spesifikasi</th>
-                                    <th class="p-2 border border-slate-200 text-center">Satuan</th>
-                                    <th class="p-2 border border-slate-200 text-center">Stok Sistem</th>
-                                    <th class="p-2 border border-slate-200 text-center">Stok Fisik</th>
-                                    <th class="p-2 border border-slate-200 text-center">Status</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-slate-200">
-                                <template x-for="(bahan, idx) in bahanList" :key="bahan.id">
-                                    <tr>
-                                        <td class="p-2 border border-slate-200 text-center" x-text="idx + 1"></td>
-                                        <td class="p-2 border border-slate-200 font-mono text-[11px]" x-text="bahan.kodeBahan"></td>
-                                        <td class="p-2 border border-slate-200 font-bold" x-text="bahan.namaBahan"></td>
-                                        <td class="p-2 border border-slate-200" x-text="bahan.spesifikasi"></td>
-                                        <td class="p-2 border border-slate-200 text-center" x-text="bahan.satuan"></td>
-                                        <td class="p-2 border border-slate-200 text-center font-bold" x-text="bahan.stokSistem"></td>
-                                        <td class="p-2 border border-slate-200 text-center font-bold" x-text="bahan.stokFisik"></td>
-                                        <td class="p-2 border border-slate-200 text-center font-bold" 
-                                            :class="bahan.stokSistem <= 0 ? 'text-red-600' : (bahan.stokSistem <= bahan.minStok ? 'text-amber-600' : 'text-emerald-700')"
-                                            x-text="bahan.stokSistem <= 0 ? 'Habis' : (bahan.stokSistem <= bahan.minStok ? 'Kritis' : 'Cukup')">
-                                        </td>
-                                    </tr>
-                                </template>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </template>
-
-            <!-- Printable Signature -->
-            <div class="hidden print-only mt-8 pt-4">
-                <div class="flex justify-between items-start text-xs">
-                    <div class="text-center w-64 space-y-12">
-                        <div>
-                            <p>Mengetahui,</p>
-                            <p class="font-bold">Kepala Bengkel TSM</p>
-                        </div>
-                        <div class="pt-8">
-                            <p class="font-bold underline" x-text="settings.namaKepalaBengkel"></p>
-                            <p class="text-[10px] text-slate-600" x-text="settings.nipKepalaBengkel"></p>
-                        </div>
-                    </div>
-
-                    <div class="text-center w-64 space-y-12">
-                        <div>
-                            <p>Kebumen, <span x-text="formatDateSimple()"></span></p>
-                            <p class="font-bold">Toolman / Pengelola Inventaris</p>
-                        </div>
-                        <div class="pt-8">
-                            <p class="font-bold underline" x-text="settings.namaToolman"></p>
-                            <p class="text-[10px] text-slate-600" x-text="settings.nipToolman"></p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
         </div>
 
     </main>
 
-    <!-- MODALS CONTAINER -->
-
-    <!-- Modal Settings -->
-    <div x-show="modals.settingsModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 no-print">
-        <div class="bg-white rounded-2xl max-w-2xl w-full p-6 shadow-2xl space-y-5 max-h-[90vh] overflow-y-auto custom-scrollbar">
-            <div class="flex justify-between items-center border-b pb-3">
-                <div class="flex items-center space-x-2">
-                    <div class="w-9 h-9 bg-amber-100 text-amber-700 rounded-xl flex items-center justify-center text-base">
-                        <i class="fa-solid fa-gear"></i>
-                    </div>
-                    <div>
-                        <h3 class="font-bold text-slate-800 text-base">Pengaturan Sistem Bengkel TSM</h3>
-                        <p class="text-xs text-slate-500">Kelola identitas sekolah, logo kop surat, pengesahan, & PIN Admin</p>
-                    </div>
-                </div>
-                <button @click="modals.settingsModal = false" class="text-slate-400 hover:text-slate-600 p-1"><i class="fa-solid fa-xmark text-lg"></i></button>
-            </div>
-
-            <form @submit.prevent="saveSettings()" class="space-y-4 text-xs">
-                <div class="bg-amber-50/60 border border-amber-200 rounded-xl p-4 space-y-3">
-                    <h4 class="font-bold text-slate-800 text-xs flex items-center space-x-2">
-                        <i class="fa-solid fa-images text-amber-600"></i>
-                        <span>Pengaturan Logo Header & Kop Laporan PDF</span>
-                    </h4>
-
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                        <div class="bg-white p-3 rounded-xl border border-slate-200 space-y-2">
-                            <p class="font-bold text-slate-700">1. Logo Kop Kiri (Pemprov Jateng)</p>
-                            <div class="flex items-center space-x-3">
-                                <img :src="settings.logoKiriUrl" class="w-12 h-12 object-contain border p-1 rounded bg-slate-50" @error="$event.target.src='https://upload.wikimedia.org/wikipedia/commons/a/a2/Jawa_Tengah_co_a.png'">
-                                <div class="flex-1 space-y-1">
-                                    <input type="text" x-model="settings.logoKiriUrl" :disabled="userRole !== 'admin'" placeholder="URL Logo Kiri" class="w-full p-1.5 border rounded text-[11px] bg-slate-50">
-                                    <input type="file" @change="uploadLogo($event, 'logoKiriUrl')" :disabled="userRole !== 'admin'" accept="image/*" class="w-full text-[10px] text-slate-500 file:mr-2 file:py-0.5 file:px-2 file:rounded file:border-0 file:bg-slate-200">
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="bg-white p-3 rounded-xl border border-slate-200 space-y-2">
-                            <p class="font-bold text-slate-700">2. Logo Kop Kanan (STEMSAGO)</p>
-                            <div class="flex items-center space-x-3">
-                                <img :src="settings.logoKananUrl" class="w-12 h-12 object-contain border p-1 rounded bg-slate-50" @error="$event.target.src=defaultStemsagoSvg">
-                                <div class="flex-1 space-y-1">
-                                    <input type="text" x-model="settings.logoKananUrl" :disabled="userRole !== 'admin'" placeholder="URL Logo STEMSAGO" class="w-full p-1.5 border rounded text-[11px] bg-slate-50">
-                                    <input type="file" @change="uploadLogo($event, 'logoKananUrl')" :disabled="userRole !== 'admin'" accept="image/*" class="w-full text-[10px] text-slate-500 file:mr-2 file:py-0.5 file:px-2 file:rounded file:border-0 file:bg-slate-200">
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="bg-white p-3 rounded-xl border border-slate-200 space-y-2">
-                            <p class="font-bold text-slate-700">3. Logo Bengkel TSM</p>
-                            <div class="flex items-center space-x-3">
-                                <img :src="settings.logoTsmUrl" class="w-12 h-12 object-contain border p-1 rounded bg-slate-50" @error="$event.target.src=defaultTsmSvg">
-                                <div class="flex-1 space-y-1">
-                                    <input type="text" x-model="settings.logoTsmUrl" :disabled="userRole !== 'admin'" placeholder="URL Logo TSM" class="w-full p-1.5 border rounded text-[11px] bg-slate-50">
-                                    <input type="file" @change="uploadLogo($event, 'logoTsmUrl')" :disabled="userRole !== 'admin'" accept="image/*" class="w-full text-[10px] text-slate-500 file:mr-2 file:py-0.5 file:px-2 file:rounded file:border-0 file:bg-slate-200">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="space-y-3 bg-slate-50 p-4 rounded-xl border border-slate-200">
-                    <h4 class="font-bold text-slate-800 text-xs flex items-center space-x-2">
-                        <i class="fa-solid fa-building text-amber-600"></i>
-                        <span>Identitas Sekolah & Kejuruan</span>
-                    </h4>
-
-                    <div>
-                        <label class="font-bold text-slate-700 block mb-1">Nama Aplikasi Header</label>
-                        <input type="text" x-model="settings.namaAplikasi" :disabled="userRole !== 'admin'" required class="w-full p-2.5 bg-white border rounded-xl disabled:opacity-60">
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-3">
-                        <div>
-                            <label class="font-bold text-slate-700 block mb-1">Nama Sekolah</label>
-                            <input type="text" x-model="settings.namaSekolah" :disabled="userRole !== 'admin'" required class="w-full p-2.5 bg-white border rounded-xl disabled:opacity-60">
-                        </div>
-                        <div>
-                            <label class="font-bold text-slate-700 block mb-1">Singkatan Bengkel</label>
-                            <input type="text" x-model="settings.singkatanBengkel" :disabled="userRole !== 'admin'" required class="w-full p-2.5 bg-white border rounded-xl disabled:opacity-60">
-                        </div>
-                    </div>
-
-                    <div>
-                        <label class="font-bold text-slate-700 block mb-1">Nama Kejuruan / Bengkel</label>
-                        <input type="text" x-model="settings.namaKejuruan" :disabled="userRole !== 'admin'" required class="w-full p-2.5 bg-white border rounded-xl disabled:opacity-60">
-                    </div>
-                </div>
-
-                <div class="space-y-3 bg-slate-50 p-4 rounded-xl border border-slate-200">
-                    <h4 class="font-bold text-slate-800 text-xs flex items-center space-x-2">
-                        <i class="fa-solid fa-signature text-amber-600"></i>
-                        <span>Pengesahan Tanda Tangan Laporan PDF</span>
-                    </h4>
-
-                    <div class="grid grid-cols-2 gap-3">
-                        <div>
-                            <label class="font-semibold text-slate-700 block mb-1">Nama Kepala Bengkel</label>
-                            <input type="text" x-model="settings.namaKepalaBengkel" :disabled="userRole !== 'admin'" required class="w-full p-2 bg-white border rounded-lg disabled:opacity-60">
-                        </div>
-                        <div>
-                            <label class="font-semibold text-slate-700 block mb-1">NIP Kepala Bengkel</label>
-                            <input type="text" x-model="settings.nipKepalaBengkel" :disabled="userRole !== 'admin'" required class="w-full p-2 bg-white border rounded-lg disabled:opacity-60">
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-3">
-                        <div>
-                            <label class="font-semibold text-slate-700 block mb-1">Nama Toolman / Pengelola</label>
-                            <input type="text" x-model="settings.namaToolman" :disabled="userRole !== 'admin'" required class="w-full p-2 bg-white border rounded-lg disabled:opacity-60">
-                        </div>
-                        <div>
-                            <label class="font-semibold text-slate-700 block mb-1">NIP / Jabatan Toolman</label>
-                            <input type="text" x-model="settings.nipToolman" :disabled="userRole !== 'admin'" required class="w-full p-2 bg-white border rounded-lg disabled:opacity-60">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="flex justify-between items-center pt-2 border-t">
-                    <template x-if="userRole !== 'admin'">
-                        <p class="text-[11px] text-amber-700 font-semibold"><i class="fa-solid fa-lock mr-1"></i> Masuk Mode Admin untuk dapat mengedit identitas.</p>
-                    </template>
-                    <template x-if="userRole === 'admin'">
-                        <button type="submit" class="ml-auto px-4 py-2 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold rounded-xl shadow transition">
-                            <i class="fa-solid fa-floppy-disk mr-1"></i> Simpan Identitas & Logo
-                        </button>
-                    </template>
-                </div>
-            </form>
-
-            <div class="bg-slate-900 text-white rounded-xl p-4 space-y-3 border border-slate-800">
-                <h4 class="font-bold text-amber-400 text-xs flex items-center space-x-2">
-                    <i class="fa-solid fa-key"></i>
-                    <span>Ubah PIN Akses Mode Admin</span>
-                </h4>
-
-                <form @submit.prevent="changeAdminPin()" class="space-y-3 text-xs">
-                    <div>
-                        <label class="font-semibold text-slate-300 block mb-1">PIN Admin Saat Ini</label>
-                        <input type="password" x-model="pinForm.oldPin" required placeholder="Masukkan PIN lama" class="w-full p-2 bg-slate-800 border border-slate-700 text-white rounded-lg focus:ring-2 focus:ring-amber-500">
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-3">
-                        <div>
-                            <label class="font-semibold text-slate-300 block mb-1">PIN Baru</label>
-                            <input type="password" x-model="pinForm.newPin" required placeholder="PIN baru" class="w-full p-2 bg-slate-800 border border-slate-700 text-white rounded-lg focus:ring-2 focus:ring-amber-500">
-                        </div>
-                        <div>
-                            <label class="font-semibold text-slate-300 block mb-1">Konfirmasi PIN Baru</label>
-                            <input type="password" x-model="pinForm.confirmPin" required placeholder="Ulangi PIN baru" class="w-full p-2 bg-slate-800 border border-slate-700 text-white rounded-lg focus:ring-2 focus:ring-amber-500">
-                        </div>
-                    </div>
-
-                    <div class="text-right pt-1">
-                        <button type="submit" class="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold px-4 py-2 rounded-lg text-xs transition shadow">
-                            <i class="fa-solid fa-shield-halved mr-1"></i> Ubah PIN Admin
-                        </button>
-                    </div>
-                </form>
-            </div>
-
-            <div class="flex justify-end border-t pt-3">
-                <button type="button" @click="modals.settingsModal = false" class="px-5 py-2 bg-slate-200 hover:bg-slate-300 text-slate-800 rounded-xl font-bold transition">Tutup</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal Admin Auth -->
-    <div x-show="modals.adminPin" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 no-print">
-        <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl space-y-4" @click.away="modals.adminPin = false">
-            <div class="text-center">
-                <div class="w-12 h-12 bg-amber-100 text-amber-700 rounded-full flex items-center justify-center mx-auto text-xl mb-2">
-                    <i class="fa-solid fa-lock"></i>
-                </div>
-                <h3 class="font-bold text-slate-800 text-base">Masuk Mode Admin</h3>
-                <p class="text-xs text-slate-500">Masukkan PIN Admin untuk mengedit data & persetujuan</p>
-            </div>
-
-            <form @submit.prevent="verifyAdminPin" class="space-y-3">
+    <!-- MODAL LOGIN ADMIN -->
+    <div x-show="modals.login" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
+        <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl space-y-4" @click.away="modals.login = false">
+            <h3 class="font-bold text-slate-800 text-center">Masuk Mode Admin</h3>
+            <form @submit.prevent="loginAdmin()" class="space-y-3 text-xs">
                 <div>
-                    <input type="password" x-model="adminPinInput" placeholder="PIN Admin" 
-                           class="w-full text-center text-lg font-bold tracking-widest p-3 bg-slate-50 border-2 border-slate-200 rounded-xl focus:border-amber-500 focus:outline-none">
+                    <label class="font-bold text-slate-700 block mb-1">Email</label>
+                    <input type="email" x-model="loginForm.email" required class="w-full p-2.5 bg-slate-50 border rounded-xl">
                 </div>
-
+                <div>
+                    <label class="font-bold text-slate-700 block mb-1">Password</label>
+                    <input type="password" x-model="loginForm.password" required class="w-full p-2.5 bg-slate-50 border rounded-xl">
+                </div>
                 <div class="flex space-x-2 pt-2">
-                    <button type="button" @click="modals.adminPin = false" class="w-1/2 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs">Batal</button>
-                    <button type="submit" class="w-1/2 py-2.5 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold rounded-xl text-xs">Masuk Admin</button>
-                </div>
-            </form>
-
-            <div class="text-center pt-2 border-t border-slate-100">
-                <button type="button" @click="resetAdminPinPrompt()" class="text-xs text-amber-700 hover:text-amber-800 font-semibold underline">
-                    Lupa PIN Admin?
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal Edit Peminjaman (Admin) -->
-    <div x-show="modals.editLoan" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 no-print" @click.away="modals.editLoan = false">
-        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
-            <div class="flex justify-between items-center border-b pb-3">
-                <div class="flex items-center space-x-2">
-                    <div class="w-9 h-9 bg-amber-100 text-amber-700 rounded-xl flex items-center justify-center text-base">
-                        <i class="fa-solid fa-pen-to-square"></i>
-                    </div>
-                    <div>
-                        <h3 class="font-bold text-slate-800 text-sm">Edit Data Peminjaman</h3>
-                        <p class="text-[11px] text-slate-500" x-text="formEditLoan.kodePinjam"></p>
-                    </div>
-                </div>
-                <button @click="modals.editLoan = false" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
-            </div>
-
-            <form @submit.prevent="saveEditLoan()" class="space-y-3 text-xs">
-                <div>
-                    <label class="font-bold text-slate-700 block mb-1">Nama Peminjam <span class="text-red-500">*</span></label>
-                    <input type="text" x-model="formEditLoan.namaPeminjam" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl">
-                </div>
-
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="font-bold text-slate-700 block mb-1">Kelas <span class="text-red-500">*</span></label>
-                        <input type="text" x-model="formEditLoan.kelas" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl">
-                    </div>
-                    <div>
-                        <label class="font-bold text-slate-700 block mb-1">NIS / NIP</label>
-                        <input type="text" x-model="formEditLoan.nis" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl">
-                    </div>
-                </div>
-
-                <div>
-                    <label class="font-bold text-slate-700 block mb-1">Status Peminjaman <span class="text-red-500">*</span></label>
-                    <select x-model="formEditLoan.status" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl">
-                        <option value="Menunggu Persetujuan">Menunggu Persetujuan</option>
-                        <option value="Dipinjam">Dipinjam</option>
-                        <option value="Dikembalikan">Dikembalikan</option>
-                        <option value="Ditolak">Ditolak</option>
-                    </select>
-                </div>
-
-                <div class="pt-2 flex justify-end space-x-2 border-t">
-                    <button type="button" @click="modals.editLoan = false" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl">Batal</button>
-                    <button type="submit" class="px-5 py-2 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold rounded-xl shadow">Simpan Perubahan</button>
+                    <button type="button" @click="modals.login = false" class="w-1/2 py-2.5 bg-slate-100 font-bold rounded-xl">Batal</button>
+                    <button type="submit" class="w-1/2 py-2.5 bg-amber-500 font-bold rounded-xl">Masuk</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- Modal Form Pinjam Mandiri -->
-    <div x-show="modals.studentLoan" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 no-print" @click.away="modals.studentLoan = false">
-        <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto custom-scrollbar">
-            <div class="flex justify-between items-center border-b pb-3">
-                <div class="flex items-center space-x-2">
-                    <div class="w-9 h-9 bg-amber-100 text-amber-700 rounded-xl flex items-center justify-center text-base">
-                        <i class="fa-solid fa-hand-holding-hand"></i>
-                    </div>
-                    <div>
-                        <h3 class="font-bold text-slate-800 text-sm">Form Peminjaman Alat Mandiri</h3>
-                        <p class="text-[11px] text-slate-500">Diisi oleh Siswa / Perwakilan Praktik TSM</p>
-                    </div>
-                </div>
-                <button @click="modals.studentLoan = false" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
-            </div>
+    <!-- SCRIPT MODULE FIREBASE & ALPINE APP -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { 
+            getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged 
+        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { 
+            getFirestore, doc, setDoc, deleteDoc, onSnapshot, collection, getDocs, getDoc,
+            runTransaction, serverTimestamp 
+        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-            <form @submit.prevent="submitStudentLoan()" class="space-y-4 text-xs">
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-slate-50 p-3 rounded-xl border border-slate-200">
-                    <div>
-                        <label class="font-bold text-slate-700 block mb-1">Nama Peminjam <span class="text-red-500">*</span></label>
-                        <input type="text" x-model="formStudentLoan.namaPeminjam" required placeholder="Nama Lengkap Siswa / Ketua Kelompok" 
-                               class="w-full p-2.5 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-amber-500">
-                    </div>
-                    <div>
-                        <label class="font-bold text-slate-700 block mb-1">Kelas / Bay Praktik <span class="text-red-500">*</span></label>
-                        <input type="text" x-model="formStudentLoan.kelas" required placeholder="Contoh: XII TSM 1 / Bay 2" 
-                               class="w-full p-2.5 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-amber-500">
-                    </div>
-                    <div class="sm:col-span-2">
-                        <label class="font-bold text-slate-700 block mb-1">NIS / NIP Peminjam</label>
-                        <input type="text" x-model="formStudentLoan.nis" placeholder="Nomor Induk Siswa (Opsional)" 
-                               class="w-full p-2.5 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-amber-500">
-                    </div>
-                </div>
+        const firebaseConfig = {
+            apiKey: "AIzaSyDMt9Y9xy6J5470BYH9GjqjdnVBYMt3kfc",
+            authDomain: "simbengkeltsm.firebaseapp.com",
+            projectId: "simbengkeltsm",
+            storageBucket: "simbengkeltsm.firebasestorage.app",
+            messagingSenderId: "675793932175",
+            appId: "1:675793932175:web:11b08b2a90b9b04e8645fa"
+        };
 
-                <div class="space-y-3">
-                    <div class="flex justify-between items-center border-b pb-1">
-                        <label class="font-bold text-slate-800 text-xs flex items-center space-x-1.5">
-                            <i class="fa-solid fa-toolbox text-amber-600"></i>
-                            <span>Daftar Alat yang Dipinjam</span>
-                        </label>
-                        <button type="button" @click="addToolToLoan()" class="text-[11px] font-bold text-amber-700 hover:text-amber-800 bg-amber-100 hover:bg-amber-200 px-2.5 py-1 rounded-lg transition flex items-center space-x-1">
-                            <i class="fa-solid fa-plus text-[10px]"></i>
-                            <span>+ Tambah Alat Lain</span>
-                        </button>
-                    </div>
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
 
-                    <div class="space-y-2.5 max-h-60 overflow-y-auto custom-scrollbar pr-1">
-                        <template x-for="(item, index) in formStudentLoan.items" :key="index">
-                            <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl relative space-y-2">
-                                <div class="flex items-center justify-between">
-                                    <span class="text-[11px] font-bold text-slate-600" x-text="'Alat #' + (index + 1)"></span>
-                                    <template x-if="formStudentLoan.items.length > 1">
-                                        <button type="button" @click="removeToolFromLoan(index)" class="text-red-500 hover:text-red-700 text-xs font-semibold flex items-center space-x-1">
-                                            <i class="fa-solid fa-trash-can text-[10px]"></i>
-                                            <span>Hapus</span>
-                                        </button>
-                                    </template>
-                                </div>
-
-                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                                    <div class="sm:col-span-2">
-                                        <label class="text-[10px] font-bold text-slate-500 block mb-0.5">Pilih Alat <span class="text-red-500">*</span></label>
-                                        <select x-model="item.alatId" required class="w-full p-2 bg-white border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-amber-500">
-                                            <option value="">-- Pilih Alat --</option>
-                                            <template x-for="alat in alatList" :key="alat.id">
-                                                <option :value="alat.id" :disabled="alat.jumlahTersedia <= 0" 
-                                                        x-text="alat.namaAlat + ' (' + alat.kodeAlat + ') — Tersedia: ' + alat.jumlahTersedia + ' Unit'">
-                                                </option>
-                                            </template>
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <label class="text-[10px] font-bold text-slate-500 block mb-0.5">Jumlah <span class="text-red-500">*</span></label>
-                                        <input type="number" x-model.number="item.jumlah" min="1" required 
-                                               class="w-full p-2 bg-white border border-slate-200 rounded-lg text-xs font-bold text-center focus:ring-2 focus:ring-amber-500">
-                                    </div>
-                                </div>
-                            </div>
-                        </template>
-                    </div>
-                </div>
-
-                <div class="pt-2 flex justify-end space-x-2 border-t">
-                    <button type="button" @click="modals.studentLoan = false" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl">Batal</button>
-                    <button type="submit" class="px-5 py-2 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold rounded-xl shadow">
-                        Kirim Pengajuan
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Modal Tandai Kembali -->
-    <div x-show="modals.return" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 no-print" @click.away="modals.return = false">
-        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
-            <div class="flex justify-between items-center border-b pb-3">
-                <div class="flex items-center space-x-2">
-                    <div class="w-9 h-9 bg-indigo-100 text-indigo-700 rounded-xl flex items-center justify-center text-base">
-                        <i class="fa-solid fa-rotate-left"></i>
-                    </div>
-                    <div>
-                        <h3 class="font-bold text-slate-800 text-sm">Validasi Pengembalian Alat</h3>
-                        <p class="text-[11px] text-slate-500" x-text="selectedLoanReturn ? selectedLoanReturn.namaAlat : ''"></p>
-                    </div>
-                </div>
-                <button @click="modals.return = false" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
-            </div>
-
-            <form @submit.prevent="processReturn()" class="space-y-3 text-xs">
-                <template x-if="selectedLoanReturn">
-                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-1">
-                        <p class="font-bold text-slate-800" x-text="'Peminjam: ' + (selectedLoanReturn ? selectedLoanReturn.namaPeminjam : '')"></p>
-                        <p class="text-slate-500" x-text="'Jumlah: ' + (selectedLoanReturn ? selectedLoanReturn.jumlah : 1) + ' Unit | Kelas: ' + (selectedLoanReturn ? selectedLoanReturn.kelas : '')"></p>
-                    </div>
-                </template>
-
-                <div>
-                    <label class="font-bold text-slate-700 block mb-1">Kondisi Alat Saat Dikembalikan <span class="text-red-500">*</span></label>
-                    <select x-model="formReturn.kondisi" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500">
-                        <option value="Baik">Kondisi Baik (Sesuai Semula)</option>
-                        <option value="Perlu Servis">Perlu Servis / Perbaikan Ringan</option>
-                        <option value="Rusak">Rusak / Tidak Dapat Digunakan</option>
-                    </select>
-                </div>
-
-                <div class="pt-2 flex justify-end space-x-2 border-t">
-                    <button type="button" @click="modals.return = false" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl">Batal</button>
-                    <button type="submit" class="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow">
-                        Konfirmasi Kembali
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Modal Form Alat -->
-    <div x-show="modals.alat" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 no-print" @click.away="modals.alat = false">
-        <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto custom-scrollbar">
-            <div class="flex justify-between items-center border-b pb-3">
-                <div class="flex items-center space-x-2">
-                    <div class="w-9 h-9 bg-amber-100 text-amber-700 rounded-xl flex items-center justify-center text-base">
-                        <i class="fa-solid fa-wrench"></i>
-                    </div>
-                    <div>
-                        <h3 class="font-bold text-slate-800 text-sm" x-text="formAlat.id ? 'Edit Data Alat Inventaris' : 'Tambah Alat Inventaris Baru'"></h3>
-                        <p class="text-[11px] text-slate-500">Kelola master data alat bengkel TSM</p>
-                    </div>
-                </div>
-                <button @click="modals.alat = false" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
-            </div>
-
-            <form @submit.prevent="saveAlat()" class="space-y-3 text-xs">
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="font-bold text-slate-700 block mb-1">Kode Alat <span class="text-red-500">*</span></label>
-                        <input type="text" x-model="formAlat.kodeAlat" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl font-mono">
-                    </div>
-                    <div>
-                        <label class="font-bold text-slate-700 block mb-1">Kategori Alat <span class="text-red-500">*</span></label>
-                        <select x-model="formAlat.kategori" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl">
-                            <option value="Hand Tools">Hand Tools</option>
-                            <option value="Special Service Tools (SST)">Special Service Tools (SST)</option>
-                            <option value="Power Tools">Power Tools</option>
-                            <option value="Measuring Tools">Measuring Tools (Alat Ukur)</option>
-                            <option value="Diagnostic Tools">Diagnostic Tools</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div>
-                    <label class="font-bold text-slate-700 block mb-1">Nama Alat Praktik <span class="text-red-500">*</span></label>
-                    <input type="text" x-model="formAlat.namaAlat" required placeholder="Contoh: Kunci Momen 1/2 Inch" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl">
-                </div>
-
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="font-bold text-slate-700 block mb-1">Merk / Brand</label>
-                        <input type="text" x-model="formAlat.merk" placeholder="Contoh: Tekiro, Mitutoyo" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl">
-                    </div>
-                    <div>
-                        <label class="font-bold text-slate-700 block mb-1">Lokasi Rak / Lemari <span class="text-red-500">*</span></label>
-                        <input type="text" x-model="formAlat.lokasiRak" required placeholder="Contoh: RAK-A1" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl font-mono">
-                    </div>
-                </div>
-
-                <div class="border-t pt-2 space-y-2">
-                    <p class="font-bold text-slate-800">Rincian Jumlah & Kondisi Unit</p>
-                    <div class="grid grid-cols-4 gap-2">
-                        <div>
-                            <label class="text-[11px] font-bold text-slate-600 block mb-0.5">Total Qty</label>
-                            <input type="number" x-model.number="formAlat.jumlahTotal" min="1" required class="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg text-center font-bold">
-                        </div>
-                        <div>
-                            <label class="text-[11px] font-bold text-emerald-700 block mb-0.5">Kondisi Baik</label>
-                            <input type="number" x-model.number="formAlat.kondisiBaik" min="0" required class="w-full p-2 bg-emerald-50 border border-emerald-200 rounded-lg text-center font-bold text-emerald-800">
-                        </div>
-                        <div>
-                            <label class="text-[11px] font-bold text-amber-700 block mb-0.5">Perlu Servis</label>
-                            <input type="number" x-model.number="formAlat.kondisiServis" min="0" required class="w-full p-2 bg-amber-50 border border-amber-200 rounded-lg text-center font-bold text-amber-800">
-                        </div>
-                        <div>
-                            <label class="text-[11px] font-bold text-red-700 block mb-0.5">Rusak</label>
-                            <input type="number" x-model.number="formAlat.kondisiRusak" min="0" required class="w-full p-2 bg-red-50 border border-red-200 rounded-lg text-center font-bold text-red-800">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="pt-2 flex justify-end space-x-2 border-t">
-                    <button type="button" @click="modals.alat = false" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl">Batal</button>
-                    <button type="submit" class="px-5 py-2 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold rounded-xl shadow">Simpan Data Alat</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Modal Form Bahan -->
-    <div x-show="modals.bahan" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 no-print" @click.away="modals.bahan = false">
-        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
-            <div class="flex justify-between items-center border-b pb-3">
-                <div class="flex items-center space-x-2">
-                    <div class="w-9 h-9 bg-amber-100 text-amber-700 rounded-xl flex items-center justify-center text-base">
-                        <i class="fa-solid fa-boxes-packing"></i>
-                    </div>
-                    <div>
-                        <h3 class="font-bold text-slate-800 text-sm">Tambah Bahan Praktik Baru</h3>
-                        <p class="text-[11px] text-slate-500">Bahan habis pakai bengkel TSM</p>
-                    </div>
-                </div>
-                <button @click="modals.bahan = false" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
-            </div>
-
-            <form @submit.prevent="saveBahan()" class="space-y-3 text-xs">
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="font-bold text-slate-700 block mb-1">Kode Bahan <span class="text-red-500">*</span></label>
-                        <input type="text" x-model="formBahan.kodeBahan" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl font-mono">
-                    </div>
-                    <div>
-                        <label class="font-bold text-slate-700 block mb-1">Satuan Ukuran <span class="text-red-500">*</span></label>
-                        <select x-model="formBahan.satuan" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl">
-                            <option value="Botol">Botol</option>
-                            <option value="Pcs">Pcs</option>
-                            <option value="Kaleng">Kaleng</option>
-                            <option value="Liter">Liter</option>
-                            <option value="Kg">Kg</option>
-                            <option value="Roll">Roll</option>
-                            <option value="Box">Box</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div>
-                    <label class="font-bold text-slate-700 block mb-1">Nama Bahan Praktik <span class="text-red-500">*</span></label>
-                    <input type="text" x-model="formBahan.namaBahan" required placeholder="Contoh: Oli MPX2 10W-30" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl">
-                </div>
-
-                <div>
-                    <label class="font-bold text-slate-700 block mb-1">Spesifikasi / Keterangan</label>
-                    <input type="text" x-model="formBahan.spesifikasi" placeholder="Contoh: Standard Honda Matic" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl">
-                </div>
-
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="font-bold text-slate-700 block mb-1">Stok Awal Sistem <span class="text-red-500">*</span></label>
-                        <input type="number" x-model.number="formBahan.stokSistem" min="0" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl font-bold">
-                    </div>
-                    <div>
-                        <label class="font-bold text-slate-700 block mb-1">Batas Min. Stok (Peringatan) <span class="text-red-500">*</span></label>
-                        <input type="number" x-model.number="formBahan.minStok" min="1" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl font-bold text-amber-700">
-                    </div>
-                </div>
-
-                <div class="pt-2 flex justify-end space-x-2 border-t">
-                    <button type="button" @click="modals.bahan = false" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl">Batal</button>
-                    <button type="submit" class="px-5 py-2 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold rounded-xl shadow">Simpan Bahan</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Modal Adjust Opname -->
-    <div x-show="modals.opname" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 no-print" @click.away="modals.opname = false">
-        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
-            <div class="flex justify-between items-center border-b pb-3">
-                <div class="flex items-center space-x-2">
-                    <div class="w-9 h-9 bg-slate-900 text-amber-400 rounded-xl flex items-center justify-center text-base">
-                        <i class="fa-solid fa-pen-ruler"></i>
-                    </div>
-                    <div>
-                        <h3 class="font-bold text-slate-800 text-sm">Penyesuaian Stok Opname (Adjust)</h3>
-                        <p class="text-[11px] text-slate-500" x-text="selectedBahanOpname ? selectedBahanOpname.namaBahan : ''"></p>
-                    </div>
-                </div>
-                <button @click="modals.opname = false" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
-            </div>
-
-            <form @submit.prevent="saveOpnameAdjustment()" class="space-y-3 text-xs">
-                <template x-if="selectedBahanOpname">
-                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 grid grid-cols-2 gap-2 text-center">
-                        <div>
-                            <p class="text-slate-500 text-[10px] uppercase font-bold">Stok Sistem</p>
-                            <p class="font-black text-slate-800 text-base" x-text="selectedBahanOpname ? selectedBahanOpname.stokSistem + ' ' + selectedBahanOpname.satuan : ''"></p>
-                        </div>
-                        <div>
-                            <p class="text-slate-500 text-[10px] uppercase font-bold">Stok Fisik Saat Ini</p>
-                            <p class="font-black text-blue-700 text-base" x-text="selectedBahanOpname ? selectedBahanOpname.stokFisik + ' ' + selectedBahanOpname.satuan : ''"></p>
-                        </div>
-                    </div>
-                </template>
-
-                <div>
-                    <label class="font-bold text-slate-700 block mb-1">Hasil Perhitungan Fisik Baru <span class="text-red-500">*</span></label>
-                    <input type="number" x-model.number="formOpname.stokFisik" min="0" required class="w-full p-3 bg-slate-50 border-2 border-amber-400 rounded-xl font-black text-center text-lg text-slate-800">
-                </div>
-
-                <div class="pt-2 flex justify-end space-x-2 border-t">
-                    <button type="button" @click="modals.opname = false" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl">Batal</button>
-                    <button type="submit" class="px-5 py-2 bg-slate-900 hover:bg-slate-800 text-amber-400 font-bold rounded-xl shadow">Update Opname</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Modal Catat / Edit Penggunaan -->
-    <div x-show="modals.usage" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 no-print" @click.away="modals.usage = false">
-        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
-            <div class="flex justify-between items-center border-b pb-3">
-                <div class="flex items-center space-x-2">
-                    <div class="w-9 h-9 bg-amber-100 text-amber-700 rounded-xl flex items-center justify-center text-base">
-                        <i class="fa-solid fa-receipt"></i>
-                    </div>
-                    <div>
-                        <h3 class="font-bold text-slate-800 text-sm" x-text="formUsage.id ? 'Edit Catatan Penggunaan Bahan' : 'Catat Penggunaan Bahan Praktik'"></h3>
-                        <p class="text-[11px] text-slate-500">Otomatis memotong/menyesuaikan stok opname bahan</p>
-                    </div>
-                </div>
-                <button @click="modals.usage = false" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
-            </div>
-
-            <form @submit.prevent="saveUsage()" class="space-y-3 text-xs">
-                <div>
-                    <label class="font-bold text-slate-700 block mb-1">Pilih Bahan Praktik <span class="text-red-500">*</span></label>
-                    <select x-model="formUsage.bahanId" @change="updateUsageUnit()" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-amber-500">
-                        <option value="">-- Pilih Bahan --</option>
-                        <template x-for="bahan in bahanList" :key="bahan.id">
-                            <option :value="bahan.id" :disabled="bahan.stokSistem <= 0 && formUsage.bahanId !== bahan.id" 
-                                    x-text="bahan.namaBahan + ' (Sisa Stok: ' + bahan.stokSistem + ' ' + bahan.satuan + ')'">
-                            </option>
-                        </template>
-                    </select>
-                </div>
-
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="font-bold text-slate-700 block mb-1">Jumlah Pakai <span class="text-red-500">*</span></label>
-                        <input type="number" x-model.number="formUsage.jumlah" min="1" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl font-bold">
-                    </div>
-                    <div>
-                        <label class="font-bold text-slate-700 block mb-1">Satuan</label>
-                        <input type="text" x-model="formUsage.satuan" readonly class="w-full p-2.5 bg-slate-100 border border-slate-200 rounded-xl font-semibold text-slate-600">
-                    </div>
-                </div>
-
-                <div>
-                    <label class="font-bold text-slate-700 block mb-1">Kelas / Kelompok Praktik <span class="text-red-500">*</span></label>
-                    <input type="text" x-model="formUsage.kelas" required placeholder="Contoh: XI TSM 1 / Kelompok 3" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl">
-                </div>
-
-                <div>
-                    <label class="font-bold text-slate-700 block mb-1">Topik / Materi Praktik <span class="text-red-500">*</span></label>
-                    <input type="text" x-model="formUsage.topik" required placeholder="Contoh: Tune Up & Servis Berkala CVT" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl">
-                </div>
-
-                <div>
-                    <label class="font-bold text-slate-700 block mb-1">Guru / Instruktur Pengampu <span class="text-red-500">*</span></label>
-                    <input type="text" x-model="formUsage.instruktur" required placeholder="Nama Guru Pengampu Praktik" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl">
-                </div>
-
-                <div class="pt-2 flex justify-end space-x-2 border-t">
-                    <button type="button" @click="modals.usage = false" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl">Batal</button>
-                    <button type="submit" class="px-5 py-2 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold rounded-xl shadow">Simpan Pemakaian</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Modal Confirm Delete -->
-    <div x-show="modals.confirmDelete.show" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 no-print" @click.away="modals.confirmDelete.show = false">
-        <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl space-y-4 text-center">
-            <div class="w-12 h-12 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto text-xl">
-                <i class="fa-solid fa-trash-can"></i>
-            </div>
-            <div>
-                <h3 class="font-bold text-slate-800 text-base">Hapus Data Ini?</h3>
-                <p class="text-xs text-slate-500 mt-1" x-text="'Apakah Anda yakin ingin menghapus data `' + modals.confirmDelete.name + '`?'"></p>
-            </div>
-            <div class="flex space-x-2 pt-2">
-                <button type="button" @click="modals.confirmDelete.show = false" class="w-1/2 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs">Batal</button>
-                <button type="button" @click="executeDelete()" class="w-1/2 py-2.5 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl text-xs shadow">Hapus Permanent</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- JAVASCRIPT LOGIC -->
-    <script>
-        function toUtf8Base64(str) {
-            return btoa(unescape(encodeURIComponent(str)));
-        }
-
-        window.defaultStemsagoSvg = "data:image/svg+xml;base64," + toUtf8Base64(`
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500">
-                <circle cx="250" cy="120" r="100" fill="#FFD700"/>
-                <circle cx="370" cy="210" r="100" fill="#FF8C00"/>
-                <circle cx="330" cy="360" r="100" fill="#00A859"/>
-                <circle cx="170" cy="360" r="100" fill="#0080FF"/>
-                <circle cx="130" cy="210" r="100" fill="#E31B23"/>
-                <circle cx="250" cy="250" r="125" fill="#003399" stroke="#FFFFFF" stroke-width="8"/>
-                <circle cx="250" cy="250" r="60" fill="#FFFFFF"/>
-                <path id="txtArcTop" d="M 140,250 A 110,110 0 1,1 360,250" fill="none"/>
-                <path id="txtArcBot" d="M 360,250 A 110,110 0 0,1 140,250" fill="none"/>
-                <text font-family="Arial, sans-serif" font-weight="900" font-size="20" fill="#FFFFFF" text-anchor="middle">
-                    <textPath href="#txtArcTop" startOffset="50%">SMK NEGERI 1 GOMBONG</textPath>
-                </text>
-                <text font-family="Arial, sans-serif" font-weight="bold" font-size="17" fill="#FFFFFF" text-anchor="middle">
-                    <textPath href="#txtArcBot" startOffset="50%">★ KEBUMEN ★ 02041996</textPath>
-                </text>
-            </svg>
-        `);
-
-        window.defaultTsmSvg = "data:image/svg+xml;base64," + toUtf8Base64(`
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 450">
-                <path d="M 20 40 L 380 40 C 380 270, 290 400, 200 430 C 110 400, 20 270, 20 40 Z" fill="#1E90FF" stroke="#000000" stroke-width="12"/>
-                <path d="M 20 40 L 380 40 L 350 100 L 50 100 Z" fill="#FFD700" stroke="#000000" stroke-width="6"/>
-                <text x="200" y="78" font-family="Arial, sans-serif" font-weight="900" font-size="20" fill="#FF0000" text-anchor="middle">TEKNIK SEPEDA MOTOR</text>
-                <circle cx="200" cy="240" r="90" fill="#FF8C00"/>
-                <circle cx="200" cy="240" r="70" fill="#FFD700"/>
-                <text x="200" y="365" font-family="Arial, sans-serif" font-weight="bold" font-size="18" fill="#FFFFFF" text-anchor="middle">SMK NEGERI 1 GOMBONG</text>
-            </svg>
-        `);
-
-        function tsmApp() {
+        window.tsmApp = function () {
             return {
-                defaultStemsagoSvg: window.defaultStemsagoSvg,
-                defaultTsmSvg: window.defaultTsmSvg,
+                defaultLogo: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='40' fill='%23FF8C00'/%3E%3C/svg%3E",
                 userRole: 'pelihat',
-                adminPinInput: '',
-                adminPin: '1234',
-                pendingSettingsOpen: false,
+                currentUser: null,
+                loginForm: { email: '', password: '' },
+                cloudConnected: true,
                 activeTab: 'dashboard',
                 currentDate: '',
                 currentTime: '',
-                searchAlat: '',
-                filterKategoriAlat: '',
-                searchBahan: '',
-                loanFilter: 'pending',
-                cloudConnected: false,
-                db: null,
 
-                selectedReportMonth: new Date().toISOString().slice(0, 7),
-                selectedReportType: 'all',
-
-                settings: {
-                    namaAplikasi: 'SISTEM MANAJEMEN BENGKEL TSM',
-                    namaSekolah: 'SMK NEGERI 1 GOMBONG',
-                    namaKejuruan: 'Kompetensi Keahlian Teknik Sepeda Motor (TSM)',
-                    singkatanBengkel: 'TSM STEMSAGO',
-                    alamatHeader: 'Jalan Wilis Nomor 15 Wero Gombong Kebumen, Kode Pos 54416 | Telp: 0287-472828',
-                    namaKepalaBengkel: 'Sugeng Wibowo, S.Pd.',
-                    nipKepalaBengkel: 'NIP. 19820512 200801 1 009',
-                    namaToolman: 'Teknis TSM STEMSAGO',
-                    nipToolman: 'SMK Negeri 1 Gombong',
-                    logoKiriUrl: 'https://upload.wikimedia.org/wikipedia/commons/a/a2/Jawa_Tengah_co_a.png',
-                    logoKananUrl: 'Logo_Stemsago.png',
-                    logoTsmUrl: 'https://drive.usercontent.google.com/download?id=1zQxmaGlCvy3rbJZGDXPPtGNwYqDfivSD&authuser=0'
-                },
-
-                pinForm: { oldPin: '', newPin: '', confirmPin: '' },
-                toast: { show: false, title: '', message: '', type: 'success' },
-
-                modals: {
-                    adminPin: false,
-                    studentLoan: false,
-                    return: false,
-                    alat: false,
-                    bahan: false,
-                    opname: false,
-                    usage: false,
-                    editLoan: false,
-                    settingsModal: false,
-                    confirmDelete: { show: false, type: '', id: '', name: '' }
-                },
-
-                formStudentLoan: { namaPeminjam: '', kelas: '', nis: '', items: [{ alatId: '', jumlah: 1 }] },
-                formEditLoan: { id: null, kodePinjam: '', namaPeminjam: '', kelas: '', nis: '', status: 'Menunggu Persetujuan' },
-                selectedLoanReturn: null,
-                formReturn: { kondisi: 'Baik', catatan: '' },
-                formAlat: { id: null, kodeAlat: '', namaAlat: '', kategori: 'Hand Tools', merk: '', lokasiRak: '', jumlahTotal: 1, kondisiBaik: 1, kondisiServis: 0, kondisiRusak: 0 },
-                formBahan: { kodeBahan: '', namaBahan: '', spesifikasi: '', satuan: 'Liter', stokSistem: 10, minStok: 2 },
-                selectedBahanOpname: null,
-                formOpname: { stokFisik: 0 },
-                formUsage: { id: null, bahanId: '', jumlah: 1, satuan: '', kelas: '', topik: '', instruktur: '' },
-
-                // State array utama yang sepenuhnya dikendalikan oleh Firebase Snapshot
                 alatList: [],
                 bahanList: [],
-                usageLogs: [],
                 loanList: [],
+                settings: {},
+                toast: { show: false, title: '', message: '', type: 'success' },
+                modals: { login: false, studentLoan: false },
 
                 async initApp() {
                     this.updateClock();
                     setInterval(() => this.updateClock(), 1000);
 
-                    if (window.FirebaseSDK) {
-                        await this.initCloudStorage();
-                    } else {
-                        window.addEventListener('firebase-sdk-loaded', async () => {
-                            await this.initCloudStorage();
-                        });
-                    }
-                },
-
-                async reconnectCloud() {
-                    this.showToast('Mencoba Rekoneksi...', 'Menghubungkan ke database Firebase Cloud...');
-                    await this.initCloudStorage();
-                },
-
-                async initCloudStorage() {
-                    try {
-                        const myFirebaseConfig = {
-                            apiKey: "AIzaSyDMt9Y9xy6J5470BYH9GjqjdnVBYMt3kfc",
-                            authDomain: "simbengkeltsm.firebaseapp.com",
-                            projectId: "simbengkeltsm",
-                            storageBucket: "simbengkeltsm.firebasestorage.app",
-                            messagingSenderId: "675793932175",
-                            appId: "1:675793932175:web:11b08b2a90b9b04e8645fa"
-                        };
-
-                        const appId = typeof __app_id !== 'undefined' ? __app_id : 'tsm-bengkel-gombong';
-                        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : myFirebaseConfig;
-                        
-                        if (!firebaseConfig || !window.FirebaseSDK) return;
-
-                        const { initializeApp, getAuth, signInAnonymously, signInWithCustomToken, getFirestore, doc, setDoc, onSnapshot, collection, getDocs } = window.FirebaseSDK;
-                        
-                        const app = initializeApp(firebaseConfig);
-                        const auth = getAuth(app);
-                        this.db = getFirestore(app);
-
-                        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
-                        if (initialAuthToken) {
-                            await signInWithCustomToken(auth, initialAuthToken);
-                        } else {
-                            await signInAnonymously(auth);
-                        }
-
-                        this.cloudConnected = true;
-
-                        const publicPath = (col) => collection(this.db, 'artifacts', appId, 'public', 'data', col);
-
-                        // SEED DATA AWAL KE FIREBASE (jika koleksi masih kosong)
-                        const seedCheck = async () => {
+                    onAuthStateChanged(auth, async (user) => {
+                        if (user) {
+                            this.currentUser = user;
                             try {
-                                const alatSnap = await getDocs(publicPath('alat'));
-                                if (alatSnap.empty) {
-                                    const seedAlat = [
-                                        { id: '1', kodeAlat: 'ALT-TSM-001', namaAlat: 'Kunci T Set 8-10-12-14mm', kategori: 'Hand Tools', merk: 'Tekiro', lokasiRak: 'RAK-A1', jumlahTotal: 10, jumlahTersedia: 8, kondisiBaik: 10, kondisiServis: 0, kondisiRusak: 0 },
-                                        { id: '2', kodeAlat: 'ALT-TSM-002', namaAlat: 'Kunci Momen (Torque Wrench) 1/2"', kategori: 'Measuring Tools', merk: 'Matsu', lokasiRak: 'RAK-A2', jumlahTotal: 4, jumlahTersedia: 3, kondisiBaik: 4, kondisiServis: 0, kondisiRusak: 0 },
-                                        { id: '3', kodeAlat: 'ALT-TSM-003', namaAlat: 'Diagnostic Tool Injection Scanner', kategori: 'Diagnostic Tools', merk: 'MST-100P', lokasiRak: 'RAK-D1', jumlahTotal: 3, jumlahTersedia: 2, kondisiBaik: 3, kondisiServis: 0, kondisiRusak: 0 },
-                                        { id: '4', kodeAlat: 'ALT-TSM-004', namaAlat: 'Jangka Sorong (Vernier Caliper) 0.02mm', kategori: 'Measuring Tools', merk: 'Mitutoyo', lokasiRak: 'RAK-B1', jumlahTotal: 12, jumlahTersedia: 11, kondisiBaik: 11, kondisiServis: 1, kondisiRusak: 0 },
-                                        { id: '5', kodeAlat: 'ALT-TSM-005', namaAlat: 'Flywheel Pulleys Holder / Treker CVT', kategori: 'Special Service Tools (SST)', merk: 'Honda Tool', lokasiRak: 'RAK-C2', jumlahTotal: 6, jumlahTersedia: 6, kondisiBaik: 5, kondisiServis: 1, kondisiRusak: 0 }
-                                    ];
-                                    const seedBahan = [
-                                        { id: '1', kodeBahan: 'BHN-TSM-01', namaBahan: 'Mata Gergaji Besi', spesifikasi: '12" inch 300 mm BAHCO SANDVIK - 18TPI', satuan: 'Pcs', stokSistem: 8, stokFisik: 8, minStok: 3 },
-                                        { id: '2', kodeBahan: 'BHN-TSM-02', namaBahan: 'Thinner', spesifikasi: 'Impala Thinner 5 L', satuan: 'Kaleng', stokSistem: 5, stokFisik: 5, minStok: 2 },
-                                        { id: '3', kodeBahan: 'BHN-TSM-03', namaBahan: 'Baut Bleeding (Niple)', spesifikasi: 'Drat Kasar Screw Bleeder Motor Honda', satuan: 'Pcs', stokSistem: 10, stokFisik: 10, minStok: 4 }
-                                    ];
-                                    const seedUsage = [
-                                        { id: '101', bahanId: '1', namaBahan: 'Mata Gergaji Besi', jumlah: 2, satuan: 'Pcs', kelas: 'XI TSM 1', topik: 'Praktik Pemotongan Logam Dasar', instruktur: 'Sugeng Wibowo, S.Pd.', timestamp: new Date().toISOString() }
-                                    ];
-                                    const seedLoans = [
-                                        { id: '201', kodePinjam: 'TRX-20260810-01', alatId: '1', namaAlat: 'Kunci T Set 8-10-12-14mm', jumlah: 2, namaPeminjam: 'Bagas Aditya', kelas: 'XII TSM 2', nis: '12450', tanggalPinjam: new Date().toISOString(), tanggalKembali: null, status: 'Dipinjam', kondisiKembali: null },
-                                        { id: '202', kodePinjam: 'TRX-20260810-02', alatId: '3', namaAlat: 'Diagnostic Tool Injection Scanner', jumlah: 1, namaPeminjam: 'Rian Prasetyo', kelas: 'XII TSM 1', nis: '12488', tanggalPinjam: new Date().toISOString(), tanggalKembali: null, status: 'Menunggu Persetujuan', kondisiKembali: null }
-                                    ];
-
-                                    seedAlat.forEach(a => this.syncCollectionItem('alat', a.id, a));
-                                    seedBahan.forEach(b => this.syncCollectionItem('bahan', b.id, b));
-                                    seedUsage.forEach(u => this.syncCollectionItem('usage', u.id, u));
-                                    seedLoans.forEach(l => this.syncCollectionItem('loans', l.id, l));
-                                    this.syncCollectionItem('config', 'settings', this.settings);
-                                }
-                            } catch(e) { console.log('Seed check info:', e); }
-                        };
-                        seedCheck();
-
-                        // REALTIME LISTENERS - Menjadikan Firestore sebagai sumber data tunggal
-                        onSnapshot(publicPath('alat'), (snap) => {
-                            this.alatList = snap.docs.map(d => ({ ...d.data(), id: d.id }));
-                        });
-
-                        onSnapshot(publicPath('bahan'), (snap) => {
-                            this.bahanList = snap.docs.map(d => ({ ...d.data(), id: d.id }));
-                        });
-
-                        onSnapshot(publicPath('usage'), (snap) => {
-                            this.usageLogs = snap.docs.map(d => ({ ...d.data(), id: d.id })).sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
-                        });
-
-                        onSnapshot(publicPath('loans'), (snap) => {
-                            this.loanList = snap.docs.map(d => ({ ...d.data(), id: d.id })).sort((a,b) => new Date(b.tanggalPinjam) - new Date(a.tanggalPinjam));
-                        });
-
-                        onSnapshot(doc(this.db, 'artifacts', appId, 'public', 'data', 'config', 'settings'), (snap) => {
-                            if (snap.exists()) {
-                                const data = snap.data();
-                                this.settings = { ...this.settings, ...data };
-                                if (data.adminPin) this.adminPin = data.adminPin;
+                                const userSnap = await getDoc(doc(db, 'users', user.uid));
+                                this.userRole = (userSnap.exists() && userSnap.data().role === 'admin') ? 'admin' : 'pelihat';
+                            } catch(e) {
+                                this.userRole = 'pelihat';
                             }
-                        });
+                        } else {
+                            this.currentUser = null;
+                            this.userRole = 'pelihat';
+                        }
+                    });
 
-                    } catch (e) {
-                        console.error('Koneksi Firebase gagal.', e);
-                        this.cloudConnected = false;
-                        this.showToast('Koneksi Gagal', 'Gagal menghubungkan ke Firebase Cloud', 'error');
+                    onSnapshot(collection(db, 'alat'), (snap) => {
+                        this.alatList = snap.docs.map(d => ({ ...d.data(), id: d.id }));
+                    });
+
+                    onSnapshot(collection(db, 'bahan'), (snap) => {
+                        this.bahanList = snap.docs.map(d => ({ ...d.data(), id: d.id }));
+                    });
+
+                    onSnapshot(collection(db, 'loans'), (snap) => {
+                        this.loanList = snap.docs.map(d => ({ ...d.data(), id: d.id }));
+                    });
+
+                    onSnapshot(doc(db, 'settings', 'general'), (snap) => {
+                        if (snap.exists()) this.settings = snap.data();
+                    });
+                },
+
+                async loginAdmin() {
+                    try {
+                        await signInWithEmailAndPassword(auth, this.loginForm.email, this.loginForm.password);
+                        this.modals.login = false;
+                        this.loginForm = { email: '', password: '' };
+                        this.showToast('Login Berhasil', 'Masuk Mode Admin');
+                    } catch (err) {
+                        this.showToast('Login Gagal', err.message, 'error');
                     }
                 },
 
-                async syncCollectionItem(collectionName, itemId, data) {
-                    try {
-                        if (!this.db) return;
-                        const { doc, setDoc } = window.FirebaseSDK;
-                        const appId = typeof __app_id !== 'undefined' ? __app_id : 'tsm-bengkel-gombong';
-                        await setDoc(doc(this.db, 'artifacts', appId, 'public', 'data', collectionName, itemId), data);
-                    } catch (err) {
-                        console.error('Firebase SetDoc Error:', err);
-                        this.showToast('Gagal Menyimpan', 'Terjadi kesalahan saat update data ke Firebase', 'error');
-                    }
+                async logout() {
+                    await signOut(auth);
+                    this.showToast('Logout', 'Anda kembali ke Mode Pelihat');
                 },
 
-                async deleteCollectionItem(collectionName, itemId) {
-                    try {
-                        if (!this.db) return;
-                        const { doc, deleteDoc } = window.FirebaseSDK;
-                        const appId = typeof __app_id !== 'undefined' ? __app_id : 'tsm-bengkel-gombong';
-                        await deleteDoc(doc(this.db, 'artifacts', appId, 'public', 'data', collectionName, itemId));
-                    } catch (err) {
-                        console.error('Firebase DeleteDoc Error:', err);
-                    }
+                get pendingLoans() { return this.loanList.filter(l => l.status === 'Menunggu Persetujuan'); },
+                get pendingLoansCount() { return this.pendingLoans.length; },
+                get activeLoansCount() { return this.loanList.filter(l => l.status === 'Dipinjam').length; },
+                get totalToolItems() { return this.alatList.length; },
+                get lowStockCount() { return this.bahanList.filter(b => b.stokSistem <= b.minStok).length; },
+
+                showToast(title, message, type = 'success') {
+                    this.toast = { show: true, title, message, type };
+                    setTimeout(() => { this.toast.show = false; }, 3000);
                 },
 
                 updateClock() {
                     const now = new Date();
                     this.currentDate = now.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-                    this.currentTime = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) + ' WIB';
-                },
-
-                formatDateSimple() {
-                    const now = new Date();
-                    return now.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
-                },
-
-                showToast(title, message, type = 'success') {
-                    this.toast = { show: true, title, message, type };
-                    setTimeout(() => { this.toast.show = false; }, 3500);
-                },
-
-                // EXPORT EXCEL FUNCTIONS
-                downloadExcel(dataArray, filenamePrefix) {
-                    if (!dataArray || dataArray.length === 0) {
-                        this.showToast('Data Kosong', 'Tidak ada data untuk diexport', 'error');
-                        return;
-                    }
-                    if (typeof XLSX === 'undefined') {
-                        this.showToast('Gagal', 'Pustaka Excel belum siap. Silakan coba lagi.', 'error');
-                        return;
-                    }
-                    const worksheet = XLSX.utils.json_to_sheet(dataArray);
-                    const workbook = XLSX.utils.book_new();
-                    XLSX.utils.book_append_sheet(workbook, worksheet, 'Data');
-                    
-                    const dateStr = new Date().toISOString().slice(0, 10);
-                    XLSX.writeFile(workbook, `${filenamePrefix}_${dateStr}.xlsx`);
-                    this.showToast('Export Berhasil', `File ${filenamePrefix}_${dateStr}.xlsx berhasil diunduh`);
-                },
-
-                exportAlatToExcel() {
-                    const data = this.filteredAlat.map((item, index) => ({
-                        'No': index + 1,
-                        'Kode Alat': item.kodeAlat,
-                        'Nama Alat': item.namaAlat,
-                        'Merk': item.merk || '-',
-                        'Kategori': item.kategori,
-                        'Lokasi Rak': item.lokasiRak,
-                        'Total Unit': item.jumlahTotal,
-                        'Unit Tersedia': item.jumlahTersedia,
-                        'Kondisi Baik': item.kondisiBaik,
-                        'Perlu Servis': item.kondisiServis,
-                        'Kondisi Rusak': item.kondisiRusak
-                    }));
-                    this.downloadExcel(data, 'Inventaris_Alat_TSM');
-                },
-
-                exportBahanToExcel() {
-                    const data = this.filteredBahan.map((item, index) => ({
-                        'No': index + 1,
-                        'Kode Bahan': item.kodeBahan,
-                        'Nama Bahan Praktik': item.namaBahan,
-                        'Spesifikasi': item.spesifikasi || '-',
-                        'Satuan': item.satuan,
-                        'Stok Sistem': item.stokSistem,
-                        'Fisik (Opname)': item.stokFisik,
-                        'Selisih': item.stokFisik - item.stokSistem,
-                        'Status Stok': item.stokSistem <= 0 ? 'Habis' : (item.stokSistem <= item.minStok ? 'Kritis' : 'Cukup')
-                    }));
-                    this.downloadExcel(data, 'Stok_Opname_Bahan_TSM');
-                },
-
-                exportUsageToExcel() {
-                    const data = this.usageLogs.map((item, index) => ({
-                        'No': index + 1,
-                        'Waktu & Tanggal': this.formatDateTime(item.timestamp),
-                        'Nama Bahan Praktik': item.namaBahan,
-                        'Jumlah Pakai': item.jumlah,
-                        'Satuan': item.satuan,
-                        'Kelas / Kelompok': item.kelas,
-                        'Topik Praktik': item.topik,
-                        'Instruktur': item.instruktur
-                    }));
-                    this.downloadExcel(data, 'Penggunaan_Bahan_TSM');
-                },
-
-                openSettings() {
-                    if (this.userRole !== 'admin') {
-                        this.adminPinInput = '';
-                        this.pendingSettingsOpen = true;
-                        this.modals.adminPin = true;
-                        this.showToast('Akses Dibatasi', 'Menu Pengaturan hanya dapat diakses dalam Mode Admin. Masukkan PIN Admin.', 'error');
-                    } else {
-                        this.modals.settingsModal = true;
-                    }
-                },
-
-                switchRole(role) {
-                    if (role === 'admin' && this.userRole !== 'admin') {
-                        this.adminPinInput = '';
-                        this.pendingSettingsOpen = false;
-                        this.modals.adminPin = true;
-                    } else if (role === 'pelihat') {
-                        this.userRole = 'pelihat';
-                        this.pendingSettingsOpen = false;
-                        this.showToast('Mode Akses', 'Beralih ke Mode Pelihat (Read Only)');
-                    }
-                },
-
-                verifyAdminPin() {
-                    if (this.adminPinInput === this.adminPin) {
-                        this.userRole = 'admin';
-                        this.modals.adminPin = false;
-                        this.showToast('Akses Admin', 'Berhasil masuk Mode Admin (Akses Penuh)');
-                        
-                        if (this.pendingSettingsOpen) {
-                            this.modals.settingsModal = true;
-                            this.pendingSettingsOpen = false;
-                        }
-                    } else {
-                        this.showToast('PIN Salah', 'PIN Admin tidak valid', 'error');
-                    }
-                },
-
-                changeAdminPin() {
-                    if (this.pinForm.oldPin !== this.adminPin) {
-                        this.showToast('Gagal', 'PIN lama tidak sesuai', 'error');
-                        return;
-                    }
-                    if (!this.pinForm.newPin || this.pinForm.newPin.length < 4) {
-                        this.showToast('Gagal', 'PIN baru minimal 4 karakter/angka', 'error');
-                        return;
-                    }
-                    if (this.pinForm.newPin !== this.pinForm.confirmPin) {
-                        this.showToast('Gagal', 'Konfirmasi PIN baru tidak cocok', 'error');
-                        return;
-                    }
-
-                    this.adminPin = this.pinForm.newPin;
-                    this.syncCollectionItem('config', 'settings', { ...this.settings, adminPin: this.adminPin });
-                    this.pinForm = { oldPin: '', newPin: '', confirmPin: '' };
-                    this.showToast('PIN Berhasil Diubah', 'Gunakan PIN baru ini untuk masuk Mode Admin berikutnya');
-                },
-
-                resetAdminPinPrompt() {
-                    if (confirm('Apakah Anda ingin meriset PIN Admin kembali ke PIN Default (1234)?')) {
-                        this.adminPin = '1234';
-                        this.adminPinInput = '1234';
-                        this.syncCollectionItem('config', 'settings', { ...this.settings, adminPin: '1234' });
-                        this.showToast('PIN Di-reset', 'PIN Admin telah dikembalikan ke default: 1234', 'success');
-                    }
-                },
-
-                saveSettings() {
-                    this.syncCollectionItem('config', 'settings', { ...this.settings, adminPin: this.adminPin });
-                    this.showToast('Pengaturan Disimpan', 'Identitas sekolah & logo kop laporan telah diperbarui di Cloud Firebase');
-                },
-
-                uploadLogo(event, keyName) {
-                    const file = event.target.files[0];
-                    if (!file) return;
-
-                    if (file.size > 1024 * 1024 * 2) {
-                        this.showToast('Ukuran Terlalu Besar', 'Maksimal ukuran file logo adalah 2MB', 'error');
-                        return;
-                    }
-
-                    const reader = new FileReader();
-                    reader.onload = (e) => {
-                        this.settings[keyName] = e.target.result;
-                        this.saveSettings();
-                    };
-                    reader.readAsDataURL(file);
-                },
-
-                get totalToolItems() { return this.alatList.length; },
-                get totalToolUnits() { return this.alatList.reduce((acc, curr) => acc + Number(curr.jumlahTotal), 0); },
-
-                get lowStockItems() { return this.bahanList.filter(b => b.stokSistem <= b.minStok); },
-                get lowStockCount() { return this.lowStockItems.length; },
-
-                get pendingLoans() { return this.loanList.filter(l => l.status === 'Menunggu Persetujuan'); },
-                get pendingLoansCount() { return this.pendingLoans.length; },
-
-                get activeLoans() { return this.loanList.filter(l => l.status === 'Dipinjam'); },
-                get activeLoansCount() { return this.activeLoans.length; },
-
-                get monthlyLoans() {
-                    return this.loanList.filter(l => {
-                        if (!l.tanggalPinjam) return false;
-                        return l.tanggalPinjam.startsWith(this.selectedReportMonth);
-                    });
-                },
-
-                get monthlyUsage() {
-                    return this.usageLogs.filter(u => {
-                        if (!u.timestamp) return false;
-                        return u.timestamp.startsWith(this.selectedReportMonth);
-                    });
-                },
-
-                formatMonthIndo(yearMonth) {
-                    if (!yearMonth) return '';
-                    const [y, m] = yearMonth.split('-');
-                    const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
-                    const monthName = months[parseInt(m, 10) - 1] || m;
-                    return `${monthName} ${y}`;
-                },
-
-                get filteredAlat() {
-                    return this.alatList.filter(a => {
-                        const matchSearch = (a.kodeAlat + a.namaAlat + (a.merk || '')).toLowerCase().includes(this.searchAlat.toLowerCase());
-                        const matchCat = this.filterKategoriAlat ? a.kategori === this.filterKategoriAlat : true;
-                        return matchSearch && matchCat;
-                    });
-                },
-
-                get filteredBahan() {
-                    return this.bahanList.filter(b => {
-                        return (b.kodeBahan + b.namaBahan).toLowerCase().includes(this.searchBahan.toLowerCase());
-                    });
-                },
-
-                get filteredLoans() {
-                    if (this.loanFilter === 'pending') return this.loanList.filter(l => l.status === 'Menunggu Persetujuan');
-                    if (this.loanFilter === 'active') return this.loanList.filter(l => l.status === 'Dipinjam');
-                    if (this.loanFilter === 'completed') return this.loanList.filter(l => l.status === 'Dikembalikan');
-                    return this.loanList;
-                },
-
-                addToolToLoan() {
-                    this.formStudentLoan.items.push({ alatId: '', jumlah: 1 });
-                },
-
-                removeToolFromLoan(index) {
-                    if (this.formStudentLoan.items.length > 1) {
-                        this.formStudentLoan.items.splice(index, 1);
-                    }
-                },
-
-                submitStudentLoan() {
-                    if (!this.formStudentLoan.items || this.formStudentLoan.items.length === 0) {
-                        this.showToast('Perhatian', 'Pilih minimal 1 alat yang ingin dipinjam', 'error');
-                        return;
-                    }
-
-                    const selectedIds = this.formStudentLoan.items.map(i => i.alatId).filter(Boolean);
-                    if (new Set(selectedIds).size !== selectedIds.length) {
-                        this.showToast('Alat Ganda', 'Terdapat pilihan alat yang sama lebih dari satu kali dalam daftar', 'error');
-                        return;
-                    }
-
-                    const loanItems = [];
-                    let totalQty = 0;
-
-                    for (let item of this.formStudentLoan.items) {
-                        if (!item.alatId) {
-                            this.showToast('Perhatian', 'Mohon selesaikan pilihan alat di setiap baris', 'error');
-                            return;
-                        }
-                        const alat = this.alatList.find(a => a.id === item.alatId);
-                        if (!alat) continue;
-
-                        if (item.jumlah > alat.jumlahTersedia) {
-                            this.showToast('Unit Tidak Cukup', `Jumlah ${alat.namaAlat} yang tersedia hanya ${alat.jumlahTersedia} unit`, 'error');
-                            return;
-                        }
-
-                        loanItems.push({
-                            alatId: alat.id,
-                            namaAlat: alat.namaAlat,
-                            jumlah: Number(item.jumlah)
-                        });
-                        totalQty += Number(item.jumlah);
-                    }
-
-                    if (loanItems.length === 0) return;
-
-                    const toolSummaryString = loanItems.map(i => `${i.namaAlat} (${i.jumlah} Unit)`).join(', ');
-
-                    const transaction = {
-                        id: Date.now().toString(),
-                        kodePinjam: 'TRX-' + new Date().toISOString().slice(0,10).replace(/-/g,'') + '-' + Math.floor(10 + Math.random() * 90),
-                        items: loanItems,
-                        alatId: loanItems[0].alatId,
-                        namaAlat: toolSummaryString,
-                        jumlah: totalQty,
-                        namaPeminjam: this.formStudentLoan.namaPeminjam,
-                        kelas: this.formStudentLoan.kelas,
-                        nis: this.formStudentLoan.nis,
-                        tanggalPinjam: new Date().toISOString(),
-                        tanggalKembali: null,
-                        status: 'Menunggu Persetujuan',
-                        kondisiKembali: null
-                    };
-
-                    this.syncCollectionItem('loans', transaction.id, transaction);
-
-                    this.modals.studentLoan = false;
-                    this.formStudentLoan = { namaPeminjam: '', kelas: '', nis: '', items: [{ alatId: '', jumlah: 1 }] };
-                    this.showToast('Pengajuan Terkirim', 'Peminjaman Anda telah tercatat, menunggu persetujuan Admin Bengkel');
-                },
-
-                editLoan(loan) {
-                    this.formEditLoan = JSON.parse(JSON.stringify(loan));
-                    this.modals.editLoan = true;
-                },
-
-                saveEditLoan() {
-                    const existingLoan = this.loanList.find(l => l.id === this.formEditLoan.id);
-                    if (existingLoan) {
-                        const updatedData = { ...existingLoan, ...this.formEditLoan };
-                        this.syncCollectionItem('loans', this.formEditLoan.id, updatedData);
-                        this.modals.editLoan = false;
-                        this.showToast('Berhasil', 'Data peminjaman berhasil diperbarui');
-                    }
-                },
-
-                approveLoan(loanId) {
-                    const loan = this.loanList.find(l => l.id === loanId);
-                    if (!loan) return;
-
-                    const items = loan.items && loan.items.length > 0 ? loan.items : [{ alatId: loan.alatId, jumlah: loan.jumlah }];
-
-                    for (let item of items) {
-                        const alat = this.alatList.find(a => a.id === item.alatId);
-                        if (!alat || item.jumlah > alat.jumlahTersedia) {
-                            this.showToast('Unit Tidak Cukup', `Stok alat ${alat ? alat.namaAlat : ''} tidak mencukupi`, 'error');
-                            return;
-                        }
-                    }
-
-                    for (let item of items) {
-                        const alat = this.alatList.find(a => a.id === item.alatId);
-                        if (alat) {
-                            const updatedAlat = { ...alat, jumlahTersedia: alat.jumlahTersedia - item.jumlah };
-                            this.syncCollectionItem('alat', alat.id, updatedAlat);
-                        }
-                    }
-
-                    const updatedLoan = { ...loan, status: 'Dipinjam' };
-                    this.syncCollectionItem('loans', loan.id, updatedLoan);
-                    this.showToast('Peminjaman Disetujui', `Peminjaman alat untuk ${loan.namaPeminjam} telah disetujui`);
-                },
-
-                rejectLoan(loanId) {
-                    const loan = this.loanList.find(l => l.id === loanId);
-                    if (loan) {
-                        const updatedLoan = { ...loan, status: 'Ditolak' };
-                        this.syncCollectionItem('loans', loan.id, updatedLoan);
-                        this.showToast('Ditolak', 'Pengajuan peminjaman telah ditolak');
-                    }
-                },
-
-                openReturnModal(loan) {
-                    this.selectedLoanReturn = loan;
-                    this.formReturn = { kondisi: 'Baik', catatan: '' };
-                    this.modals.return = true;
-                },
-
-                processReturn() {
-                    if (!this.selectedLoanReturn) return;
-                    
-                    const loan = this.loanList.find(l => l.id === this.selectedLoanReturn.id);
-                    if (!loan) return;
-
-                    const items = loan.items && loan.items.length > 0 ? loan.items : [{ alatId: loan.alatId, jumlah: loan.jumlah }];
-
-                    const updatedLoan = {
-                        ...loan,
-                        status: 'Dikembalikan',
-                        tanggalKembali: new Date().toISOString(),
-                        kondisiKembali: this.formReturn.kondisi
-                    };
-
-                    for (let item of items) {
-                        const alat = this.alatList.find(a => a.id === item.alatId);
-                        if (alat) {
-                            let baik = alat.kondisiBaik;
-                            let servis = alat.kondisiServis;
-                            let rusak = alat.kondisiRusak;
-
-                            if (this.formReturn.kondisi === 'Perlu Servis') {
-                                baik = Math.max(0, baik - item.jumlah);
-                                servis += item.jumlah;
-                            } else if (this.formReturn.kondisi === 'Rusak') {
-                                baik = Math.max(0, baik - item.jumlah);
-                                rusak += item.jumlah;
-                            }
-
-                            const updatedAlat = {
-                                ...alat,
-                                jumlahTersedia: alat.jumlahTersedia + item.jumlah,
-                                kondisiBaik: baik,
-                                kondisiServis: servis,
-                                kondisiRusak: rusak
-                            };
-                            this.syncCollectionItem('alat', alat.id, updatedAlat);
-                        }
-                    }
-
-                    this.syncCollectionItem('loans', loan.id, updatedLoan);
-                    this.modals.return = false;
-                    this.showToast('Pengembalian Berhasil', `Alat yang dipinjam ${loan.namaPeminjam} telah ditandai kembali ke inventaris`);
-                },
-
-                openModal(type) {
-                    if (type === 'settingsModal') {
-                        this.openSettings();
-                    } else if (type === 'addAlat') {
-                        const maxToolNum = this.alatList.reduce((max, a) => {
-                            const match = a.kodeAlat ? a.kodeAlat.match(/\d+$/) : null;
-                            const num = match ? parseInt(match[0], 10) : 0;
-                            return num > max ? num : max;
-                        }, 0);
-                        const autoToolCode = `ALT-TSM-${String(maxToolNum + 1).padStart(3, '0')}`;
-                        
-                        this.formAlat = { id: null, kodeAlat: autoToolCode, namaAlat: '', kategori: 'Hand Tools', merk: '', lokasiRak: 'RAK-A1', jumlahTotal: 1, kondisiBaik: 1, kondisiServis: 0, kondisiRusak: 0 };
-                        this.modals.alat = true;
-                    } else if (type === 'addBahan') {
-                        const maxBahanNum = this.bahanList.reduce((max, b) => {
-                            const match = b.kodeBahan ? b.kodeBahan.match(/\d+$/) : null;
-                            const num = match ? parseInt(match[0], 10) : 0;
-                            return num > max ? num : max;
-                        }, 0);
-                        const autoBahanCode = `BHN-TSM-${String(maxBahanNum + 1).padStart(2, '0')}`;
-
-                        this.formBahan = { kodeBahan: autoBahanCode, namaBahan: '', spesifikasi: '', satuan: 'Liter', stokSistem: 10, minStok: 2 };
-                        this.modals.bahan = true;
-                    } else if (type === 'usage') {
-                        this.formUsage = { id: null, bahanId: '', jumlah: 1, satuan: '', kelas: '', topik: '', instruktur: '' };
-                        this.modals.usage = true;
-                    } else if (type === 'studentLoan') {
-                        this.formStudentLoan = { namaPeminjam: '', kelas: '', nis: '', items: [{ alatId: '', jumlah: 1 }] };
-                        this.modals.studentLoan = true;
-                    }
-                },
-
-                editAlat(alat) {
-                    this.formAlat = JSON.parse(JSON.stringify(alat));
-                    this.modals.alat = true;
-                },
-
-                saveAlat() {
-                    const total = Number(this.formAlat.jumlahTotal);
-                    const baik = Number(this.formAlat.kondisiBaik);
-                    const servis = Number(this.formAlat.kondisiServis);
-                    const rusak = Number(this.formAlat.kondisiRusak);
-
-                    if ((baik + servis + rusak) !== total) {
-                        this.showToast('Perhatian', 'Jumlah total unit harus sama dengan penjumlahan kondisi (Baik + Servis + Rusak)', 'error');
-                        return;
-                    }
-
-                    let targetId = this.formAlat.id;
-
-                    if (this.formAlat.id) {
-                        const activeLoanForThis = this.loanList
-                            .filter(l => l.status === 'Dipinjam')
-                            .reduce((acc, loan) => {
-                                if (loan.items && Array.isArray(loan.items)) {
-                                    const match = loan.items.find(i => i.alatId === this.formAlat.id);
-                                    return acc + (match ? Number(match.jumlah || 0) : 0);
-                                } else if (loan.alatId === this.formAlat.id) {
-                                    return acc + Number(loan.jumlah || 0);
-                                }
-                                return acc;
-                            }, 0);
-
-                        this.formAlat.jumlahTersedia = baik - activeLoanForThis;
-                    } else {
-                        targetId = Date.now().toString();
-                        this.formAlat.id = targetId;
-                        this.formAlat.jumlahTersedia = baik;
-                    }
-
-                    this.syncCollectionItem('alat', targetId, this.formAlat);
-                    this.modals.alat = false;
-                    this.showToast('Berhasil', 'Data alat praktik berhasil disimpan');
-                },
-
-                confirmDelete(type, id, name) {
-                    this.modals.confirmDelete = { show: true, type, id, name };
-                },
-
-                async executeDelete() {
-                    const { type, id } = this.modals.confirmDelete;
-                    
-                    if (type === 'alat') {
-                        await this.deleteCollectionItem('alat', id);
-                        this.showToast('Terhapus', 'Data alat berhasil dihapus secara permanen');
-                    } else if (type === 'bahan') {
-                        await this.deleteCollectionItem('bahan', id);
-                        this.showToast('Terhapus', 'Bahan praktik berhasil dihapus secara permanen');
-                    } else if (type === 'loan') {
-                        await this.deleteCollectionItem('loans', id);
-                        this.showToast('Terhapus', 'Data peminjaman berhasil dihapus secara permanen');
-                    } else if (type === 'usage') {
-                        await this.deleteCollectionItem('usage', id);
-                        this.showToast('Terhapus', 'Data penggunaan bahan berhasil dihapus secara permanen');
-                    }
-
-                    this.modals.confirmDelete.show = false;
-                },
-
-                saveBahan() {
-                    const newId = Date.now().toString();
-                    const newBahan = {
-                        ...this.formBahan,
-                        id: newId,
-                        stokFisik: Number(this.formBahan.stokSistem)
-                    };
-                    this.syncCollectionItem('bahan', newId, newBahan);
-                    this.modals.bahan = false;
-                    this.showToast('Berhasil', 'Bahan praktik baru berhasil ditambahkan');
-                },
-
-                openOpnameModal(bahan) {
-                    this.selectedBahanOpname = bahan;
-                    this.formOpname = { stokFisik: bahan.stokFisik };
-                    this.modals.opname = true;
-                },
-
-                saveOpnameAdjustment() {
-                    if (!this.selectedBahanOpname) return;
-                    const target = this.bahanList.find(b => b.id === this.selectedBahanOpname.id);
-                    if (target) {
-                        const updatedBahan = {
-                            ...target,
-                            stokFisik: Number(this.formOpname.stokFisik),
-                            stokSistem: Number(this.formOpname.stokFisik)
-                        };
-                        this.syncCollectionItem('bahan', target.id, updatedBahan);
-                        this.modals.opname = false;
-                        this.showToast('Opname Diperbarui', 'Stok fisik & sistem telah disesuaikan');
-                    }
-                },
-
-                updateUsageUnit() {
-                    const selected = this.bahanList.find(b => b.id === this.formUsage.bahanId);
-                    if (selected) {
-                        this.formUsage.satuan = selected.satuan;
-                    }
-                },
-
-                editUsage(item) {
-                    this.formUsage = JSON.parse(JSON.stringify(item));
-                    this.modals.usage = true;
-                },
-
-                saveUsage() {
-                    const bahan = this.bahanList.find(b => b.id === this.formUsage.bahanId);
-                    if (!bahan) return;
-
-                    if (this.formUsage.id) {
-                        const oldUsage = this.usageLogs.find(u => u.id === this.formUsage.id);
-                        if (oldUsage) {
-                            const diff = Number(this.formUsage.jumlah) - Number(oldUsage.jumlah);
-                            if (diff > 0 && diff > bahan.stokSistem) {
-                                this.showToast('Stok Tidak Cukup', `Stok ${bahan.namaBahan} tidak mencukupi`, 'error');
-                                return;
-                            }
-                            const updatedBahan = {
-                                ...bahan,
-                                stokSistem: bahan.stokSistem - diff,
-                                stokFisik: bahan.stokSistem - diff
-                            };
-
-                            const updatedUsage = {
-                                ...oldUsage,
-                                bahanId: bahan.id,
-                                namaBahan: bahan.namaBahan,
-                                jumlah: Number(this.formUsage.jumlah),
-                                satuan: bahan.satuan,
-                                kelas: this.formUsage.kelas,
-                                topik: this.formUsage.topik,
-                                instruktur: this.formUsage.instruktur
-                            };
-
-                            this.syncCollectionItem('bahan', bahan.id, updatedBahan);
-                            this.syncCollectionItem('usage', this.formUsage.id, updatedUsage);
-
-                            this.modals.usage = false;
-                            this.showToast('Berhasil', 'Pencatatan penggunaan bahan telah diperbarui');
-                            return;
-                        }
-                    }
-
-                    if (this.formUsage.jumlah > bahan.stokSistem) {
-                        this.showToast('Stok Tidak Cukup', `Stok ${bahan.namaBahan} saat ini hanya sisa ${bahan.stokSistem} ${bahan.satuan}`, 'error');
-                        return;
-                    }
-
-                    const updatedBahan = {
-                        ...bahan,
-                        stokSistem: bahan.stokSistem - Number(this.formUsage.jumlah),
-                        stokFisik: bahan.stokSistem - Number(this.formUsage.jumlah)
-                    };
-
-                    const log = {
-                        id: Date.now().toString(),
-                        bahanId: bahan.id,
-                        namaBahan: bahan.namaBahan,
-                        jumlah: Number(this.formUsage.jumlah),
-                        satuan: bahan.satuan,
-                        kelas: this.formUsage.kelas,
-                        topik: this.formUsage.topik,
-                        instruktur: this.formUsage.instruktur,
-                        timestamp: new Date().toISOString()
-                    };
-
-                    this.syncCollectionItem('bahan', bahan.id, updatedBahan);
-                    this.syncCollectionItem('usage', log.id, log);
-
-                    this.modals.usage = false;
-                    this.showToast('Penggunaan Dicatat', `Stok ${bahan.namaBahan} telah berkurang secara otomatis`);
-                },
-
-                triggerPrint() {
-                    window.print();
-                },
-
-                formatDateTime(isoString) {
-                    if (!isoString) return '-';
-                    const d = new Date(isoString);
-                    return d.toLocaleDateString('id-ID', { day: '2-digit', month: 'short' }) + ' ' + d.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+                    this.currentTime = now.toLocaleTimeString('id-ID') + ' WIB';
                 }
             }
-        }
+        };
     </script>
 </body>
 </html>
