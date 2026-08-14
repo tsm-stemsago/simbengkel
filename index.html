@@ -420,10 +420,10 @@
         <!-- ================= TAB 3: INVENTARIS ALAT ================= -->
         <div x-show="activeTab === 'alat'" class="space-y-4" x-cloak>
             <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 flex justify-between items-center gap-4">
-                <input type="text" x-model="searchAlat" placeholder="Cari nama atau kode alat..." class="p-2 border rounded-xl text-xs w-72">
+                <input type="text" x-model="searchAlat" placeholder="Cari kode, nama alat, atau merk..." class="p-2 border rounded-xl text-xs w-72">
                 <div class="flex space-x-2">
                     <button @click="exportAlatToExcel()" class="bg-emerald-600 text-white font-bold px-3.5 py-2 rounded-xl text-xs flex items-center space-x-1"><i class="fa-solid fa-file-excel"></i><span>Export Excel</span></button>
-                    <template x-if="userRole === 'admin'"><button @click="openModal('alat')" class="bg-amber-500 text-slate-950 font-bold px-3.5 py-2 rounded-xl text-xs">+ Tambah Alat</button></template>
+                    <template x-if="userRole === 'admin'"><button @click="openModal('alat')" class="bg-amber-500 text-slate-950 font-bold px-3.5 py-2 rounded-xl text-xs">+ Tambah Alat Baru</button></template>
                 </div>
             </div>
             <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
@@ -431,12 +431,13 @@
                     <table class="w-full text-left text-xs">
                         <thead class="bg-slate-800 text-slate-200 uppercase font-semibold">
                             <tr>
-                                <th class="p-3">Kode</th>
+                                <th class="p-3">Kode Alat</th>
                                 <th class="p-3">Nama Alat & Merk</th>
                                 <th class="p-3">Kategori</th>
-                                <th class="p-3 text-center">Total</th>
-                                <th class="p-3 text-center">Tersedia</th>
-                                <th class="p-3">Kondisi Alat</th>
+                                <th class="p-3">Lokasi Rak</th>
+                                <th class="p-3 text-center">Total Unit</th>
+                                <th class="p-3 text-center">Tersedia Saat Ini</th>
+                                <th class="p-3 text-center">Rincian Kondisi</th>
                                 <template x-if="userRole === 'admin'"><th class="p-3 text-right">Aksi Admin</th></template>
                             </tr>
                         </thead>
@@ -445,21 +446,22 @@
                                 <tr>
                                     <td class="p-3 font-mono font-bold text-amber-600" x-text="alat.kodeAlat"></td>
                                     <td class="p-3"><p class="font-bold text-slate-800" x-text="alat.namaAlat"></p><p class="text-[10px] text-slate-400" x-text="alat.merk || '-'"></p></td>
-                                    <td class="p-3" x-text="alat.kategori"></td>
+                                    <td class="p-3"><span class="px-2 py-0.5 rounded bg-slate-100 text-slate-700 font-semibold" x-text="alat.kategori"></span></td>
+                                    <td class="p-3 font-mono text-slate-600" x-text="alat.lokasiRak || '-'"></td>
                                     <td class="p-3 text-center font-bold" x-text="alat.jumlahTotal"></td>
-                                    <td class="p-3 text-center font-bold text-emerald-700" x-text="alat.jumlahTersedia"></td>
-                                    <td class="p-3">
-                                        <div class="flex flex-wrap gap-1">
-                                            <span class="px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded font-semibold text-[10px]" x-text="'Baik: ' + (alat.kondisiBaik !== undefined ? alat.kondisiBaik : alat.jumlahTotal)"></span>
-                                            <span class="px-2 py-0.5 bg-amber-100 text-amber-800 rounded font-semibold text-[10px]" x-text="'Servis: ' + (alat.kondisiServis || 0)"></span>
-                                            <span class="px-2 py-0.5 bg-red-100 text-red-800 rounded font-semibold text-[10px]" x-text="'Rusak: ' + (alat.kondisiRusak || 0)"></span>
+                                    <td class="p-3 text-center"><span class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-bold" x-text="alat.jumlahTersedia + ' Unit'"></span></td>
+                                    <td class="p-3 text-center">
+                                        <div class="flex justify-center gap-1">
+                                            <span class="px-1.5 py-0.5 bg-emerald-100 text-emerald-800 rounded font-bold text-[10px]" x-text="'B:' + (alat.kondisiBaik !== undefined ? alat.kondisiBaik : alat.jumlahTotal)"></span>
+                                            <span class="px-1.5 py-0.5 bg-amber-100 text-amber-800 rounded font-bold text-[10px]" x-text="'S:' + (alat.kondisiServis || 0)"></span>
+                                            <span class="px-1.5 py-0.5 bg-red-100 text-red-800 rounded font-bold text-[10px]" x-text="'R:' + (alat.kondisiRusak || 0)"></span>
                                         </div>
                                     </td>
                                     <template x-if="userRole === 'admin'">
                                         <td class="p-3 text-right">
                                             <div class="flex justify-end space-x-1">
-                                                <button @click="editAlat(alat)" class="p-1.5 text-slate-600 hover:text-amber-600 rounded" title="Edit"><i class="fa-solid fa-pen-to-square"></i></button>
-                                                <button @click="confirmDelete('alat', alat.id, alat.namaAlat)" class="p-1.5 text-slate-600 hover:text-red-600 rounded" title="Hapus"><i class="fa-solid fa-trash-can"></i></button>
+                                                <button @click="editAlat(alat)" class="p-1.5 text-slate-600 hover:text-amber-600 rounded bg-slate-100" title="Edit"><i class="fa-solid fa-pen-to-square"></i></button>
+                                                <button @click="confirmDelete('alat', alat.id, alat.namaAlat)" class="p-1.5 text-red-600 hover:bg-red-50 rounded bg-red-50" title="Hapus"><i class="fa-solid fa-trash-can"></i></button>
                                             </div>
                                         </td>
                                     </template>
@@ -471,7 +473,7 @@
             </div>
         </div>
 
-        <!-- ================= TAB 4: STOK OPNAME BAHAN ================= -->
+        <!-- ================= TAB 4: STOK OPNAME BAHAN (DENGAN KOLOM SPESIFIKASI DI SEBELAH NAMA BAHAN) ================= -->
         <div x-show="activeTab === 'opname'" class="space-y-4" x-cloak>
             <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 flex justify-between items-center gap-4">
                 <input type="text" x-model="searchBahan" placeholder="Cari bahan praktik..." class="p-2 border rounded-xl text-xs w-72">
@@ -484,13 +486,22 @@
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-xs">
                         <thead class="bg-slate-800 text-slate-200 uppercase font-semibold">
-                            <tr><th class="p-3">Kode</th><th class="p-3">Nama Bahan</th><th class="p-3 text-center">Satuan</th><th class="p-3 text-center">Stok Sistem</th><th class="p-3 text-center">Status</th><template x-if="userRole === 'admin'"><th class="p-3 text-right">Aksi Opname</th></template></tr>
+                            <tr>
+                                <th class="p-3">Kode</th>
+                                <th class="p-3">Nama Bahan</th>
+                                <th class="p-3">Spesifikasi</th>
+                                <th class="p-3 text-center">Satuan</th>
+                                <th class="p-3 text-center">Stok Sistem</th>
+                                <th class="p-3 text-center">Status</th>
+                                <template x-if="userRole === 'admin'"><th class="p-3 text-right">Aksi Opname</th></template>
+                            </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100">
                             <template x-for="bahan in filteredBahan" :key="bahan.id">
                                 <tr>
                                     <td class="p-3 font-mono font-bold text-amber-600" x-text="bahan.kodeBahan"></td>
-                                    <td class="p-3 font-bold" x-text="bahan.namaBahan"></td>
+                                    <td class="p-3 font-bold text-slate-800" x-text="bahan.namaBahan"></td>
+                                    <td class="p-3 text-slate-600" x-text="bahan.spesifikasi || '-'"></td>
                                     <td class="p-3 text-center" x-text="bahan.satuan"></td>
                                     <td class="p-3 text-center font-bold text-sm" x-text="bahan.stokSistem"></td>
                                     <td class="p-3 text-center"><span class="px-2 py-0.5 rounded text-[10px] font-bold" :class="bahan.stokSistem <= bahan.minStok ? 'bg-red-100 text-red-800' : 'bg-emerald-100 text-emerald-800'" x-text="bahan.stokSistem <= bahan.minStok ? 'Kritis' : 'Cukup'"></span></td>
@@ -733,7 +744,7 @@
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-xs">
                         <thead class="bg-slate-800 text-slate-200 uppercase font-semibold">
-                            <tr><th class="p-2.5">No</th><th class="p-2.5">Kode Bahan</th><th class="p-2.5">Nama Bahan</th><th class="p-2.5 text-center">Satuan</th><th class="p-2.5 text-center">Stok Sistem</th><th class="p-2.5 text-center">Min Stok</th><th class="p-2.5 text-center">Status Stok</th></tr>
+                            <tr><th class="p-2.5">No</th><th class="p-2.5">Kode Bahan</th><th class="p-2.5">Nama Bahan</th><th class="p-2.5">Spesifikasi</th><th class="p-2.5 text-center">Satuan</th><th class="p-2.5 text-center">Stok Sistem</th><th class="p-2.5 text-center">Min Stok</th><th class="p-2.5 text-center">Status Stok</th></tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100">
                             <template x-for="(bahan, index) in bahanList" :key="bahan.id">
@@ -741,6 +752,7 @@
                                     <td class="p-2.5" x-text="index + 1"></td>
                                     <td class="p-2.5 font-mono font-bold text-amber-600" x-text="bahan.kodeBahan"></td>
                                     <td class="p-2.5 font-bold" x-text="bahan.namaBahan"></td>
+                                    <td class="p-2.5 text-slate-600" x-text="bahan.spesifikasi || '-'"></td>
                                     <td class="p-2.5 text-center" x-text="bahan.satuan"></td>
                                     <td class="p-2.5 text-center font-bold text-sm" x-text="bahan.stokSistem"></td>
                                     <td class="p-2.5 text-center text-slate-500" x-text="bahan.minStok || 2"></td>
@@ -752,14 +764,14 @@
                                 </tr>
                             </template>
                             <template x-if="bahanList.length === 0">
-                                <tr><td colspan="7" class="p-4 text-center text-slate-400">Tidak ada data bahan praktik.</td></tr>
+                                <tr><td colspan="8" class="p-4 text-center text-slate-400">Tidak ada data bahan praktik.</td></tr>
                             </template>
                         </tbody>
                     </table>
                 </div>
             </div>
 
-            <!-- TANDA TANGAN CETAK PDF (DENGAN TANGGAL DINAMIS SESUAI PILIHAN PENGGUNA) -->
+            <!-- TANDA TANGAN CETAK PDF -->
             <div class="hidden print-only mt-10 pt-4 page-break-inside-avoid">
                 <div class="flex justify-between text-xs text-black">
                     <div class="text-center">
@@ -994,33 +1006,95 @@
         </div>
     </div>
 
-    <!-- MODAL ALAT, BAHAN, USAGE, OPNAME, RETURN, DELETE -->
+    <!-- MODAL TAMBAH / EDIT ALAT INVENTARIS BARU (FORM LENGKAP) -->
     <div x-show="modals.alat" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
-        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4" @click.away="modals.alat = false">
-            <h3 class="font-bold text-slate-800 text-sm border-b pb-2" x-text="formAlat.id ? 'Edit Alat Inventaris' : 'Tambah Alat Baru'"></h3>
-            <form @submit.prevent="saveAlat()" class="space-y-3 text-xs">
-                <div><label class="font-bold block mb-1">Kode Alat</label><input type="text" x-model="formAlat.kodeAlat" required class="w-full p-2.5 border rounded-xl font-mono"></div>
-                <div><label class="font-bold block mb-1">Nama Alat</label><input type="text" x-model="formAlat.namaAlat" required class="w-full p-2.5 border rounded-xl"></div>
-                <div class="grid grid-cols-2 gap-2">
-                    <div><label class="font-bold block mb-1">Kategori</label><input type="text" x-model="formAlat.kategori" required class="w-full p-2.5 border rounded-xl"></div>
-                    <div><label class="font-bold block mb-1">Total Unit</label><input type="number" x-model.number="formAlat.jumlahTotal" min="1" required class="w-full p-2.5 border rounded-xl font-bold"></div>
+        <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto custom-scrollbar" @click.away="modals.alat = false">
+            <div class="flex justify-between items-center border-b pb-3">
+                <div class="flex items-center space-x-3">
+                    <div class="w-9 h-9 bg-amber-100 text-amber-700 rounded-xl flex items-center justify-center"><i class="fa-solid fa-wrench"></i></div>
+                    <div>
+                        <h3 class="font-bold text-slate-800 text-sm" x-text="formAlat.id ? 'Edit Alat Inventaris' : 'Tambah Alat Inventaris Baru'"></h3>
+                        <p class="text-[11px] text-slate-500">Kelola master data alat bengkel TSM</p>
+                    </div>
                 </div>
-                <div class="flex justify-end space-x-2 pt-2 border-t">
-                    <button type="button" @click="modals.alat = false" class="px-4 py-2 bg-slate-100 font-bold rounded-xl">Batal</button>
-                    <button type="submit" class="px-4 py-2 bg-amber-500 font-bold rounded-xl">Simpan</button>
+                <button @click="modals.alat = false" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+
+            <form @submit.prevent="saveAlat()" class="space-y-3 text-xs">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="font-bold block mb-1 text-slate-700">Kode Alat <span class="text-red-500">*</span></label>
+                        <input type="text" x-model="formAlat.kodeAlat" required placeholder="ALT-TSM-004" class="w-full p-2.5 bg-slate-50 border rounded-xl font-mono">
+                    </div>
+                    <div>
+                        <label class="font-bold block mb-1 text-slate-700">Kategori Alat <span class="text-red-500">*</span></label>
+                        <select x-model="formAlat.kategori" required class="w-full p-2.5 bg-slate-50 border rounded-xl">
+                            <option value="Hand Tools">Hand Tools</option>
+                            <option value="Special Service Tools">Special Service Tools</option>
+                            <option value="Measuring Tools">Measuring Tools</option>
+                            <option value="Diagnostic Tools">Diagnostic Tools</option>
+                            <option value="Power Tools">Power Tools</option>
+                            <option value="Engine & Chassis">Engine & Chassis</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="font-bold block mb-1 text-slate-700">Nama Alat Praktik <span class="text-red-500">*</span></label>
+                    <input type="text" x-model="formAlat.namaAlat" required placeholder="Contoh: Kunci Momen 1/2 Inch" class="w-full p-2.5 bg-slate-50 border rounded-xl">
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="font-bold block mb-1 text-slate-700">Merk / Brand</label>
+                        <input type="text" x-model="formAlat.merk" placeholder="Contoh: Tekiro, Mitutoyo" class="w-full p-2.5 bg-slate-50 border rounded-xl">
+                    </div>
+                    <div>
+                        <label class="font-bold block mb-1 text-slate-700">Lokasi Rak / Lemari <span class="text-red-500">*</span></label>
+                        <input type="text" x-model="formAlat.lokasiRak" required placeholder="RAK-A1" class="w-full p-2.5 bg-slate-50 border rounded-xl">
+                    </div>
+                </div>
+
+                <div class="bg-slate-50 p-3.5 rounded-xl border space-y-2">
+                    <label class="font-bold block text-slate-800">Rincian Jumlah & Kondisi Unit</label>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                        <div>
+                            <label class="block text-[10px] text-slate-500 font-semibold mb-1">Total Qty</label>
+                            <input type="number" x-model.number="formAlat.jumlahTotal" min="1" @input="syncAlatQuantity()" required class="w-full p-2 bg-white border rounded-lg font-bold text-center">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] text-emerald-700 font-semibold mb-1">Kondisi Baik</label>
+                            <input type="number" x-model.number="formAlat.kondisiBaik" min="0" required class="w-full p-2 bg-emerald-50 border border-emerald-200 rounded-lg font-bold text-center text-emerald-800">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] text-amber-700 font-semibold mb-1">Perlu Servis</label>
+                            <input type="number" x-model.number="formAlat.kondisiServis" min="0" required class="w-full p-2 bg-amber-50 border border-amber-200 rounded-lg font-bold text-center text-amber-800">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] text-red-700 font-semibold mb-1">Rusak</label>
+                            <input type="number" x-model.number="formAlat.kondisiRusak" min="0" required class="w-full p-2 bg-red-50 border border-red-200 rounded-lg font-bold text-center text-red-800">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex justify-end space-x-2 pt-3 border-t">
+                    <button type="button" @click="modals.alat = false" class="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 font-bold rounded-xl">Batal</button>
+                    <button type="submit" class="px-5 py-2.5 bg-amber-500 hover:bg-amber-600 font-bold rounded-xl shadow text-slate-950">Simpan Data Alat</button>
                 </div>
             </form>
         </div>
     </div>
 
+    <!-- MODAL TAMBAH BAHAN PRAKTIK (DENGAN FIELD SPESIFIKASI) -->
     <div x-show="modals.bahan" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
         <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4" @click.away="modals.bahan = false">
-            <h3 class="font-bold text-slate-800 text-sm border-b pb-2">Tambah Bahan Praktik</h3>
+            <h3 class="font-bold text-slate-800 text-sm border-b pb-2">Tambah Bahan Praktik Baru</h3>
             <form @submit.prevent="saveBahan()" class="space-y-3 text-xs">
-                <div><label class="font-bold block mb-1">Kode Bahan</label><input type="text" x-model="formBahan.kodeBahan" required class="w-full p-2.5 border rounded-xl font-mono"></div>
-                <div><label class="font-bold block mb-1">Nama Bahan</label><input type="text" x-model="formBahan.namaBahan" required class="w-full p-2.5 border rounded-xl"></div>
+                <div><label class="font-bold block mb-1">Kode Bahan</label><input type="text" x-model="formBahan.kodeBahan" required placeholder="BHN-TSM-03" class="w-full p-2.5 border rounded-xl font-mono"></div>
+                <div><label class="font-bold block mb-1">Nama Bahan</label><input type="text" x-model="formBahan.namaBahan" required placeholder="Contoh: Oli Mesin / Ampelas" class="w-full p-2.5 border rounded-xl"></div>
+                <div><label class="font-bold block mb-1">Spesifikasi</label><input type="text" x-model="formBahan.spesifikasi" placeholder="Contoh: SAE 10W-30 / Grid 1000" class="w-full p-2.5 border rounded-xl"></div>
                 <div class="grid grid-cols-2 gap-2">
-                    <div><label class="font-bold block mb-1">Satuan</label><input type="text" x-model="formBahan.satuan" required placeholder="Botol / Pcs" class="w-full p-2.5 border rounded-xl"></div>
+                    <div><label class="font-bold block mb-1">Satuan</label><input type="text" x-model="formBahan.satuan" required placeholder="Botol / Pcs / Lembar" class="w-full p-2.5 border rounded-xl"></div>
                     <div><label class="font-bold block mb-1">Stok Awal</label><input type="number" x-model.number="formBahan.stokSistem" min="0" required class="w-full p-2.5 border rounded-xl font-bold"></div>
                 </div>
                 <div class="flex justify-end space-x-2 pt-2 border-t">
@@ -1078,7 +1152,7 @@
                                     <select x-model="item.bahanId" required class="w-full p-2 bg-white border rounded-lg text-xs">
                                         <option value="">-- Pilih Bahan --</option>
                                         <template x-for="b in bahanList" :key="b.id">
-                                            <option :value="b.id" x-text="b.namaBahan + ' (Sisa: ' + b.stokSistem + ' ' + b.satuan + ')'"></option>
+                                            <option :value="b.id" x-text="b.namaBahan + (b.spesifikasi ? ' (' + b.spesifikasi + ')' : '') + ' (Sisa: ' + b.stokSistem + ' ' + b.satuan + ')'"></option>
                                         </template>
                                     </select>
                                 </div>
@@ -1185,7 +1259,7 @@
                 currentDate: '', currentTime: '',
                 searchAlat: '', searchBahan: '',
                 reportMonth: new Date().toISOString().slice(0, 7),
-                reportPrintDate: new Date().toISOString().slice(0, 10), // Tanggal cetak PDF default hari ini
+                reportPrintDate: new Date().toISOString().slice(0, 10),
                 reportFilterType: 'semua',
 
                 alatList: [], bahanList: [], loanList: [], usageLogs: [], auditLogs: [],
@@ -1208,8 +1282,8 @@
 
                 formStudentLoan: { namaPeminjam: '', kelas: '', nis: '', items: [{ alatId: '', jumlah: 1 }] },
                 formEditLoan: { id: '', namaPeminjam: '', kelas: '', jumlah: 1, status: '', kondisiKembali: 'Baik' },
-                formAlat: { id: null, kodeAlat: '', namaAlat: '', kategori: 'Hand Tools', merk: '', jumlahTotal: 1 },
-                formBahan: { kodeBahan: '', namaBahan: '', satuan: 'Botol', stokSistem: 10, minStok: 2 },
+                formAlat: { id: null, kodeAlat: '', namaAlat: '', kategori: 'Hand Tools', merk: '', lokasiRak: '', jumlahTotal: 1, kondisiBaik: 1, kondisiServis: 0, kondisiRusak: 0 },
+                formBahan: { kodeBahan: '', namaBahan: '', spesifikasi: '', satuan: 'Botol', stokSistem: 10, minStok: 2 },
                 formUsageMeta: { kelas: '', topik: '', instruktor: '', items: [{ bahanId: '', jumlah: 1 }] },
                 selectedBahanOpname: null, formOpname: { stokFisik: 0 },
                 selectedLoanReturn: null, formReturn: { kondisi: 'Baik', catatan: '' },
@@ -1263,6 +1337,12 @@
                         this.showToast('Logo Dimuat', 'File berhasil dikonversi ke Base64');
                     };
                     reader.readAsDataURL(file);
+                },
+
+                syncAlatQuantity() {
+                    this.formAlat.kondisiBaik = Number(this.formAlat.jumlahTotal || 0);
+                    this.formAlat.kondisiServis = 0;
+                    this.formAlat.kondisiRusak = 0;
                 },
 
                 addLoanItem() {
@@ -1470,13 +1550,24 @@
                 async saveAlat() {
                     if (this.userRole !== 'admin') return;
                     const id = this.formAlat.id || crypto.randomUUID();
+                    const total = Number(this.formAlat.jumlahTotal || 1);
+                    const baik = Number(this.formAlat.kondisiBaik || 0);
+                    const servis = Number(this.formAlat.kondisiServis || 0);
+                    const rusak = Number(this.formAlat.kondisiRusak || 0);
+
+                    if ((baik + servis + rusak) !== total) {
+                        this.showToast('Validasi Gagal', 'Total rincian kondisi (Baik + Servis + Rusak) harus sama dengan Total Qty!', 'error');
+                        return;
+                    }
+
                     await db.collection('alat').doc(id).set({
                         ...this.formAlat, 
                         id, 
-                        jumlahTersedia: Number(this.formAlat.jumlahTotal),
-                        kondisiBaik: Number(this.formAlat.jumlahTotal),
-                        kondisiServis: 0,
-                        kondisiRusak: 0
+                        jumlahTotal: total,
+                        jumlahTersedia: baik,
+                        kondisiBaik: baik,
+                        kondisiServis: servis,
+                        kondisiRusak: rusak
                     }, { merge: true });
                     this.modals.alat = false;
                     this.showToast('Berhasil', 'Data alat disimpan');
@@ -1544,7 +1635,7 @@
 
                                 usageDataBatch.push({
                                     bahanId: bahan.id,
-                                    namaBahan: bahan.namaBahan,
+                                    namaBahan: bahan.namaBahan + (bahan.spesifikasi ? ' (' + bahan.spesifikasi + ')' : ''),
                                     satuan: bahan.satuan,
                                     jumlah,
                                     kelas: this.formUsageMeta.kelas,
@@ -1607,8 +1698,8 @@
                     if (type === 'usage') {
                         this.formUsageMeta = { kelas: '', topik: '', instruktor: '', items: [{ bahanId: '', jumlah: 1 }] };
                     }
-                    if (type === 'alat') this.formAlat = { id: null, kodeAlat: 'ALT-' + Math.floor(100+Math.random()*900), namaAlat: '', kategori: 'Hand Tools', merk: '', jumlahTotal: 1 };
-                    if (type === 'bahan') this.formBahan = { kodeBahan: 'BHN-' + Math.floor(10+Math.random()*90), namaBahan: '', satuan: 'Botol', stokSistem: 10, minStok: 2 };
+                    if (type === 'alat') this.formAlat = { id: null, kodeAlat: 'ALT-TSM-' + Math.floor(100+Math.random()*900), namaAlat: '', kategori: 'Hand Tools', merk: '', lokasiRak: 'RAK-A1', jumlahTotal: 1, kondisiBaik: 1, kondisiServis: 0, kondisiRusak: 0 };
+                    if (type === 'bahan') this.formBahan = { kodeBahan: 'BHN-TSM-' + Math.floor(10+Math.random()*90), namaBahan: '', spesifikasi: '', satuan: 'Botol', stokSistem: 10, minStok: 2 };
                     this.modals[type] = true;
                 },
 
@@ -1618,16 +1709,17 @@
                     XLSX.utils.book_append_sheet(wb, ws, 'Data');
                     XLSX.writeFile(wb, `${prefix}_${new Date().toISOString().slice(0,10)}.xlsx`);
                 },
-                exportAlatToExcel() { this.downloadExcel(this.alatList.map((a,i)=>({No:i+1, Kode:a.kodeAlat, Nama:a.namaAlat, Total:a.jumlahTotal, Tersedia:a.jumlahTersedia, Baik:a.kondisiBaik || a.jumlahTotal, Servis:a.kondisiServis || 0, Rusak:a.kondisiRusak || 0})), 'Alat'); },
-                exportBahanToExcel() { this.downloadExcel(this.bahanList.map((b,i)=>({No:i+1, Kode:b.kodeBahan, Nama:b.namaBahan, Stok:b.stokSistem, Satuan:b.satuan})), 'Bahan'); },
+                exportAlatToExcel() { this.downloadExcel(this.alatList.map((a,i)=>({No:i+1, Kode:a.kodeAlat, Nama:a.namaAlat, Merk:a.merk, Kategori:a.kategori, Lokasi:a.lokasiRak, Total:a.jumlahTotal, Tersedia:a.jumlahTersedia, Baik:a.kondisiBaik || a.jumlahTotal, Servis:a.kondisiServis || 0, Rusak:a.kondisiRusak || 0})), 'Alat'); },
+                exportBahanToExcel() { this.downloadExcel(this.bahanList.map((b,i)=>({No:i+1, Kode:b.kodeBahan, Nama:b.namaBahan, Spesifikasi:b.spesifikasi || '-', Stok:b.stokSistem, Satuan:b.satuan})), 'Bahan'); },
 
                 async runSeedData() {
                     const sAlat = [
-                        { id: 'A1', kodeAlat: 'ALT-01', namaAlat: 'Kunci T Set', kategori: 'Hand Tools', merk: 'Tekiro', jumlahTotal: 10, jumlahTersedia: 10, kondisiBaik: 10, kondisiServis: 0, kondisiRusak: 0 },
-                        { id: 'A2', kodeAlat: 'ALT-02', namaAlat: 'Kunci Momen', kategori: 'Measuring Tools', merk: 'Matsu', jumlahTotal: 4, jumlahTersedia: 4, kondisiBaik: 4, kondisiServis: 0, kondisiRusak: 0 }
+                        { id: 'A1', kodeAlat: 'ALT-TSM-001', namaAlat: 'Kunci T Set 8-10-12-14mm', kategori: 'Hand Tools', merk: 'Tekiro', lokasiRak: 'RAK-A1', jumlahTotal: 11, jumlahTersedia: 9, kondisiBaik: 9, kondisiServis: 1, kondisiRusak: 1 },
+                        { id: 'A2', kodeAlat: 'ALT-TSM-003', namaAlat: 'Diagnostic Tool Injection Scanner', kategori: 'Diagnostic Tools', merk: 'MST-100P', lokasiRak: 'RAK-D1', jumlahTotal: 3, jumlahTersedia: 1, kondisiBaik: 3, kondisiServis: 0, kondisiRusak: 0 }
                     ];
                     const sBahan = [
-                        { id: 'B1', kodeBahan: 'BHN-01', namaBahan: 'Oli Mesin MPX1', satuan: 'Botol', stokSistem: 15, minStok: 3 }
+                        { id: 'B1', kodeBahan: 'BHN-TSM-01', namaBahan: 'Mata Gergaji Besi', spesifikasi: '24T HSS', satuan: 'Pcs', stokSistem: 10, minStok: 2 },
+                        { id: 'B2', kodeBahan: 'BHN-TSM-02', namaBahan: 'Oli Mesin MPX1', spesifikasi: '0.8L SAE 10W-30', satuan: 'Botol', stokSistem: 12, minStok: 3 }
                     ];
                     for (let a of sAlat) await db.collection('alat').doc(a.id).set(a, {merge:true});
                     for (let b of sBahan) await db.collection('bahan').doc(b.id).set(b, {merge:true});
@@ -1642,8 +1734,8 @@
                 get totalToolUnits() { return (this.alatList || []).reduce((acc, curr) => acc + Number(curr.jumlahTotal || 0), 0); },
                 get lowStockItems() { return (this.bahanList || []).filter(b => Number(b.stokSistem || 0) <= Number(b.minStok || 0)); },
                 get lowStockCount() { return this.lowStockItems.length; },
-                get filteredAlat() { return (this.alatList || []).filter(a => (a.kodeAlat + (a.namaAlat || '')).toLowerCase().includes(this.searchAlat.toLowerCase())); },
-                get filteredBahan() { return (this.bahanList || []).filter(b => (b.kodeBahan + (b.namaBahan || '')).toLowerCase().includes(this.searchBahan.toLowerCase())); },
+                get filteredAlat() { return (this.alatList || []).filter(a => ((a.kodeAlat || '') + (a.namaAlat || '') + (a.merk || '')).toLowerCase().includes(this.searchAlat.toLowerCase())); },
+                get filteredBahan() { return (this.bahanList || []).filter(b => ((b.kodeBahan || '') + (b.namaBahan || '') + (b.spesifikasi || '')).toLowerCase().includes(this.searchBahan.toLowerCase())); },
 
                 get reportLoans() { return (this.loanList || []).filter(l => l.tanggalPinjam && l.tanggalPinjam.startsWith(this.reportMonth)); },
                 get reportUsage() { return (this.usageLogs || []).filter(u => u.timestamp && u.timestamp.startsWith(this.reportMonth)); },
