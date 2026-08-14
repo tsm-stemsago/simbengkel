@@ -387,7 +387,7 @@
                         <tbody class="divide-y divide-slate-100">
                             <template x-for="loan in loanList" :key="loan.id">
                                 <tr>
-                                    <td class="p-3 font-mono text-slate-500" x-text="loan.kodePinjam || '-'"></td>
+                                    <td class="p-3 font-mono text-slate-500 font-bold" x-text="loan.kodePinjam || '-'"></td>
                                     <td class="p-3 font-bold" x-text="loan.namaPeminjam"></td>
                                     <td class="p-3" x-text="loan.kelas"></td>
                                     <td class="p-3 font-semibold text-amber-700" x-text="loan.namaAlat + ' (' + loan.jumlah + ' Unit)'"></td>
@@ -648,13 +648,13 @@
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-xs">
                         <thead class="bg-slate-800 text-slate-200 uppercase font-semibold">
-                            <tr><th class="p-2.5">No</th><th class="p-2.5">Kode</th><th class="p-2.5">Peminjam</th><th class="p-2.5">Kelas</th><th class="p-2.5">Nama Alat</th><th class="p-2.5 text-center">Qty</th><th class="p-2.5">Tgl Pinjam</th><th class="p-2.5">Status</th><th class="p-2.5">Kondisi Alat</th></tr>
+                            <tr><th class="p-2.5">No</th><th class="p-2.5">Kode TRX</th><th class="p-2.5">Peminjam</th><th class="p-2.5">Kelas</th><th class="p-2.5">Nama Alat</th><th class="p-2.5 text-center">Qty</th><th class="p-2.5">Tgl Pinjam</th><th class="p-2.5">Status</th><th class="p-2.5">Kondisi Alat</th></tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100">
                             <template x-for="(loan, index) in reportLoans" :key="loan.id">
                                 <tr>
                                     <td class="p-2.5" x-text="index + 1"></td>
-                                    <td class="p-2.5 font-mono text-slate-500" x-text="loan.kodePinjam || '-'"></td>
+                                    <td class="p-2.5 font-mono text-slate-600 font-bold" x-text="loan.kodePinjam || '-'"></td>
                                     <td class="p-2.5 font-bold" x-text="loan.namaPeminjam"></td>
                                     <td class="p-2.5" x-text="loan.kelas"></td>
                                     <td class="p-2.5 font-semibold text-amber-700" x-text="loan.namaAlat"></td>
@@ -1381,13 +1381,25 @@
                         return;
                     }
                     try {
+                        let nextTrxNum = 1;
+                        if (this.loanList && this.loanList.length > 0) {
+                            const nums = this.loanList.map(l => {
+                                const parts = (l.kodePinjam || '').split('-');
+                                const lastPart = parseInt(parts[parts.length - 1], 10);
+                                return isNaN(lastPart) ? 0 : lastPart;
+                            });
+                            nextTrxNum = Math.max(...nums) + 1;
+                        }
+
                         for (let itm of this.formStudentLoan.items) {
                             if (!itm.alatId) throw new Error("Ada pilihan alat yang kosong");
                             const alat = this.alatList.find(a => a.id === itm.alatId);
                             const id = crypto.randomUUID();
+                            const formattedTrx = 'TRX-' + String(nextTrxNum).padStart(4, '0');
+                            
                             await db.collection('loans').doc(id).set({
                                 id,
-                                kodePinjam: 'TRX-' + Math.floor(1000 + Math.random() * 9000),
+                                kodePinjam: formattedTrx,
                                 namaPeminjam: this.formStudentLoan.namaPeminjam,
                                 kelas: this.formStudentLoan.kelas,
                                 nis: this.formStudentLoan.nis || '',
@@ -1398,6 +1410,7 @@
                                 status: 'Menunggu Persetujuan',
                                 kondisiKembali: 'Baik'
                             });
+                            nextTrxNum++;
                         }
                         this.modals.studentLoan = false;
                         this.formStudentLoan = { namaPeminjam: '', kelas: '', nis: '', items: [{ alatId: '', jumlah: 1 }] };
