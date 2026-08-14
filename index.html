@@ -402,7 +402,7 @@
             </div>
         </div>
 
-        <!-- ================= TAB 3: INVENTARIS ALAT (DENGAN KOLOM KONDISI ALAT) ================= -->
+        <!-- ================= TAB 3: INVENTARIS ALAT ================= -->
         <div x-show="activeTab === 'alat'" class="space-y-4" x-cloak>
             <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 flex justify-between items-center gap-4">
                 <input type="text" x-model="searchAlat" placeholder="Cari nama atau kode alat..." class="p-2 border rounded-xl text-xs w-72">
@@ -546,44 +546,72 @@
                     </div>
                 </div>
                 <div class="border-double-custom mt-2 mb-4"></div>
-                <h3 class="text-sm font-bold uppercase underline mb-3 text-black">LAPORAN REKAPITULASI BENGKEL <span x-text="(settings.singkatanBengkel || 'TSM').toUpperCase()"></span> — PERIODE <span x-text="selectedMonthName.toUpperCase()"></span></h3>
+                <h3 class="text-sm font-bold uppercase underline mb-3 text-black">
+                    LAPORAN BENGKEL <span x-text="(settings.singkatanBengkel || 'TSM').toUpperCase()"></span> 
+                    <span x-text="reportFilterType === 'semua' ? '— SEMUA MODUL LENGKAP' : '— ' + getReportTitle(reportFilterType).toUpperCase()"></span>
+                    <span x-show="reportFilterType === 'peminjaman' || reportFilterType === 'penggunaan' || reportFilterType === 'semua'"><br>PERIODE: <span x-text="selectedMonthName.toUpperCase()"></span></span>
+                </h3>
             </div>
 
-            <!-- FILTER BAR -->
+            <!-- FILTER BAR & DROPDOWN PILIH LAPORAN -->
             <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 no-print">
                 <div>
-                    <h3 class="font-bold text-slate-800 text-base">Filter & Cetak Laporan Bulanan</h3>
-                    <p class="text-xs text-slate-500">Pilih periode bulan untuk dicetak ke PDF atau Printer</p>
+                    <h3 class="font-bold text-slate-800 text-base">Filter & Cetak Laporan Bengkel</h3>
+                    <p class="text-xs text-slate-500">Pilih periode bulan dan jenis modul laporan yang ingin ditampilkan atau dicetak</p>
                 </div>
                 <div class="flex flex-wrap items-center gap-3 w-full lg:w-auto">
+                    <!-- Filter Bulan -->
                     <div class="flex items-center space-x-2 bg-slate-50 border border-slate-200 px-3 py-2 rounded-xl text-xs">
                         <i class="fa-solid fa-calendar text-amber-500"></i>
                         <span class="font-bold text-slate-700">Bulan:</span>
                         <input type="month" x-model="reportMonth" class="bg-transparent font-bold focus:outline-none text-slate-800">
                     </div>
+
+                    <!-- Dropdown Pilih Jenis Laporan -->
+                    <div class="flex items-center space-x-2 bg-slate-50 border border-slate-200 px-3 py-2 rounded-xl text-xs">
+                        <i class="fa-solid fa-filter text-indigo-600"></i>
+                        <span class="font-bold text-slate-700">Modul:</span>
+                        <select x-model="reportFilterType" class="bg-transparent font-bold focus:outline-none text-slate-800 cursor-pointer">
+                            <option value="semua">Semua Laporan (Lengkap)</option>
+                            <option value="peminjaman">1. Rekapitulasi Peminjaman Alat</option>
+                            <option value="penggunaan">2. Rekapitulasi Penggunaan Bahan</option>
+                            <option value="kondisi_alat">3. Laporan Kondisi Inventaris Alat</option>
+                            <option value="stok_opname">4. Laporan Status Stok Opname Bahan</option>
+                        </select>
+                    </div>
+
                     <button type="button" @click="triggerPrint()" class="bg-slate-900 hover:bg-slate-800 text-amber-400 font-bold px-4 py-2.5 rounded-xl text-xs flex items-center space-x-2 transition shadow-md active:scale-95">
                         <i class="fa-solid fa-print text-sm"></i><span>Cetak Laporan (PDF)</span>
                     </button>
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 no-print">
-                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-                    <p class="text-xs font-semibold text-slate-500 uppercase">Peminjaman Alat</p>
-                    <h3 class="text-xl font-bold text-slate-800 mt-1" x-text="reportLoans.length + ' Transaksi'"></h3>
+            <!-- RINGKASAN STATISTIK KECIL -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 no-print">
+                <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+                    <p class="text-[10px] font-semibold text-slate-500 uppercase">Peminjaman</p>
+                    <h3 class="text-lg font-bold text-slate-800 mt-0.5" x-text="reportLoans.length + ' Transaksi'"></h3>
                 </div>
-                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-                    <p class="text-xs font-semibold text-slate-500 uppercase">Penggunaan Bahan</p>
-                    <h3 class="text-xl font-bold text-slate-800 mt-1" x-text="reportUsage.length + ' Kali Pakai'"></h3>
+                <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+                    <p class="text-[10px] font-semibold text-slate-500 uppercase">Penggunaan Bahan</p>
+                    <h3 class="text-lg font-bold text-slate-800 mt-0.5" x-text="reportUsage.length + ' Kali Pakai'"></h3>
                 </div>
-                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-                    <p class="text-xs font-semibold text-slate-500 uppercase">Inventaris & Stok</p>
-                    <h3 class="text-xl font-bold text-slate-800 mt-1" x-text="alatList.length + ' Jenis Alat, ' + bahanList.length + ' Jenis Bahan'"></h3>
+                <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+                    <p class="text-[10px] font-semibold text-slate-500 uppercase">Inventaris Alat</p>
+                    <h3 class="text-lg font-bold text-slate-800 mt-0.5" x-text="alatList.length + ' Jenis Alat'"></h3>
+                </div>
+                <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+                    <p class="text-[10px] font-semibold text-slate-500 uppercase">Stok Bahan</p>
+                    <h3 class="text-lg font-bold text-slate-800 mt-0.5" x-text="bahanList.length + ' Jenis Bahan'"></h3>
                 </div>
             </div>
 
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden p-4 space-y-3">
-                <h4 class="font-bold text-slate-800 text-xs uppercase">1. Rekapitulasi Peminjaman Alat Praktik</h4>
+            <!-- LAPORAN 1: REKAPITULASI PEMINJAMAN ALAT -->
+            <div x-show="reportFilterType === 'semua' || reportFilterType === 'peminjaman'" class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden p-4 space-y-3">
+                <h4 class="font-bold text-slate-800 text-xs uppercase flex items-center space-x-2">
+                    <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+                    <span>1. Rekapitulasi Peminjaman Alat Praktik (Periode: <span x-text="selectedMonthName"></span>)</span>
+                </h4>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-xs">
                         <thead class="bg-slate-800 text-slate-200 uppercase font-semibold">
@@ -610,8 +638,12 @@
                 </div>
             </div>
 
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden p-4 space-y-3">
-                <h4 class="font-bold text-slate-800 text-xs uppercase">2. Rekapitulasi Penggunaan Bahan Praktik</h4>
+            <!-- LAPORAN 2: REKAPITULASI PENGGUNAAN BAHAN -->
+            <div x-show="reportFilterType === 'semua' || reportFilterType === 'penggunaan'" class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden p-4 space-y-3">
+                <h4 class="font-bold text-slate-800 text-xs uppercase flex items-center space-x-2">
+                    <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+                    <span>2. Rekapitulasi Penggunaan Bahan Praktik (Periode: <span x-text="selectedMonthName"></span>)</span>
+                </h4>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-xs">
                         <thead class="bg-slate-800 text-slate-200 uppercase font-semibold">
@@ -631,6 +663,73 @@
                             </template>
                             <template x-if="reportUsage.length === 0">
                                 <tr><td colspan="7" class="p-4 text-center text-slate-400">Tidak ada data penggunaan bahan pada periode ini.</td></tr>
+                            </template>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- LAPORAN 3: LAPORAN KONDISI INVENTARIS ALAT -->
+            <div x-show="reportFilterType === 'semua' || reportFilterType === 'kondisi_alat'" class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden p-4 space-y-3">
+                <h4 class="font-bold text-slate-800 text-xs uppercase flex items-center space-x-2">
+                    <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+                    <span>3. Laporan Kondisi Inventaris Alat</span>
+                </h4>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs">
+                        <thead class="bg-slate-800 text-slate-200 uppercase font-semibold">
+                            <tr><th class="p-2.5">No</th><th class="p-2.5">Kode Alat</th><th class="p-2.5">Nama Alat & Merk</th><th class="p-2.5 text-center">Total Unit</th><th class="p-2.5 text-center">Tersedia</th><th class="p-2.5 text-center">Kondisi Baik</th><th class="p-2.5 text-center">Perlu Servis</th><th class="p-2.5 text-center">Rusak</th></tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            <template x-for="(alat, index) in alatList" :key="alat.id">
+                                <tr>
+                                    <td class="p-2.5" x-text="index + 1"></td>
+                                    <td class="p-2.5 font-mono font-bold text-amber-600" x-text="alat.kodeAlat"></td>
+                                    <td class="p-2.5"><p class="font-bold" x-text="alat.namaAlat"></p><p class="text-[10px] text-slate-400" x-text="alat.merk || '-'"></p></td>
+                                    <td class="p-2.5 text-center font-bold" x-text="alat.jumlahTotal"></td>
+                                    <td class="p-2.5 text-center font-bold text-emerald-700" x-text="alat.jumlahTersedia"></td>
+                                    <td class="p-2.5 text-center font-semibold text-emerald-600" x-text="alat.kondisiBaik !== undefined ? alat.kondisiBaik : alat.jumlahTotal"></td>
+                                    <td class="p-2.5 text-center font-semibold text-amber-600" x-text="alat.kondisiServis || 0"></td>
+                                    <td class="p-2.5 text-center font-semibold text-red-600" x-text="alat.kondisiRusak || 0"></td>
+                                </tr>
+                            </template>
+                            <template x-if="alatList.length === 0">
+                                <tr><td colspan="8" class="p-4 text-center text-slate-400">Tidak ada data inventaris alat.</td></tr>
+                            </template>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- LAPORAN 4: LAPORAN STATUS STOK OPNAME BAHAN PRAKTIK -->
+            <div x-show="reportFilterType === 'semua' || reportFilterType === 'stok_opname'" class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden p-4 space-y-3">
+                <h4 class="font-bold text-slate-800 text-xs uppercase flex items-center space-x-2">
+                    <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+                    <span>4. Laporan Status Stok Opname Bahan Praktik</span>
+                </h4>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs">
+                        <thead class="bg-slate-800 text-slate-200 uppercase font-semibold">
+                            <tr><th class="p-2.5">No</th><th class="p-2.5">Kode Bahan</th><th class="p-2.5">Nama Bahan</th><th class="p-2.5 text-center">Satuan</th><th class="p-2.5 text-center">Stok Sistem</th><th class="p-2.5 text-center">Min Stok</th><th class="p-2.5 text-center">Status Stok</th></tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            <template x-for="(bahan, index) in bahanList" :key="bahan.id">
+                                <tr>
+                                    <td class="p-2.5" x-text="index + 1"></td>
+                                    <td class="p-2.5 font-mono font-bold text-amber-600" x-text="bahan.kodeBahan"></td>
+                                    <td class="p-2.5 font-bold" x-text="bahan.namaBahan"></td>
+                                    <td class="p-2.5 text-center" x-text="bahan.satuan"></td>
+                                    <td class="p-2.5 text-center font-bold text-sm" x-text="bahan.stokSistem"></td>
+                                    <td class="p-2.5 text-center text-slate-500" x-text="bahan.minStok || 2"></td>
+                                    <td class="p-2.5 text-center">
+                                        <span class="px-2 py-0.5 rounded text-[10px] font-bold" 
+                                              :class="bahan.stokSistem <= (bahan.minStok || 2) ? 'bg-red-100 text-red-800' : 'bg-emerald-100 text-emerald-800'" 
+                                              x-text="bahan.stokSistem <= (bahan.minStok || 2) ? 'Kritis / Rendah' : 'Cukup / Aman'"></span>
+                                    </td>
+                                </tr>
+                            </template>
+                            <template x-if="bahanList.length === 0">
+                                <tr><td colspan="7" class="p-4 text-center text-slate-400">Tidak ada data bahan praktik.</td></tr>
                             </template>
                         </tbody>
                     </table>
@@ -1055,6 +1154,7 @@
                 currentDate: '', currentTime: '',
                 searchAlat: '', searchBahan: '',
                 reportMonth: new Date().toISOString().slice(0, 7),
+                reportFilterType: 'semua', // Filter dropdown laporan
 
                 alatList: [], bahanList: [], loanList: [], usageLogs: [], auditLogs: [],
                 settings: {
@@ -1511,6 +1611,13 @@
                     const [y, m] = this.reportMonth.split('-');
                     const date = new Date(y, m - 1, 1);
                     return date.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
+                },
+                getReportTitle(type) {
+                    if (type === 'peminjaman') return 'Rekapitulasi Peminjaman Alat';
+                    if (type === 'penggunaan') return 'Rekapitulasi Penggunaan Bahan';
+                    if (type === 'kondisi_alat') return 'Laporan Kondisi Inventaris Alat';
+                    if (type === 'stok_opname') return 'Laporan Status Stok Opname Bahan';
+                    return 'Semua Laporan';
                 },
 
                 showToast(title, message, type = 'success') {
