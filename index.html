@@ -86,7 +86,7 @@
                     <div>
                         <div class="flex items-center space-x-2">
                             <span class="bg-amber-500 text-slate-950 text-[10px] sm:text-xs font-black px-2 py-0.5 rounded tracking-wide uppercase" x-text="settings.singkatanBengkel || 'TSM STEMSAGO'">TSM STEMSAGO</span>
-                            <span class="text-xs text-slate-400 hidden md:inline" x-text="settings.namaKejuruan || 'Auto Service'">Auto Service</span>
+                            <span class="text-xs text-slate-400 hidden md:inline" x-text="settings.namaKejuruan || 'Teknik Sepeda Motor'">Auto Service</span>
                         </div>
                         <h1 class="text-base sm:text-xl font-bold tracking-tight text-white leading-tight" x-text="settings.namaAplikasi || 'SISTEM MANAJEMEN BENGKEL TSM'">SISTEM MANAJEMEN BENGKEL TSM</h1>
                         <p class="text-xs text-slate-300 hidden sm:block" x-text="settings.namaSekolah || 'SMK NEGERI 1 GOMBONG'">SMK NEGERI 1 GOMBONG</p>
@@ -374,7 +374,15 @@
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-xs">
                         <thead class="bg-slate-800 text-slate-200 uppercase font-semibold">
-                            <tr><th class="p-3">Kode TRX</th><th class="p-3">Peminjam</th><th class="p-3">Kelas</th><th class="p-3">Alat & Qty</th><th class="p-3 text-center">Status</th><th class="p-3 text-right">Aksi Admin</th></tr>
+                            <tr>
+                                <th class="p-3">Kode TRX</th>
+                                <th class="p-3">Peminjam</th>
+                                <th class="p-3">Kelas</th>
+                                <th class="p-3">Alat & Qty</th>
+                                <th class="p-3 text-center">Status</th>
+                                <th class="p-3 text-center">Kondisi Alat</th>
+                                <th class="p-3 text-right">Aksi Admin</th>
+                            </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100">
                             <template x-for="loan in loanList" :key="loan.id">
@@ -383,7 +391,14 @@
                                     <td class="p-3 font-bold" x-text="loan.namaPeminjam"></td>
                                     <td class="p-3" x-text="loan.kelas"></td>
                                     <td class="p-3 font-semibold text-amber-700" x-text="loan.namaAlat + ' (' + loan.jumlah + ' Unit)'"></td>
-                                    <td class="p-3 text-center"><span class="px-2 py-1 rounded text-[10px] font-bold uppercase" :class="loan.status === 'Dipinjam' ? 'bg-blue-100 text-blue-800' : (loan.status === 'Dikembalikan' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800')" x-text="loan.status"></span></td>
+                                    <td class="p-3 text-center">
+                                        <span class="px-2 py-1 rounded text-[10px] font-bold uppercase" :class="loan.status === 'Dipinjam' ? 'bg-blue-100 text-blue-800' : (loan.status === 'Dikembalikan' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800')" x-text="loan.status"></span>
+                                    </td>
+                                    <td class="p-3 text-center">
+                                        <span class="px-2 py-0.5 rounded text-[10px] font-semibold" 
+                                              :class="loan.kondisiKembali === 'Baik' || !loan.kondisiKembali ? 'bg-emerald-50 text-emerald-700' : (loan.kondisiKembali === 'Perlu Servis' ? 'bg-amber-50 text-amber-700' : 'bg-red-50 text-red-700')" 
+                                              x-text="loan.kondisiKembali || (loan.status === 'Dikembalikan' ? 'Baik' : '-')"></span>
+                                    </td>
                                     <td class="p-3 text-right">
                                         <template x-if="userRole === 'admin'">
                                             <div class="flex justify-end space-x-1.5 items-center">
@@ -553,11 +568,11 @@
                 </h3>
             </div>
 
-            <!-- FILTER BAR & DROPDOWN PILIH LAPORAN -->
+            <!-- FILTER BAR & PILIH TANGGAL CETAK PDF -->
             <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 no-print">
                 <div>
                     <h3 class="font-bold text-slate-800 text-base">Filter & Cetak Laporan Bengkel</h3>
-                    <p class="text-xs text-slate-500">Pilih periode bulan dan jenis modul laporan yang ingin ditampilkan atau dicetak</p>
+                    <p class="text-xs text-slate-500">Pilih periode bulan, modul laporan, dan tanggal tanda tangan PDF</p>
                 </div>
                 <div class="flex flex-wrap items-center gap-3 w-full lg:w-auto">
                     <!-- Filter Bulan -->
@@ -578,6 +593,13 @@
                             <option value="kondisi_alat">3. Laporan Kondisi Inventaris Alat</option>
                             <option value="stok_opname">4. Laporan Status Stok Opname Bahan</option>
                         </select>
+                    </div>
+
+                    <!-- Input Tanggal Cetak PDF (Tanda Tangan) -->
+                    <div class="flex items-center space-x-2 bg-slate-50 border border-slate-200 px-3 py-2 rounded-xl text-xs" title="Tanggal pada tanda tangan laporan PDF">
+                        <i class="fa-solid fa-calendar-day text-emerald-600"></i>
+                        <span class="font-bold text-slate-700">Tgl Cetak:</span>
+                        <input type="date" x-model="reportPrintDate" class="bg-transparent font-bold focus:outline-none text-slate-800 cursor-pointer">
                     </div>
 
                     <button type="button" @click="triggerPrint()" class="bg-slate-900 hover:bg-slate-800 text-amber-400 font-bold px-4 py-2.5 rounded-xl text-xs flex items-center space-x-2 transition shadow-md active:scale-95">
@@ -615,7 +637,7 @@
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-xs">
                         <thead class="bg-slate-800 text-slate-200 uppercase font-semibold">
-                            <tr><th class="p-2.5">No</th><th class="p-2.5">Kode</th><th class="p-2.5">Peminjam</th><th class="p-2.5">Kelas</th><th class="p-2.5">Nama Alat</th><th class="p-2.5 text-center">Qty</th><th class="p-2.5">Tgl Pinjam</th><th class="p-2.5">Status</th></tr>
+                            <tr><th class="p-2.5">No</th><th class="p-2.5">Kode</th><th class="p-2.5">Peminjam</th><th class="p-2.5">Kelas</th><th class="p-2.5">Nama Alat</th><th class="p-2.5 text-center">Qty</th><th class="p-2.5">Tgl Pinjam</th><th class="p-2.5">Status</th><th class="p-2.5">Kondisi Alat</th></tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100">
                             <template x-for="(loan, index) in reportLoans" :key="loan.id">
@@ -628,10 +650,11 @@
                                     <td class="p-2.5 text-center font-bold" x-text="loan.jumlah"></td>
                                     <td class="p-2.5 text-slate-500" x-text="formatDateTime(loan.tanggalPinjam)"></td>
                                     <td class="p-2.5 font-bold" x-text="loan.status"></td>
+                                    <td class="p-2.5 font-semibold" x-text="loan.kondisiKembali || (loan.status === 'Dikembalikan' ? 'Baik' : '-')"></td>
                                 </tr>
                             </template>
                             <template x-if="reportLoans.length === 0">
-                                <tr><td colspan="8" class="p-4 text-center text-slate-400">Tidak ada data peminjaman pada periode ini.</td></tr>
+                                <tr><td colspan="9" class="p-4 text-center text-slate-400">Tidak ada data peminjaman pada periode ini.</td></tr>
                             </template>
                         </tbody>
                     </table>
@@ -736,7 +759,7 @@
                 </div>
             </div>
 
-            <!-- TANDA TANGAN CETAK PDF -->
+            <!-- TANDA TANGAN CETAK PDF (DENGAN TANGGAL DINAMIS SESUAI PILIHAN PENGGUNA) -->
             <div class="hidden print-only mt-10 pt-4 page-break-inside-avoid">
                 <div class="flex justify-between text-xs text-black">
                     <div class="text-center">
@@ -747,7 +770,7 @@
                         <p x-text="settings.nipKepalaBengkel || 'NIP. 199502202022211002'"></p>
                     </div>
                     <div class="text-center">
-                        <p>Kebumen, 14 Agustus 2026</p>
+                        <p><span x-text="formattedPrintDate"></span></p>
                         <p class="font-bold" x-text="settings.jabatanToolman || 'Toolman / Pengelola Bengkel'"></p>
                         <br><br><br>
                         <p class="font-bold underline" x-text="settings.namaToolman || 'Sidik Rustanto'"></p>
@@ -955,6 +978,14 @@
                         <option value="Ditolak">Ditolak</option>
                     </select>
                 </div>
+                <div>
+                    <label class="font-bold block mb-1">Kondisi Alat</label>
+                    <select x-model="formEditLoan.kondisiKembali" class="w-full p-2.5 border rounded-xl">
+                        <option value="Baik">Baik</option>
+                        <option value="Perlu Servis">Perlu Servis</option>
+                        <option value="Rusak">Rusak</option>
+                    </select>
+                </div>
                 <div class="flex justify-end space-x-2 pt-2 border-t">
                     <button type="button" @click="modals.editLoan = false" class="px-4 py-2 bg-slate-100 font-bold rounded-xl">Batal</button>
                     <button type="submit" class="px-4 py-2 bg-amber-500 font-bold rounded-xl">Simpan Perubahan</button>
@@ -1154,7 +1185,8 @@
                 currentDate: '', currentTime: '',
                 searchAlat: '', searchBahan: '',
                 reportMonth: new Date().toISOString().slice(0, 7),
-                reportFilterType: 'semua', // Filter dropdown laporan
+                reportPrintDate: new Date().toISOString().slice(0, 10), // Tanggal cetak PDF default hari ini
+                reportFilterType: 'semua',
 
                 alatList: [], bahanList: [], loanList: [], usageLogs: [], auditLogs: [],
                 settings: {
@@ -1175,7 +1207,7 @@
                 modals: { login: false, studentLoan: false, editLoan: false, settingsModal: false, alat: false, bahan: false, usage: false, opname: false, return: false, confirmDelete: { show: false, type: '', id: '', name: '' } },
 
                 formStudentLoan: { namaPeminjam: '', kelas: '', nis: '', items: [{ alatId: '', jumlah: 1 }] },
-                formEditLoan: { id: '', namaPeminjam: '', kelas: '', jumlah: 1, status: '' },
+                formEditLoan: { id: '', namaPeminjam: '', kelas: '', jumlah: 1, status: '', kondisiKembali: 'Baik' },
                 formAlat: { id: null, kodeAlat: '', namaAlat: '', kategori: 'Hand Tools', merk: '', jumlahTotal: 1 },
                 formBahan: { kodeBahan: '', namaBahan: '', satuan: 'Botol', stokSistem: 10, minStok: 2 },
                 formUsageMeta: { kelas: '', topik: '', instruktor: '', items: [{ bahanId: '', jumlah: 1 }] },
@@ -1267,7 +1299,8 @@
                                 namaAlat: alat ? alat.namaAlat : '',
                                 jumlah: Number(itm.jumlah),
                                 tanggalPinjam: new Date().toISOString(),
-                                status: 'Menunggu Persetujuan'
+                                status: 'Menunggu Persetujuan',
+                                kondisiKembali: 'Baik'
                             });
                         }
                         this.modals.studentLoan = false;
@@ -1279,7 +1312,14 @@
                 },
 
                 editLoan(loan) {
-                    this.formEditLoan = { id: loan.id, namaPeminjam: loan.namaPeminjam, kelas: loan.kelas, jumlah: loan.jumlah, status: loan.status };
+                    this.formEditLoan = { 
+                        id: loan.id, 
+                        namaPeminjam: loan.namaPeminjam, 
+                        kelas: loan.kelas, 
+                        jumlah: loan.jumlah, 
+                        status: loan.status,
+                        kondisiKembali: loan.kondisiKembali || 'Baik'
+                    };
                     this.modals.editLoan = true;
                 },
 
@@ -1290,7 +1330,8 @@
                             namaPeminjam: this.formEditLoan.namaPeminjam,
                             kelas: this.formEditLoan.kelas,
                             jumlah: Number(this.formEditLoan.jumlah),
-                            status: this.formEditLoan.status
+                            status: this.formEditLoan.status,
+                            kondisiKembali: this.formEditLoan.kondisiKembali
                         });
                         this.modals.editLoan = false;
                         this.showToast('Berhasil', 'Data peminjaman diperbarui');
@@ -1611,6 +1652,15 @@
                     const [y, m] = this.reportMonth.split('-');
                     const date = new Date(y, m - 1, 1);
                     return date.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
+                },
+                get formattedPrintDate() {
+                    if (!this.reportPrintDate) return 'Kebumen, ...';
+                    const parts = this.reportPrintDate.split('-');
+                    if (parts.length !== 3) return 'Kebumen, ' + this.reportPrintDate;
+                    const [y, m, d] = parts;
+                    const dateObj = new Date(y, m - 1, d);
+                    const formatted = dateObj.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+                    return 'Kebumen, ' + formatted;
                 },
                 getReportTitle(type) {
                     if (type === 'peminjaman') return 'Rekapitulasi Peminjaman Alat';
