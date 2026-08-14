@@ -402,7 +402,7 @@
             </div>
         </div>
 
-        <!-- ================= TAB 3: INVENTARIS ALAT ================= -->
+        <!-- ================= TAB 3: INVENTARIS ALAT (DENGAN KOLOM KONDISI ALAT) ================= -->
         <div x-show="activeTab === 'alat'" class="space-y-4" x-cloak>
             <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 flex justify-between items-center gap-4">
                 <input type="text" x-model="searchAlat" placeholder="Cari nama atau kode alat..." class="p-2 border rounded-xl text-xs w-72">
@@ -415,7 +415,15 @@
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-xs">
                         <thead class="bg-slate-800 text-slate-200 uppercase font-semibold">
-                            <tr><th class="p-3">Kode</th><th class="p-3">Nama Alat & Merk</th><th class="p-3">Kategori</th><th class="p-3 text-center">Total</th><th class="p-3 text-center">Tersedia</th><template x-if="userRole === 'admin'"><th class="p-3 text-right">Aksi Admin</th></template></tr>
+                            <tr>
+                                <th class="p-3">Kode</th>
+                                <th class="p-3">Nama Alat & Merk</th>
+                                <th class="p-3">Kategori</th>
+                                <th class="p-3 text-center">Total</th>
+                                <th class="p-3 text-center">Tersedia</th>
+                                <th class="p-3">Kondisi Alat</th>
+                                <template x-if="userRole === 'admin'"><th class="p-3 text-right">Aksi Admin</th></template>
+                            </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100">
                             <template x-for="alat in filteredAlat" :key="alat.id">
@@ -425,6 +433,13 @@
                                     <td class="p-3" x-text="alat.kategori"></td>
                                     <td class="p-3 text-center font-bold" x-text="alat.jumlahTotal"></td>
                                     <td class="p-3 text-center font-bold text-emerald-700" x-text="alat.jumlahTersedia"></td>
+                                    <td class="p-3">
+                                        <div class="flex flex-wrap gap-1">
+                                            <span class="px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded font-semibold text-[10px]" x-text="'Baik: ' + (alat.kondisiBaik !== undefined ? alat.kondisiBaik : alat.jumlahTotal)"></span>
+                                            <span class="px-2 py-0.5 bg-amber-100 text-amber-800 rounded font-semibold text-[10px]" x-text="'Servis: ' + (alat.kondisiServis || 0)"></span>
+                                            <span class="px-2 py-0.5 bg-red-100 text-red-800 rounded font-semibold text-[10px]" x-text="'Rusak: ' + (alat.kondisiRusak || 0)"></span>
+                                        </div>
+                                    </td>
                                     <template x-if="userRole === 'admin'">
                                         <td class="p-3 text-right">
                                             <div class="flex justify-end space-x-1">
@@ -1266,7 +1281,7 @@
 
                             const alat = alatSnap.data();
                             let jumlahTersedia = Number(alat.jumlahTersedia || 0);
-                            let kondisiBaik = Number(alat.kondisiBaik || alat.jumlahTotal || 0);
+                            let kondisiBaik = Number(alat.kondisiBaik !== undefined ? alat.kondisiBaik : alat.jumlahTotal);
                             let kondisiServis = Number(alat.kondisiServis || 0);
                             let kondisiRusak = Number(alat.kondisiRusak || 0);
                             const jumlah = Number(loan.jumlah || 0);
@@ -1315,7 +1330,12 @@
                     if (this.userRole !== 'admin') return;
                     const id = this.formAlat.id || crypto.randomUUID();
                     await db.collection('alat').doc(id).set({
-                        ...this.formAlat, id, jumlahTersedia: Number(this.formAlat.jumlahTotal)
+                        ...this.formAlat, 
+                        id, 
+                        jumlahTersedia: Number(this.formAlat.jumlahTotal),
+                        kondisiBaik: Number(this.formAlat.jumlahTotal),
+                        kondisiServis: 0,
+                        kondisiRusak: 0
                     }, { merge: true });
                     this.modals.alat = false;
                     this.showToast('Berhasil', 'Data alat disimpan');
@@ -1457,13 +1477,13 @@
                     XLSX.utils.book_append_sheet(wb, ws, 'Data');
                     XLSX.writeFile(wb, `${prefix}_${new Date().toISOString().slice(0,10)}.xlsx`);
                 },
-                exportAlatToExcel() { this.downloadExcel(this.alatList.map((a,i)=>({No:i+1, Kode:a.kodeAlat, Nama:a.namaAlat, Total:a.jumlahTotal, Tersedia:a.jumlahTersedia})), 'Alat'); },
+                exportAlatToExcel() { this.downloadExcel(this.alatList.map((a,i)=>({No:i+1, Kode:a.kodeAlat, Nama:a.namaAlat, Total:a.jumlahTotal, Tersedia:a.jumlahTersedia, Baik:a.kondisiBaik || a.jumlahTotal, Servis:a.kondisiServis || 0, Rusak:a.kondisiRusak || 0})), 'Alat'); },
                 exportBahanToExcel() { this.downloadExcel(this.bahanList.map((b,i)=>({No:i+1, Kode:b.kodeBahan, Nama:b.namaBahan, Stok:b.stokSistem, Satuan:b.satuan})), 'Bahan'); },
 
                 async runSeedData() {
                     const sAlat = [
-                        { id: 'A1', kodeAlat: 'ALT-01', namaAlat: 'Kunci T Set', kategori: 'Hand Tools', merk: 'Tekiro', jumlahTotal: 10, jumlahTersedia: 10 },
-                        { id: 'A2', kodeAlat: 'ALT-02', namaAlat: 'Kunci Momen', kategori: 'Measuring Tools', merk: 'Matsu', jumlahTotal: 4, jumlahTersedia: 4 }
+                        { id: 'A1', kodeAlat: 'ALT-01', namaAlat: 'Kunci T Set', kategori: 'Hand Tools', merk: 'Tekiro', jumlahTotal: 10, jumlahTersedia: 10, kondisiBaik: 10, kondisiServis: 0, kondisiRusak: 0 },
+                        { id: 'A2', kodeAlat: 'ALT-02', namaAlat: 'Kunci Momen', kategori: 'Measuring Tools', merk: 'Matsu', jumlahTotal: 4, jumlahTersedia: 4, kondisiBaik: 4, kondisiServis: 0, kondisiRusak: 0 }
                     ];
                     const sBahan = [
                         { id: 'B1', kodeBahan: 'BHN-01', namaBahan: 'Oli Mesin MPX1', satuan: 'Botol', stokSistem: 15, minStok: 3 }
