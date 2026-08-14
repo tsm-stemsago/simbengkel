@@ -668,7 +668,7 @@
 
     </main>
 
-    <!-- ================= MODAL PENGATURAN LENGKAP (3 KOLOM LOGO + IDENTITAS + TTD) ================= -->
+    <!-- ================= MODAL PENGATURAN LENGKAP ================= -->
     <div x-show="modals.settingsModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
         <div class="bg-white rounded-2xl max-w-2xl w-full p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto custom-scrollbar" @click.away="modals.settingsModal = false">
             <div class="flex justify-between items-center border-b pb-3">
@@ -753,29 +753,77 @@
         </div>
     </div>
 
-    <!-- SEMUA MODAL LAINNYA -->
+    <!-- ================= MODAL FORM PINJAM MANDIRI MULTI-ITEM ================= -->
     <div x-show="modals.studentLoan" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
-        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4" @click.away="modals.studentLoan = false">
-            <h3 class="font-bold text-slate-800 text-sm border-b pb-2">Form Peminjaman Alat Mandiri</h3>
-            <form @submit.prevent="submitStudentLoan()" class="space-y-3 text-xs">
-                <div><label class="font-bold block mb-1">Nama Peminjam</label><input type="text" x-model="formStudentLoan.namaPeminjam" required class="w-full p-2.5 border rounded-xl"></div>
-                <div><label class="font-bold block mb-1">Kelas</label><input type="text" x-model="formStudentLoan.kelas" required placeholder="XII TSM 1" class="w-full p-2.5 border rounded-xl"></div>
+        <div class="bg-white rounded-2xl max-w-xl w-full p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto custom-scrollbar" @click.away="modals.studentLoan = false">
+            <div class="flex justify-between items-center border-b pb-3">
                 <div>
-                    <label class="font-bold block mb-1">Pilih Alat</label>
-                    <select x-model="formStudentLoan.alatId" required class="w-full p-2.5 border rounded-xl">
-                        <option value="">-- Pilih Alat --</option>
-                        <template x-for="alat in alatList" :key="alat.id"><option :value="alat.id" x-text="alat.namaAlat + ' (Sisa: ' + alat.jumlahTersedia + ')'"></option></template>
-                    </select>
+                    <h3 class="font-bold text-slate-800 text-sm">Form Peminjaman Alat Mandiri</h3>
+                    <p class="text-[11px] text-slate-500">Diisi oleh Siswa / Perwakilan Praktik TSM</p>
                 </div>
-                <div><label class="font-bold block mb-1">Jumlah</label><input type="number" x-model.number="formStudentLoan.jumlah" min="1" required class="w-full p-2.5 border rounded-xl font-bold"></div>
-                <div class="flex justify-end space-x-2 pt-2 border-t">
-                    <button type="button" @click="modals.studentLoan = false" class="px-4 py-2 bg-slate-100 font-bold rounded-xl">Batal</button>
-                    <button type="submit" class="px-4 py-2 bg-amber-500 font-bold rounded-xl">Kirim</button>
+                <button @click="modals.studentLoan = false" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+
+            <form @submit.prevent="submitStudentLoanMulti()" class="space-y-4 text-xs">
+                <!-- Identitas Peminjam -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-slate-50 p-3.5 rounded-xl border">
+                    <div>
+                        <label class="font-bold block mb-1 text-slate-700">Nama Peminjam <span class="text-red-500">*</span></label>
+                        <input type="text" x-model="formStudentLoan.namaPeminjam" required placeholder="Nama Lengkap / Ketua Kelompok" class="w-full p-2.5 bg-white border rounded-xl">
+                    </div>
+                    <div>
+                        <label class="font-bold block mb-1 text-slate-700">Kelas / Bay Praktik <span class="text-red-500">*</span></label>
+                        <input type="text" x-model="formStudentLoan.kelas" required placeholder="Contoh: XII TSM 1 / Bay 2" class="w-full p-2.5 bg-white border rounded-xl">
+                    </div>
+                    <div class="sm:col-span-2">
+                        <label class="font-bold block mb-1 text-slate-700">NIS / NIP Peminjam</label>
+                        <input type="text" x-model="formStudentLoan.nis" placeholder="Nomor Induk Siswa (Opsional)" class="w-full p-2.5 bg-white border rounded-xl">
+                    </div>
+                </div>
+
+                <!-- Daftar Alat Multi-Item -->
+                <div class="space-y-3">
+                    <div class="flex justify-between items-center">
+                        <label class="font-bold text-slate-800"><i class="fa-solid fa-toolbox mr-1 text-amber-600"></i> Daftar Alat yang Dipinjam</label>
+                        <button type="button" @click="addLoanItem()" class="bg-amber-100 hover:bg-amber-200 text-amber-800 font-bold px-3 py-1.5 rounded-lg text-xs transition">
+                            <i class="fa-solid fa-plus mr-1"></i> + Tambah Alat Lain
+                        </button>
+                    </div>
+
+                    <template x-for="(item, index) in formStudentLoan.items" :key="index">
+                        <div class="p-3 bg-slate-50 rounded-xl border relative space-y-2">
+                            <div class="flex justify-between items-center">
+                                <span class="font-bold text-slate-700 text-[11px]" x-text="'Alat #' + (index + 1)"></span>
+                                <template x-if="formStudentLoan.items.length > 1">
+                                    <button type="button" @click="removeLoanItem(index)" class="text-red-500 hover:text-red-700 p-1" title="Hapus baris"><i class="fa-solid fa-trash-can text-xs"></i></button>
+                                </template>
+                            </div>
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                                <div class="sm:col-span-2">
+                                    <select x-model="item.alatId" required class="w-full p-2 bg-white border rounded-lg text-xs">
+                                        <option value="">-- Pilih Alat --</option>
+                                        <template x-for="alat in alatList" :key="alat.id">
+                                            <option :value="alat.id" x-text="alat.namaAlat + ' (Sisa: ' + alat.jumlahTersedia + ')'"></option>
+                                        </template>
+                                    </select>
+                                </div>
+                                <div>
+                                    <input type="number" x-model.number="item.jumlah" min="1" required placeholder="Jumlah" class="w-full p-2 bg-white border rounded-lg text-xs font-bold text-center">
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+
+                <div class="flex justify-end space-x-2 pt-3 border-t">
+                    <button type="button" @click="modals.studentLoan = false" class="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 font-bold rounded-xl">Batal</button>
+                    <button type="submit" class="px-5 py-2.5 bg-amber-500 hover:bg-amber-600 font-bold rounded-xl shadow">Kirim Pengajuan</button>
                 </div>
             </form>
         </div>
     </div>
 
+    <!-- MODAL ALAT, BAHAN, USAGE, OPNAME, RETURN, DELETE -->
     <div x-show="modals.alat" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
         <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4" @click.away="modals.alat = false">
             <h3 class="font-bold text-slate-800 text-sm border-b pb-2" x-text="formAlat.id ? 'Edit Alat Inventaris' : 'Tambah Alat Baru'"></h3>
@@ -932,7 +980,7 @@
                 toast: { show: false, title: '', message: '', type: 'success' },
                 modals: { login: false, studentLoan: false, settingsModal: false, alat: false, bahan: false, usage: false, opname: false, return: false, confirmDelete: { show: false, type: '', id: '', name: '' } },
 
-                formStudentLoan: { namaPeminjam: '', kelas: '', alatId: '', jumlah: 1 },
+                formStudentLoan: { namaPeminjam: '', kelas: '', nis: '', items: [{ alatId: '', jumlah: 1 }] },
                 formAlat: { id: null, kodeAlat: '', namaAlat: '', kategori: 'Hand Tools', merk: '', jumlahTotal: 1 },
                 formBahan: { kodeBahan: '', namaBahan: '', satuan: 'Botol', stokSistem: 10, minStok: 2 },
                 formUsage: { bahanId: '', jumlah: 1, kelas: '', topik: '', instruktur: '' },
@@ -990,6 +1038,44 @@
                     reader.readAsDataURL(file);
                 },
 
+                addLoanItem() {
+                    this.formStudentLoan.items.push({ alatId: '', jumlah: 1 });
+                },
+                removeLoanItem(index) {
+                    this.formStudentLoan.items.splice(index, 1);
+                },
+
+                async submitStudentLoanMulti() {
+                    if (!this.formStudentLoan.items || this.formStudentLoan.items.length === 0) {
+                        this.showToast('Gagal', 'Pilih minimal 1 alat', 'error');
+                        return;
+                    }
+                    try {
+                        for (let itm of this.formStudentLoan.items) {
+                            if (!itm.alatId) throw new Error("Ada pilihan alat yang kosong");
+                            const alat = this.alatList.find(a => a.id === itm.alatId);
+                            const id = crypto.randomUUID();
+                            await db.collection('loans').doc(id).set({
+                                id,
+                                kodePinjam: 'TRX-' + Math.floor(1000 + Math.random() * 9000),
+                                namaPeminjam: this.formStudentLoan.namaPeminjam,
+                                kelas: this.formStudentLoan.kelas,
+                                nis: this.formStudentLoan.nis || '',
+                                alatId: itm.alatId,
+                                namaAlat: alat ? alat.namaAlat : '',
+                                jumlah: Number(itm.jumlah),
+                                tanggalPinjam: new Date().toISOString(),
+                                status: 'Menunggu Persetujuan'
+                            });
+                        }
+                        this.modals.studentLoan = false;
+                        this.formStudentLoan = { namaPeminjam: '', kelas: '', nis: '', items: [{ alatId: '', jumlah: 1 }] };
+                        this.showToast('Terkirim', 'Pengajuan peminjaman berhasil dikirim!');
+                    } catch(e) {
+                        this.showToast('Gagal', e.message, 'error');
+                    }
+                },
+
                 async approveLoan(loanId) {
                     if (this.userRole !== 'admin') return;
                     try {
@@ -1034,21 +1120,6 @@
                         this.showToast('Dikembalikan', 'Alat kembali ke stok');
                         await createAuditLog('RETURN_LOAN', `Pengembalian loan #${loan.id}`);
                     } catch(e) { this.showToast('Gagal', e.message, 'error'); }
-                },
-
-                async submitStudentLoan() {
-                    const id = crypto.randomUUID();
-                    const alat = this.alatList.find(a => a.id === this.formStudentLoan.alatId);
-                    await db.collection('loans').doc(id).set({
-                        id, kodePinjam: 'TRX-' + Math.floor(1000+Math.random()*9000),
-                        ...this.formStudentLoan,
-                        namaAlat: alat ? alat.namaAlat : '',
-                        tanggalPinjam: new Date().toISOString(),
-                        status: 'Menunggu Persetujuan'
-                    });
-                    this.modals.studentLoan = false;
-                    this.formStudentLoan = { namaPeminjam: '', kelas: '', alatId: '', jumlah: 1 };
-                    this.showToast('Terkirim', 'Pengajuan peminjaman dikirim');
                 },
 
                 editAlat(alat) { this.formAlat = JSON.parse(JSON.stringify(alat)); this.modals.alat = true; },
@@ -1132,6 +1203,9 @@
 
                 openReturnModal(loan) { this.selectedLoanReturn = loan; this.modals.return = true; },
                 openModal(type) {
+                    if (type === 'studentLoan') {
+                        this.formStudentLoan = { namaPeminjam: '', kelas: '', nis: '', items: [{ alatId: '', jumlah: 1 }] };
+                    }
                     if (type === 'alat') this.formAlat = { id: null, kodeAlat: 'ALT-' + Math.floor(100+Math.random()*900), namaAlat: '', kategori: 'Hand Tools', merk: '', jumlahTotal: 1 };
                     if (type === 'bahan') this.formBahan = { kodeBahan: 'BHN-' + Math.floor(10+Math.random()*90), namaBahan: '', satuan: 'Botol', stokSistem: 10, minStok: 2 };
                     if (type === 'usage') this.formUsage = { bahanId: '', jumlah: 1, kelas: '', topik: '', instruktur: '' };
