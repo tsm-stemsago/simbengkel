@@ -75,18 +75,18 @@
                 <div class="flex items-center space-x-3 sm:space-x-4">
                     <div class="flex items-center space-x-2 sm:space-x-3 bg-white/10 p-1.5 rounded-xl backdrop-blur-sm border border-white/10">
                         <div class="h-10 sm:h-12 w-10 sm:w-12 flex items-center justify-center overflow-hidden rounded-lg bg-slate-800 p-0.5">
-                            <img :src="settings.logoKananUrl || defaultLogo" alt="Logo" class="max-h-full max-w-full object-contain" @error="$event.target.src = defaultLogo">
+                            <img :src="settings.logoKananUrl || defaultLogo" alt="Logo Kiri" class="max-h-full max-w-full object-contain" @error="$event.target.src = defaultLogo">
                         </div>
                         <div class="h-8 w-px bg-slate-600/60"></div>
                         <div class="h-10 sm:h-12 w-10 sm:w-12 flex items-center justify-center overflow-hidden rounded-lg bg-slate-800 p-0.5">
-                            <img :src="settings.logoTsmUrl || defaultLogo" alt="Logo TSM" class="max-h-full max-w-full object-contain" @error="$event.target.src = defaultLogo">
+                            <img :src="settings.logoTsmUrl || defaultLogo" alt="Logo Kanan" class="max-h-full max-w-full object-contain" @error="$event.target.src = defaultLogo">
                         </div>
                     </div>
 
                     <div>
                         <div class="flex items-center space-x-2">
                             <span class="bg-amber-500 text-slate-950 text-[10px] sm:text-xs font-black px-2 py-0.5 rounded tracking-wide uppercase" x-text="settings.singkatanBengkel || 'TSM STEMSAGO'">TSM STEMSAGO</span>
-                            <span class="text-xs text-slate-400 hidden md:inline">Auto Service</span>
+                            <span class="text-xs text-slate-400 hidden md:inline" x-text="settings.namaKejuruan || 'Teknik Sepeda Motor'">Auto Service</span>
                         </div>
                         <h1 class="text-base sm:text-xl font-bold tracking-tight text-white leading-tight" x-text="settings.namaAplikasi || 'SISTEM MANAJEMEN BENGKEL TSM'">SISTEM MANAJEMEN BENGKEL TSM</h1>
                         <p class="text-xs text-slate-300 hidden sm:block" x-text="settings.namaSekolah || 'SMK NEGERI 1 GOMBONG'">SMK NEGERI 1 GOMBONG</p>
@@ -195,7 +195,7 @@
             </div>
         </div>
 
-        <!-- ================= TAB 1: DASHBOARD (INFORMATIF LENGKAP) ================= -->
+        <!-- ================= TAB 1: DASHBOARD ================= -->
         <div x-show="activeTab === 'dashboard'" class="space-y-6" x-cloak>
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200 hover:shadow-md transition">
@@ -243,10 +243,8 @@
                 </div>
             </div>
 
-            <!-- Dashboard Panels Grid -->
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div class="lg:col-span-2 space-y-6">
-                    <!-- Pending Approvals -->
                     <div class="bg-white rounded-2xl p-5 shadow-sm border border-amber-200">
                         <div class="flex justify-between items-center mb-4 pb-3 border-b border-slate-100">
                             <div class="flex items-center space-x-2">
@@ -259,13 +257,7 @@
                         <div class="overflow-x-auto">
                             <table class="w-full text-left text-xs">
                                 <thead class="bg-slate-50 text-slate-500 uppercase tracking-wider font-semibold">
-                                    <tr>
-                                        <th class="p-2.5">Peminjam / NIS</th>
-                                        <th class="p-2.5">Kelas</th>
-                                        <th class="p-2.5">Alat & Jml</th>
-                                        <th class="p-2.5">Tgl Pengajuan</th>
-                                        <th class="p-2.5 text-right">Aksi Admin</th>
-                                    </tr>
+                                    <tr><th class="p-2.5">Peminjam / NIS</th><th class="p-2.5">Kelas</th><th class="p-2.5">Alat & Jml</th><th class="p-2.5">Tgl Pengajuan</th><th class="p-2.5 text-right">Aksi Admin</th></tr>
                                 </thead>
                                 <tbody class="divide-y divide-slate-100">
                                     <template x-for="loan in pendingLoans" :key="loan.id">
@@ -292,7 +284,6 @@
                         </div>
                     </div>
 
-                    <!-- Active Loans -->
                     <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200">
                         <div class="flex justify-between items-center mb-4 pb-3 border-b border-slate-100">
                             <div class="flex items-center space-x-2">
@@ -307,13 +298,7 @@
                         <div class="overflow-x-auto">
                             <table class="w-full text-left text-xs">
                                 <thead class="bg-slate-50 text-slate-500 uppercase tracking-wider font-semibold">
-                                    <tr>
-                                        <th class="p-2.5">Peminjam</th>
-                                        <th class="p-2.5">Kelas</th>
-                                        <th class="p-2.5">Alat Dipinjam</th>
-                                        <th class="p-2.5">Waktu Pinjam</th>
-                                        <th class="p-2.5 text-right">Aksi Status</th>
-                                    </tr>
+                                    <tr><th class="p-2.5">Peminjam</th><th class="p-2.5">Kelas</th><th class="p-2.5">Alat Dipinjam</th><th class="p-2.5">Waktu Pinjam</th><th class="p-2.5 text-right">Aksi Status</th></tr>
                                 </thead>
                                 <tbody class="divide-y divide-slate-100">
                                     <template x-for="loan in activeLoans.slice(0, 5)" :key="loan.id">
@@ -338,7 +323,6 @@
                     </div>
                 </div>
 
-                <!-- Right Sidebar widgets -->
                 <div class="space-y-6">
                     <div class="bg-gradient-to-br from-amber-500 to-amber-600 text-slate-950 p-5 rounded-2xl shadow-md space-y-3">
                         <div class="flex items-center space-x-3">
@@ -399,11 +383,7 @@
                                     <td class="p-3 font-bold" x-text="loan.namaPeminjam"></td>
                                     <td class="p-3" x-text="loan.kelas"></td>
                                     <td class="p-3 font-semibold text-amber-700" x-text="loan.namaAlat"></td>
-                                    <td class="p-3 text-center">
-                                        <span class="px-2 py-1 rounded text-[10px] font-bold uppercase"
-                                              :class="loan.status === 'Dipinjam' ? 'bg-blue-100 text-blue-800' : (loan.status === 'Dikembalikan' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800')"
-                                              x-text="loan.status"></span>
-                                    </td>
+                                    <td class="p-3 text-center"><span class="px-2 py-1 rounded text-[10px] font-bold uppercase" :class="loan.status === 'Dipinjam' ? 'bg-blue-100 text-blue-800' : (loan.status === 'Dikembalikan' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800')" x-text="loan.status"></span></td>
                                     <td class="p-3 text-right">
                                         <template x-if="userRole === 'admin'">
                                             <div class="flex justify-end space-x-1">
@@ -530,14 +510,14 @@
             </div>
         </div>
 
-        <!-- ================= TAB 6: LAPORAN & CETAK (LENGKAP DENGAN KOP & PREVIEW CETAK) ================= -->
+        <!-- ================= TAB 6: LAPORAN & CETAK ================= -->
         <div x-show="activeTab === 'laporan'" class="space-y-6" x-cloak>
             
-            <!-- PRINTABLE KOP SURAT (Hanya tampil saat cetak PDF) -->
+            <!-- PRINTABLE KOP SURAT -->
             <div class="hidden print-only text-center mb-4">
                 <div class="flex items-center justify-between">
                     <div class="w-24 h-24 flex items-center justify-center">
-                        <img :src="settings.logoKananUrl || defaultLogo" class="max-h-24 max-w-24 object-contain" alt="Logo">
+                        <img :src="settings.logoKananUrl || defaultLogo" class="max-h-24 max-w-24 object-contain" alt="Logo Kiri">
                     </div>
                     <div class="text-center flex-1 px-2 leading-tight">
                         <h2 class="text-sm font-bold tracking-wider uppercase text-black">PEMERINTAH PROVINSI JAWA TENGAH</h2>
@@ -546,18 +526,18 @@
                         <p class="text-[11px] text-black mt-1">Jalan Wilis Nomor 15 Wero Gombong Kebumen, Kode Pos 54416, Telepon 0287-472828</p>
                     </div>
                     <div class="w-24 h-24 flex items-center justify-center">
-                        <img :src="settings.logoTsmUrl || defaultLogo" class="max-h-24 max-w-24 object-contain" alt="Logo TSM">
+                        <img :src="settings.logoTsmUrl || defaultLogo" class="max-h-24 max-w-24 object-contain" alt="Logo Kanan">
                     </div>
                 </div>
                 <div class="border-double-custom mt-2 mb-4"></div>
-                <h3 class="text-sm font-bold uppercase underline mb-3 text-black">LAPORAN REKAPITULASI BENGKEL TSM — PERIODE <span x-text="selectedMonthName.toUpperCase()"></span></h3>
+                <h3 class="text-sm font-bold uppercase underline mb-3 text-black">LAPORAN REKAPITULASI BENGKEL <span x-text="(settings.singkatanBengkel || 'TSM').toUpperCase()"></span> — PERIODE <span x-text="selectedMonthName.toUpperCase()"></span></h3>
             </div>
 
-            <!-- FILTER BAR (Tampil di Web) -->
+            <!-- FILTER BAR -->
             <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 no-print">
                 <div>
                     <h3 class="font-bold text-slate-800 text-base">Filter & Cetak Laporan Bulanan</h3>
-                    <p class="text-xs text-slate-500">Pilih periode bulan dan jenis modul untuk dicetak ke PDF atau Printer</p>
+                    <p class="text-xs text-slate-500">Pilih periode bulan untuk dicetak ke PDF atau Printer</p>
                 </div>
                 <div class="flex flex-wrap items-center gap-3 w-full lg:w-auto">
                     <div class="flex items-center space-x-2 bg-slate-50 border border-slate-200 px-3 py-2 rounded-xl text-xs">
@@ -571,7 +551,6 @@
                 </div>
             </div>
 
-            <!-- STATISTIK RINGKASAN LAPORAN -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 no-print">
                 <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
                     <p class="text-xs font-semibold text-slate-500 uppercase">Peminjaman Alat</p>
@@ -587,7 +566,6 @@
                 </div>
             </div>
 
-            <!-- TABEL LAPORAN 1: PEMINJAMAN -->
             <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden p-4 space-y-3">
                 <h4 class="font-bold text-slate-800 text-xs uppercase">1. Rekapitulasi Peminjaman Alat Praktik</h4>
                 <div class="overflow-x-auto">
@@ -616,7 +594,6 @@
                 </div>
             </div>
 
-            <!-- TABEL LAPORAN 2: PENGGUNAAN BAHAN -->
             <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden p-4 space-y-3">
                 <h4 class="font-bold text-slate-800 text-xs uppercase">2. Rekapitulasi Penggunaan Bahan Praktik</h4>
                 <div class="overflow-x-auto">
@@ -644,22 +621,22 @@
                 </div>
             </div>
 
-            <!-- TANDA TANGAN (Hanya tampil saat dicetak PDF) -->
+            <!-- TANDA TANGAN CETAK PDF -->
             <div class="hidden print-only mt-10 pt-4 page-break-inside-avoid">
                 <div class="flex justify-between text-xs text-black">
                     <div class="text-center">
                         <p>Mengetahui,</p>
-                        <p class="font-bold">Kepala Bengkel TSM</p>
+                        <p class="font-bold">Kepala Bengkel <span x-text="settings.singkatanBengkel || 'TSM'"></span></p>
                         <br><br><br>
-                        <p class="font-bold underline">Den's Berlian Wais, S.Pd.</p>
-                        <p>NIP. 199502202022211002</p>
+                        <p class="font-bold underline" x-text="settings.namaKepalaBengkel || 'Den\'s Berlian Wais, S.Pd.'"></p>
+                        <p x-text="settings.nipKepalaBengkel || 'NIP. 199502202022211002'"></p>
                     </div>
                     <div class="text-center">
                         <p>Gombong, <span x-text="currentDate"></span></p>
-                        <p class="font-bold">Admin / Pengelola Bengkel</p>
+                        <p class="font-bold" x-text="settings.jabatanToolman || 'Toolman / Pengelola Bengkel'"></p>
                         <br><br><br>
-                        <p class="font-bold underline" x-text="currentUser ? currentUser.email : 'Administrator'"></p>
-                        <p>NIP. -</p>
+                        <p class="font-bold underline" x-text="settings.namaToolman || 'Sidik Rustanto'"></p>
+                        <p x-text="settings.nipToolman || 'NIP. -'"></p>
                     </div>
                 </div>
             </div>
@@ -691,26 +668,69 @@
 
     </main>
 
-    <!-- MODAL SETTINGS -->
+    <!-- ================= MODAL PENGATURAN LENGKAP (3 KOLOM LOGO + IDENTITAS + TTD) ================= -->
     <div x-show="modals.settingsModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
-        <div class="bg-white rounded-2xl max-w-xl w-full p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto custom-scrollbar" @click.away="modals.settingsModal = false">
+        <div class="bg-white rounded-2xl max-w-2xl w-full p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto custom-scrollbar" @click.away="modals.settingsModal = false">
             <div class="flex justify-between items-center border-b pb-3">
                 <h3 class="font-bold text-slate-800 text-sm">Pengaturan Sistem Bengkel TSM</h3>
                 <button @click="modals.settingsModal = false" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
+
             <form @submit.prevent="saveSettings()" class="space-y-4 text-xs">
+                
+                <!-- Pengaturan Logo 3 Kolom -->
+                <div class="space-y-3 bg-amber-50/50 p-4 rounded-xl border border-amber-200">
+                    <h4 class="font-bold text-slate-800"><i class="fa-solid fa-image mr-1.5"></i> Pengaturan Logo Header & Kop Laporan PDF</h4>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div class="bg-white p-3 rounded-xl border space-y-2">
+                            <label class="font-bold block text-slate-700">1. Logo Kop Kiri</label>
+                            <div class="h-10 flex items-center"><img :src="settings.logoKananUrl || defaultLogo" class="max-h-10 object-contain"></div>
+                            <input type="file" @change="uploadLogo($event, 'logoKananUrl')" class="w-full text-[10px] text-slate-500">
+                        </div>
+                        <div class="bg-white p-3 rounded-xl border space-y-2">
+                            <label class="font-bold block text-slate-700">2. Logo Kop Kanan</label>
+                            <div class="h-10 flex items-center"><img :src="settings.logoTsmUrl || defaultLogo" class="max-h-10 object-contain"></div>
+                            <input type="file" @change="uploadLogo($event, 'logoTsmUrl')" class="w-full text-[10px] text-slate-500">
+                        </div>
+                        <div class="bg-white p-3 rounded-xl border space-y-2">
+                            <label class="font-bold block text-slate-700">3. Logo Bengkel TSM</label>
+                            <div class="h-10 flex items-center"><img :src="settings.logoTsmUrl || defaultLogo" class="max-h-10 object-contain"></div>
+                            <input type="file" @change="uploadLogo($event, 'logoTsmUrl')" class="w-full text-[10px] text-slate-500">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Identitas Sekolah -->
                 <div class="space-y-3 bg-slate-50 p-4 rounded-xl border">
-                    <h4 class="font-bold text-slate-800">Identitas Sekolah & Kejuruan</h4>
+                    <h4 class="font-bold text-slate-800"><i class="fa-solid fa-school mr-1.5"></i> Identitas Sekolah & Kejuruan</h4>
                     <div><label class="font-bold block mb-1">Nama Aplikasi Header</label><input type="text" x-model="settings.namaAplikasi" class="w-full p-2.5 bg-white border rounded-xl"></div>
                     <div class="grid grid-cols-2 gap-3">
                         <div><label class="font-bold block mb-1">Nama Sekolah</label><input type="text" x-model="settings.namaSekolah" class="w-full p-2.5 bg-white border rounded-xl"></div>
                         <div><label class="font-bold block mb-1">Singkatan Bengkel</label><input type="text" x-model="settings.singkatanBengkel" class="w-full p-2.5 bg-white border rounded-xl"></div>
                     </div>
+                    <div><label class="font-bold block mb-1">Nama Kejuruan / Bengkel</label><input type="text" x-model="settings.namaKejuruan" class="w-full p-2.5 bg-white border rounded-xl"></div>
                 </div>
+
+                <!-- Pengesahan Tanda Tangan -->
+                <div class="space-y-3 bg-slate-50 p-4 rounded-xl border">
+                    <h4 class="font-bold text-slate-800"><i class="fa-solid fa-file-signature mr-1.5"></i> Pengesahan Tanda Tangan Laporan PDF</h4>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div><label class="font-bold block mb-1">Nama Kepala Bengkel</label><input type="text" x-model="settings.namaKepalaBengkel" class="w-full p-2.5 bg-white border rounded-xl"></div>
+                        <div><label class="font-bold block mb-1">NIP Kepala Bengkel</label><input type="text" x-model="settings.nipKepalaBengkel" class="w-full p-2.5 bg-white border rounded-xl"></div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3 pt-2">
+                        <div><label class="font-bold block mb-1">Nama Toolman / Pengelola</label><input type="text" x-model="settings.namaToolman" class="w-full p-2.5 bg-white border rounded-xl"></div>
+                        <div><label class="font-bold block mb-1">NIP / Jabatan Toolman</label><input type="text" x-model="settings.nipToolman" class="w-full p-2.5 bg-white border rounded-xl"></div>
+                    </div>
+                </div>
+
                 <div class="flex justify-end space-x-2 pt-2">
-                    <button type="submit" class="px-4 py-2 bg-amber-500 text-slate-950 font-bold rounded-xl shadow">Simpan Pengaturan</button>
+                    <button type="submit" class="px-5 py-2.5 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold rounded-xl shadow transition">
+                        <i class="fa-solid fa-floppy-disk mr-1"></i> Simpan Identitas & Logo
+                    </button>
                 </div>
             </form>
+
             <div class="bg-amber-50 p-4 rounded-xl border border-amber-200 space-y-2">
                 <p class="font-bold text-slate-800">Inisialisasi Data (Seed Data)</p>
                 <button @click="runSeedData()" class="py-2 px-3 bg-slate-900 text-amber-400 font-bold rounded-lg text-xs"><i class="fa-solid fa-seedling mr-1"></i> Isi Data Contoh</button>
@@ -733,7 +753,7 @@
         </div>
     </div>
 
-    <!-- SEMUA MODAL LAINNYA (STUDENT LOAN, ALAT, BAHAN, USAGE, OPNAME, RETURN, DELETE) -->
+    <!-- SEMUA MODAL LAINNYA -->
     <div x-show="modals.studentLoan" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
         <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4" @click.away="modals.studentLoan = false">
             <h3 class="font-bold text-slate-800 text-sm border-b pb-2">Form Peminjaman Alat Mandiri</h3>
@@ -893,10 +913,22 @@
                 activeTab: 'dashboard',
                 currentDate: '', currentTime: '',
                 searchAlat: '', searchBahan: '',
-                reportMonth: new Date().toISOString().slice(0, 7), // Format YYYY-MM
+                reportMonth: new Date().toISOString().slice(0, 7),
 
                 alatList: [], bahanList: [], loanList: [], usageLogs: [], auditLogs: [],
-                settings: { namaAplikasi: 'SISTEM MANAJEMEN BENGKEL TSM', namaSekolah: 'SMK NEGERI 1 GOMBONG', singkatanBengkel: 'TSM STEMSAGO' },
+                settings: {
+                    namaAplikasi: 'SISTEM MANAJEMEN BENGKEL TSM',
+                    namaSekolah: 'SMK NEGERI 1 GOMBONG',
+                    singkatanBengkel: 'TSM STEMSAGO',
+                    namaKejuruan: 'Teknik Sepeda Motor',
+                    namaKepalaBengkel: "Den's Berlian Wais, S.Pd.",
+                    nipKepalaBengkel: 'NIP. 199502202022211002',
+                    namaToolman: 'Sidik Rustanto',
+                    nipToolman: 'NIP. -',
+                    jabatanToolman: 'Toolman / Pengelola Bengkel',
+                    logoKananUrl: '',
+                    logoTsmUrl: ''
+                },
                 toast: { show: false, title: '', message: '', type: 'success' },
                 modals: { login: false, studentLoan: false, settingsModal: false, alat: false, bahan: false, usage: false, opname: false, return: false, confirmDelete: { show: false, type: '', id: '', name: '' } },
 
@@ -945,6 +977,17 @@
                     await createAuditLog('LOGOUT', 'Admin logout');
                     await auth.signOut();
                     this.showToast('Logout', 'Kembali ke Mode Pelihat');
+                },
+
+                uploadLogo(event, targetField) {
+                    const file = event.target.files[0];
+                    if (!file) return;
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        this.settings[targetField] = e.target.result;
+                        this.showToast('Logo Dimuat', 'File berhasil dikonversi ke Base64');
+                    };
+                    reader.readAsDataURL(file);
                 },
 
                 async approveLoan(loanId) {
@@ -1072,6 +1115,7 @@
                 async saveSettings() {
                     if (this.userRole !== 'admin') return;
                     await db.collection('settings').doc('general').set(this.settings, { merge: true });
+                    this.modals.settingsModal = false;
                     this.showToast('Disimpan', 'Pengaturan diperbarui');
                     await createAuditLog('SETTINGS', 'Update pengaturan');
                 },
@@ -1116,7 +1160,6 @@
                     this.showToast('Seed Selesai', 'Data contoh dimasukkan');
                 },
 
-                // COMPUTED & HELPERS
                 get pendingLoans() { return (this.loanList || []).filter(l => l.status === 'Menunggu Persetujuan'); },
                 get pendingLoansCount() { return this.pendingLoans.length; },
                 get activeLoans() { return (this.loanList || []).filter(l => l.status === 'Dipinjam'); },
@@ -1128,12 +1171,8 @@
                 get filteredAlat() { return (this.alatList || []).filter(a => (a.kodeAlat + (a.namaAlat || '')).toLowerCase().includes(this.searchAlat.toLowerCase())); },
                 get filteredBahan() { return (this.bahanList || []).filter(b => (b.kodeBahan + (b.namaBahan || '')).toLowerCase().includes(this.searchBahan.toLowerCase())); },
 
-                get reportLoans() {
-                    return (this.loanList || []).filter(l => l.tanggalPinjam && l.tanggalPinjam.startsWith(this.reportMonth));
-                },
-                get reportUsage() {
-                    return (this.usageLogs || []).filter(u => u.timestamp && u.timestamp.startsWith(this.reportMonth));
-                },
+                get reportLoans() { return (this.loanList || []).filter(l => l.tanggalPinjam && l.tanggalPinjam.startsWith(this.reportMonth)); },
+                get reportUsage() { return (this.usageLogs || []).filter(u => u.timestamp && u.timestamp.startsWith(this.reportMonth)); },
                 get selectedMonthName() {
                     if (!this.reportMonth) return '';
                     const [y, m] = this.reportMonth.split('-');
