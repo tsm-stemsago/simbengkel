@@ -16,11 +16,16 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
+    <!-- SheetJS (xlsx) CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+    <!-- FIREBASE COMPAT SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+
     <!-- Alpine.js -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-
-    <!-- SheetJS (xlsx) CDN untuk Export Excel -->
-    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     
     <script>
         tailwind.config = {
@@ -56,8 +61,6 @@
         .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
-        .border-double-custom { border-bottom: 3px solid black; position: relative; }
-        .border-double-custom::after { content: ''; display: block; border-bottom: 1px solid black; margin-top: 2px; }
     </style>
 </head>
 <body class="bg-slate-100 text-slate-800 font-sans antialiased min-h-screen flex flex-col" x-data="tsmApp()" x-init="initApp()">
@@ -71,21 +74,21 @@
                 <div class="flex items-center space-x-3 sm:space-x-4">
                     <div class="flex items-center space-x-2 sm:space-x-3 bg-white/10 p-1.5 rounded-xl backdrop-blur-sm border border-white/10">
                         <!-- Logo STEMSAGO -->
-                        <div class="h-10 sm:h-12 w-10 sm:w-12 flex items-center justify-center overflow-hidden rounded-lg bg-white/10 p-0.5">
+                        <div class="h-10 sm:h-12 w-10 sm:w-12 flex items-center justify-center overflow-hidden rounded-lg bg-slate-800 p-0.5">
                             <img :src="settings.logoKananUrl || defaultLogo" 
-                                 alt="Logo SMKN 1 Gombong" 
-                                 class="max-h-full max-w-full object-contain transition-transform hover:scale-105"
-                                 @error="$event.target.onerror=null; $event.target.src=defaultLogo">
+                                 alt="Logo STEMSAGO" 
+                                 class="max-h-full max-w-full object-contain"
+                                 @error="$event.target.src = defaultLogo">
                         </div>
                         
                         <div class="h-8 w-px bg-slate-600/60"></div>
 
                         <!-- Logo TSM -->
-                        <div class="h-10 sm:h-12 w-10 sm:w-12 flex items-center justify-center overflow-hidden rounded-lg bg-white/10 p-0.5">
+                        <div class="h-10 sm:h-12 w-10 sm:w-12 flex items-center justify-center overflow-hidden rounded-lg bg-slate-800 p-0.5">
                             <img :src="settings.logoTsmUrl || defaultLogo" 
-                                 alt="Logo TSM SMKN 1 Gombong" 
-                                 class="max-h-full max-w-full object-contain transition-transform hover:scale-105"
-                                 @error="$event.target.onerror=null; $event.target.src=defaultLogo">
+                                 alt="Logo TSM" 
+                                 class="max-h-full max-w-full object-contain"
+                                 @error="$event.target.src = defaultLogo">
                         </div>
                     </div>
 
@@ -95,18 +98,18 @@
                             <span class="text-xs text-slate-400 hidden md:inline">Auto Service</span>
                         </div>
                         <h1 class="text-base sm:text-xl font-bold tracking-tight text-white leading-tight" x-text="settings.namaAplikasi || 'SISTEM MANAJEMEN BENGKEL TSM'">SISTEM MANAJEMEN BENGKEL TSM</h1>
-                        <p class="text-xs text-slate-300 hidden sm:block" x-text="settings.namaSekolah || 'SMK NEGERI 1 GOMBONG'"></p>
+                        <p class="text-xs text-slate-300 hidden sm:block" x-text="settings.namaSekolah || 'SMK NEGERI 1 GOMBONG'">SMK NEGERI 1 GOMBONG</p>
                     </div>
                 </div>
 
                 <!-- User Auth Status & Action Buttons -->
                 <div class="flex items-center space-x-2 sm:space-x-3">
                     
-                    <button @click="initApp()" title="Status Firebase Cloud" class="hidden lg:flex items-center space-x-1.5 px-2.5 py-1 rounded-lg text-[11px] font-semibold border transition cursor-pointer"
-                         :class="cloudConnected ? 'bg-emerald-950/60 text-emerald-300 border-emerald-700/50 hover:bg-emerald-900' : 'bg-red-950/60 text-red-300 border-red-700/50 hover:bg-red-900'">
+                    <div class="hidden lg:flex items-center space-x-1.5 px-2.5 py-1 rounded-lg text-[11px] font-semibold border"
+                         :class="cloudConnected ? 'bg-emerald-950/60 text-emerald-300 border-emerald-700/50' : 'bg-red-950/60 text-red-300 border-red-700/50'">
                         <span class="w-2 h-2 rounded-full" :class="cloudConnected ? 'bg-emerald-400 animate-pulse' : 'bg-red-500'"></span>
                         <span x-text="cloudConnected ? 'Firebase Online' : 'Terputus'"></span>
-                    </button>
+                    </div>
 
                     <!-- AUTH USER BADGE & LOGIN/LOGOUT -->
                     <template x-if="currentUser">
@@ -127,12 +130,6 @@
                             <span>Login Admin</span>
                         </button>
                     </template>
-
-                    <button @click="openSettings()" 
-                            class="p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-amber-400 border border-slate-700 rounded-xl transition shadow-sm cursor-pointer"
-                            title="Pengaturan Bengkel & Logo">
-                        <i class="fa-solid fa-gear text-sm"></i>
-                    </button>
 
                     <button @click="openModal('studentLoan')" class="bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 font-bold px-3 py-2 rounded-xl text-xs flex items-center space-x-1.5 shadow-lg transition active:scale-95">
                         <i class="fa-solid fa-hand-holding-hand"></i>
@@ -181,29 +178,6 @@
                         <span class="px-1.5 py-0.5 text-[10px] rounded-full bg-amber-600 text-white font-bold" x-text="lowStockCount"></span>
                     </template>
                 </button>
-
-                <button @click="activeTab = 'penggunaan'" 
-                        :class="activeTab === 'penggunaan' ? 'bg-amber-500 text-slate-950 font-bold shadow' : 'text-slate-300 hover:bg-slate-700 hover:text-white'"
-                        class="px-3.5 py-2 rounded-lg text-xs sm:text-sm flex items-center space-x-2 whitespace-nowrap transition">
-                    <i class="fa-solid fa-oil-can"></i>
-                    <span>Penggunaan Bahan</span>
-                </button>
-
-                <button @click="activeTab = 'laporan'" 
-                        :class="activeTab === 'laporan' ? 'bg-amber-500 text-slate-950 font-bold shadow' : 'text-slate-300 hover:bg-slate-700 hover:text-white'"
-                        class="px-3.5 py-2 rounded-lg text-xs sm:text-sm flex items-center space-x-2 whitespace-nowrap transition">
-                    <i class="fa-solid fa-file-lines"></i>
-                    <span>Laporan & Cetak</span>
-                </button>
-
-                <template x-if="userRole === 'admin'">
-                    <button @click="activeTab = 'audit'" 
-                            :class="activeTab === 'audit' ? 'bg-amber-500 text-slate-950 font-bold shadow' : 'text-slate-300 hover:bg-slate-700 hover:text-white'"
-                            class="px-3.5 py-2 rounded-lg text-xs sm:text-sm flex items-center space-x-2 whitespace-nowrap transition">
-                        <i class="fa-solid fa-list-check"></i>
-                        <span>Audit Log</span>
-                    </button>
-                </template>
             </div>
         </div>
     </nav>
@@ -214,9 +188,8 @@
             <div class="flex items-center space-x-2">
                 <span class="font-bold uppercase tracking-wider px-2 py-0.5 rounded text-[10px]"
                       :class="userRole === 'admin' ? 'bg-slate-900 text-amber-400' : 'bg-slate-200 text-slate-700'">
-                    Status Akses: <span x-text="userRole === 'admin' ? 'MODE ADMIN (AKSES PENUH)' : 'MODE PELIHAT (READ ONLY)'"></span>
+                    STATUS AKSES: <span x-text="userRole === 'admin' ? 'MODE ADMIN (AKSES PENUH)' : 'MODE PELIHAT (READ ONLY)'">MODE PELIHAT (READ ONLY)</span>
                 </span>
-                <span class="text-slate-500 hidden md:inline" x-text="userRole === 'admin' ? 'Dapat menambah, mengedit, menyetujui peminjaman, & mengubah pengaturan.' : 'Siswa/Tamu dapat mengajukan peminjaman alat mandiri & melihat stok.'"></span>
             </div>
             <div class="font-mono text-[11px] text-slate-500 hidden sm:block">
                 <span x-text="currentDate"></span> | <span class="font-semibold text-slate-800" x-text="currentTime"></span>
@@ -280,13 +253,13 @@
                                     <td class="p-2.5 text-amber-700 font-bold" x-text="loan.namaAlat"></td>
                                     <td class="p-2.5 text-right">
                                         <template x-if="userRole === 'admin'">
-                                            <button @click="approveLoan(loan.id)" class="bg-emerald-600 text-white px-2 py-1 rounded text-[10px] font-bold">Setujui</button>
+                                            <button @click="approveLoan(loan.id)" class="bg-emerald-600 text-white px-2.5 py-1 rounded-lg text-[10px] font-bold">Setujui</button>
                                         </template>
                                     </td>
                                 </tr>
                             </template>
                             <template x-if="pendingLoans.length === 0">
-                                <tr><td colspan="4" class="p-4 text-center text-slate-400">Tidak ada pengajuan pending.</td></tr>
+                                <tr><td colspan="4" class="p-6 text-center text-slate-400">Tidak ada pengajuan peminjaman pending.</td></tr>
                             </template>
                         </tbody>
                     </table>
@@ -299,7 +272,13 @@
     <!-- MODAL LOGIN ADMIN -->
     <div x-show="modals.login" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
         <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl space-y-4" @click.away="modals.login = false">
-            <h3 class="font-bold text-slate-800 text-center">Masuk Mode Admin</h3>
+            <div class="text-center">
+                <div class="w-12 h-12 bg-amber-100 text-amber-700 rounded-full flex items-center justify-center mx-auto text-xl mb-2">
+                    <i class="fa-solid fa-user-lock"></i>
+                </div>
+                <h3 class="font-bold text-slate-800">Masuk Mode Admin</h3>
+                <p class="text-xs text-slate-500">Masukkan Email & Password Admin Bengkel</p>
+            </div>
             <form @submit.prevent="loginAdmin()" class="space-y-3 text-xs">
                 <div>
                     <label class="font-bold text-slate-700 block mb-1">Email</label>
@@ -317,17 +296,8 @@
         </div>
     </div>
 
-    <!-- SCRIPT MODULE FIREBASE & ALPINE APP -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { 
-            getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged 
-        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { 
-            getFirestore, doc, setDoc, deleteDoc, onSnapshot, collection, getDocs, getDoc,
-            runTransaction, serverTimestamp 
-        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
+    <!-- SCRIPT FIREBASE & ALPINE APP -->
+    <script>
         const firebaseConfig = {
             apiKey: "AIzaSyDMt9Y9xy6J5470BYH9GjqjdnVBYMt3kfc",
             authDomain: "simbengkeltsm.firebaseapp.com",
@@ -337,13 +307,16 @@
             appId: "1:675793932175:web:11b08b2a90b9b04e8645fa"
         };
 
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
 
-        window.tsmApp = function () {
-            return {
-                defaultLogo: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='40' fill='%23FF8C00'/%3E%3C/svg%3E",
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('tsmApp', () => ({
+                defaultLogo: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='50' height='50' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23334155'/%3E%3Ctext x='50' y='58' font-size='30' text-anchor='middle' fill='%23fbbf24' font-family='sans-serif' font-weight='bold'%3ETSM%3C/text%3E%3C/svg%3E",
                 userRole: 'pelihat',
                 currentUser: null,
                 loginForm: { email: '', password: '' },
@@ -355,20 +328,27 @@
                 alatList: [],
                 bahanList: [],
                 loanList: [],
-                settings: {},
+                settings: {
+                    namaAplikasi: 'SISTEM MANAJEMEN BENGKEL TSM',
+                    namaSekolah: 'SMK NEGERI 1 GOMBONG',
+                    singkatanBengkel: 'TSM STEMSAGO',
+                    logoKananUrl: '',
+                    logoTsmUrl: ''
+                },
                 toast: { show: false, title: '', message: '', type: 'success' },
                 modals: { login: false, studentLoan: false },
 
-                async initApp() {
+                initApp() {
                     this.updateClock();
                     setInterval(() => this.updateClock(), 1000);
 
-                    onAuthStateChanged(auth, async (user) => {
+                    // Auth Observer
+                    auth.onAuthStateChanged(async (user) => {
                         if (user) {
                             this.currentUser = user;
                             try {
-                                const userSnap = await getDoc(doc(db, 'users', user.uid));
-                                this.userRole = (userSnap.exists() && userSnap.data().role === 'admin') ? 'admin' : 'pelihat';
+                                const userSnap = await db.collection('users').doc(user.uid).get();
+                                this.userRole = (userSnap.exists && userSnap.data().role === 'admin') ? 'admin' : 'pelihat';
                             } catch(e) {
                                 this.userRole = 'pelihat';
                             }
@@ -378,26 +358,31 @@
                         }
                     });
 
-                    onSnapshot(collection(db, 'alat'), (snap) => {
+                    // Realtime Snapshots dengan Error Handlers
+                    const handleErr = (col) => (err) => console.warn(`Firestore Snapshot [${col}]:`, err.message);
+
+                    db.collection('alat').onSnapshot(snap => {
                         this.alatList = snap.docs.map(d => ({ ...d.data(), id: d.id }));
-                    });
+                    }, handleErr('alat'));
 
-                    onSnapshot(collection(db, 'bahan'), (snap) => {
+                    db.collection('bahan').onSnapshot(snap => {
                         this.bahanList = snap.docs.map(d => ({ ...d.data(), id: d.id }));
-                    });
+                    }, handleErr('bahan'));
 
-                    onSnapshot(collection(db, 'loans'), (snap) => {
+                    db.collection('loans').onSnapshot(snap => {
                         this.loanList = snap.docs.map(d => ({ ...d.data(), id: d.id }));
-                    });
+                    }, handleErr('loans'));
 
-                    onSnapshot(doc(db, 'settings', 'general'), (snap) => {
-                        if (snap.exists()) this.settings = snap.data();
-                    });
+                    db.collection('settings').doc('general').onSnapshot(snap => {
+                        if (snap.exists) {
+                            this.settings = { ...this.settings, ...snap.data() };
+                        }
+                    }, handleErr('settings'));
                 },
 
                 async loginAdmin() {
                     try {
-                        await signInWithEmailAndPassword(auth, this.loginForm.email, this.loginForm.password);
+                        await auth.signInWithEmailAndPassword(this.loginForm.email, this.loginForm.password);
                         this.modals.login = false;
                         this.loginForm = { email: '', password: '' };
                         this.showToast('Login Berhasil', 'Masuk Mode Admin');
@@ -407,16 +392,48 @@
                 },
 
                 async logout() {
-                    await signOut(auth);
+                    await auth.signOut();
                     this.showToast('Logout', 'Anda kembali ke Mode Pelihat');
                 },
 
-                get pendingLoans() { return this.loanList.filter(l => l.status === 'Menunggu Persetujuan'); },
-                get pendingLoansCount() { return this.pendingLoans.length; },
-                get activeLoansCount() { return this.loanList.filter(l => l.status === 'Dipinjam').length; },
-                get totalToolItems() { return this.alatList.length; },
-                get lowStockCount() { return this.bahanList.filter(b => b.stokSistem <= b.minStok).length; },
+                async approveLoan(loanId) {
+                    try {
+                        await db.runTransaction(async (transaction) => {
+                            const loanRef = db.collection('loans').doc(loanId);
+                            const loanDoc = await transaction.get(loanRef);
+                            if (!loanDoc.exists) throw new Error("Peminjaman tidak ditemukan");
+                            
+                            const loanData = loanDoc.data();
+                            const alatRef = db.collection('alat').doc(loanData.alatId);
+                            const alatDoc = await transaction.get(alatRef);
+                            if (!alatDoc.exists) throw new Error("Alat tidak ditemukan");
 
+                            const alatData = alatDoc.data();
+                            if (alatData.jumlahTersedia < loanData.jumlah) throw new Error("Stok alat tidak cukup");
+
+                            transaction.update(alatRef, {
+                                jumlahTersedia: alatData.jumlahTersedia - loanData.jumlah,
+                                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                            });
+
+                            transaction.update(loanRef, {
+                                status: 'Dipinjam',
+                                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                            });
+                        });
+                        this.showToast('Berhasil', 'Peminjaman disetujui');
+                    } catch (e) {
+                        this.showToast('Gagal', e.message, 'error');
+                    }
+                },
+
+                get pendingLoans() { return (this.loanList || []).filter(l => l && l.status === 'Menunggu Persetujuan'); },
+                get pendingLoansCount() { return this.pendingLoans.length; },
+                get activeLoansCount() { return (this.loanList || []).filter(l => l && l.status === 'Dipinjam').length; },
+                get totalToolItems() { return (this.alatList || []).length; },
+                get lowStockCount() { return (this.bahanList || []).filter(b => b && Number(b.stokSistem || 0) <= Number(b.minStok || 0)).length; },
+
+                openModal(type) { this.modals[type] = true; },
                 showToast(title, message, type = 'success') {
                     this.toast = { show: true, title, message, type };
                     setTimeout(() => { this.toast.show = false; }, 3000);
@@ -427,8 +444,8 @@
                     this.currentDate = now.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
                     this.currentTime = now.toLocaleTimeString('id-ID') + ' WIB';
                 }
-            }
-        };
+            }));
+        });
     </script>
 </body>
 </html>
