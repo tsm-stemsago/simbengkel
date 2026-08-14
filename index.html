@@ -473,7 +473,7 @@
             </div>
         </div>
 
-        <!-- ================= TAB 4: STOK OPNAME BAHAN (DENGAN KOLOM SPESIFIKASI DI SEBELAH NAMA BAHAN) ================= -->
+        <!-- ================= TAB 4: STOK OPNAME BAHAN ================= -->
         <div x-show="activeTab === 'opname'" class="space-y-4" x-cloak>
             <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 flex justify-between items-center gap-4">
                 <input type="text" x-model="searchBahan" placeholder="Cari bahan praktik..." class="p-2 border rounded-xl text-xs w-72">
@@ -1006,7 +1006,7 @@
         </div>
     </div>
 
-    <!-- MODAL TAMBAH / EDIT ALAT INVENTARIS BARU (FORM LENGKAP) -->
+    <!-- MODAL TAMBAH / EDIT ALAT INVENTARIS BARU (TOTAL QTY OTOMATIS) -->
     <div x-show="modals.alat" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
         <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto custom-scrollbar" @click.away="modals.alat = false">
             <div class="flex justify-between items-center border-b pb-3">
@@ -1059,8 +1059,8 @@
                     <label class="font-bold block text-slate-800">Rincian Jumlah & Kondisi Unit</label>
                     <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
                         <div>
-                            <label class="block text-[10px] text-slate-500 font-semibold mb-1">Total Qty</label>
-                            <input type="number" x-model.number="formAlat.jumlahTotal" min="1" @input="syncAlatQuantity()" required class="w-full p-2 bg-white border rounded-lg font-bold text-center">
+                            <label class="block text-[10px] text-slate-500 font-semibold mb-1">Total Qty (Otomatis)</label>
+                            <input type="number" x-bind:value="calculatedTotalQty" readonly class="w-full p-2 bg-slate-200 border rounded-lg font-bold text-center text-slate-700 cursor-not-allowed">
                         </div>
                         <div>
                             <label class="block text-[10px] text-emerald-700 font-semibold mb-1">Kondisi Baik</label>
@@ -1085,7 +1085,7 @@
         </div>
     </div>
 
-    <!-- MODAL TAMBAH BAHAN PRAKTIK (DENGAN FIELD SPESIFIKASI) -->
+    <!-- MODAL TAMBAH BAHAN PRAKTIK -->
     <div x-show="modals.bahan" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
         <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4" @click.away="modals.bahan = false">
             <h3 class="font-bold text-slate-800 text-sm border-b pb-2">Tambah Bahan Praktik Baru</h3>
@@ -1172,14 +1172,29 @@
         </div>
     </div>
 
+    <!-- MODAL PENYESUAIAN STOK OPNAME (DAPAT MENGEDIT NAMA & SPESIFIKASI BAHAN) -->
     <div x-show="modals.opname" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
-        <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl space-y-4" @click.away="modals.opname = false">
-            <h3 class="font-bold text-slate-800 text-sm border-b pb-2">Penyesuaian Stok Opname</h3>
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4" @click.away="modals.opname = false">
+            <div class="flex justify-between items-center border-b pb-2">
+                <h3 class="font-bold text-slate-800 text-sm">Penyesuaian & Edit Stok Opname Bahan</h3>
+                <button @click="modals.opname = false" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-base"></i></button>
+            </div>
             <form @submit.prevent="saveOpnameAdjustment()" class="space-y-3 text-xs">
-                <div><label class="font-bold block mb-1">Stok Fisik Baru</label><input type="number" x-model.number="formOpname.stokFisik" min="0" required class="w-full p-3 border-2 border-amber-400 rounded-xl font-black text-center text-lg"></div>
+                <div>
+                    <label class="font-bold block mb-1 text-slate-700">Nama Bahan</label>
+                    <input type="text" x-model="formOpname.namaBahan" required class="w-full p-2.5 bg-slate-50 border rounded-xl font-semibold">
+                </div>
+                <div>
+                    <label class="font-bold block mb-1 text-slate-700">Spesifikasi</label>
+                    <input type="text" x-model="formOpname.spesifikasi" placeholder="Contoh: SAE 10W-30" class="w-full p-2.5 bg-slate-50 border rounded-xl">
+                </div>
+                <div>
+                    <label class="font-bold block mb-1 text-slate-700">Stok Fisik Baru</label>
+                    <input type="number" x-model.number="formOpname.stokFisik" min="0" required class="w-full p-3 border-2 border-amber-400 rounded-xl font-black text-center text-lg bg-amber-50/50">
+                </div>
                 <div class="flex justify-end space-x-2 pt-2 border-t">
                     <button type="button" @click="modals.opname = false" class="px-4 py-2 bg-slate-100 font-bold rounded-xl">Batal</button>
-                    <button type="submit" class="px-4 py-2 bg-slate-900 text-amber-400 font-bold rounded-xl">Update</button>
+                    <button type="submit" class="px-4 py-2 bg-slate-900 text-amber-400 font-bold rounded-xl">Simpan Perubahan</button>
                 </div>
             </form>
         </div>
@@ -1285,7 +1300,7 @@
                 formAlat: { id: null, kodeAlat: '', namaAlat: '', kategori: 'Hand Tools', merk: '', lokasiRak: '', jumlahTotal: 1, kondisiBaik: 1, kondisiServis: 0, kondisiRusak: 0 },
                 formBahan: { kodeBahan: '', namaBahan: '', spesifikasi: '', satuan: 'Botol', stokSistem: 10, minStok: 2 },
                 formUsageMeta: { kelas: '', topik: '', instruktor: '', items: [{ bahanId: '', jumlah: 1 }] },
-                selectedBahanOpname: null, formOpname: { stokFisik: 0 },
+                selectedBahanOpname: null, formOpname: { namaBahan: '', spesifikasi: '', stokFisik: 0 },
                 selectedLoanReturn: null, formReturn: { kondisi: 'Baik', catatan: '' },
 
                 initApp() {
@@ -1310,6 +1325,13 @@
                     db.collection('usage').onSnapshot(snap => { this.usageLogs = snap.docs.map(d => ({ ...d.data(), id: d.id })); });
                     db.collection('audit_logs').onSnapshot(snap => { this.auditLogs = snap.docs.map(d => ({ ...d.data(), id: d.id })).sort((a,b) => new Date(b.timestamp)-new Date(a.timestamp)); });
                     db.collection('settings').doc('general').onSnapshot(snap => { if (snap.exists) this.settings = { ...this.settings, ...snap.data() }; });
+                },
+
+                get calculatedTotalQty() {
+                    const b = Number(this.formAlat.kondisiBaik || 0);
+                    const s = Number(this.formAlat.kondisiServis || 0);
+                    const r = Number(this.formAlat.kondisiRusak || 0);
+                    return b + s + r;
                 },
 
                 async loginAdmin() {
@@ -1337,12 +1359,6 @@
                         this.showToast('Logo Dimuat', 'File berhasil dikonversi ke Base64');
                     };
                     reader.readAsDataURL(file);
-                },
-
-                syncAlatQuantity() {
-                    this.formAlat.kondisiBaik = Number(this.formAlat.jumlahTotal || 0);
-                    this.formAlat.kondisiServis = 0;
-                    this.formAlat.kondisiRusak = 0;
                 },
 
                 addLoanItem() {
@@ -1550,13 +1566,13 @@
                 async saveAlat() {
                     if (this.userRole !== 'admin') return;
                     const id = this.formAlat.id || crypto.randomUUID();
-                    const total = Number(this.formAlat.jumlahTotal || 1);
                     const baik = Number(this.formAlat.kondisiBaik || 0);
                     const servis = Number(this.formAlat.kondisiServis || 0);
                     const rusak = Number(this.formAlat.kondisiRusak || 0);
+                    const total = baik + servis + rusak;
 
-                    if ((baik + servis + rusak) !== total) {
-                        this.showToast('Validasi Gagal', 'Total rincian kondisi (Baik + Servis + Rusak) harus sama dengan Total Qty!', 'error');
+                    if (total <= 0) {
+                        this.showToast('Validasi Gagal', 'Total Qty harus lebih dari 0!', 'error');
                         return;
                     }
 
@@ -1585,17 +1601,33 @@
                     await createAuditLog('SAVE_BAHAN', `Menambah bahan ${this.formBahan.namaBahan}`);
                 },
 
-                openOpnameModal(bahan) { this.selectedBahanOpname = bahan; this.formOpname.stokFisik = bahan.stokSistem; this.modals.opname = true; },
+                openOpnameModal(bahan) {
+                    this.selectedBahanOpname = bahan;
+                    this.formOpname = {
+                        namaBahan: bahan.namaBahan || '',
+                        spesifikasi: bahan.spesifikasi || '',
+                        stokFisik: bahan.stokSistem !== undefined ? bahan.stokSistem : 0
+                    };
+                    this.modals.opname = true;
+                },
+
                 async saveOpnameAdjustment() {
                     if (!this.selectedBahanOpname || this.userRole !== 'admin') return;
                     const b = this.selectedBahanOpname;
-                    await db.collection('bahan').doc(b.id).update({
-                        stokSistem: Number(this.formOpname.stokFisik),
-                        stokFisik: Number(this.formOpname.stokFisik)
-                    });
-                    this.modals.opname = false;
-                    this.showToast('Opname Selesai', 'Stok disesuaikan');
-                    await createAuditLog('OPNAME', `Adjust opname bahan ${b.namaBahan}`);
+                    try {
+                        await db.collection('bahan').doc(b.id).update({
+                            namaBahan: this.formOpname.namaBahan,
+                            spesifikasi: this.formOpname.spesifikasi,
+                            stokSistem: Number(this.formOpname.stokFisik),
+                            stokFisik: Number(this.formOpname.stokFisik),
+                            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                        });
+                        this.modals.opname = false;
+                        this.showToast('Berhasil', 'Data bahan dan stok opname diperbarui');
+                        await createAuditLog('OPNAME', `Update bahan & opname ${this.formOpname.namaBahan}`);
+                    } catch (e) {
+                        this.showToast('Gagal', e.message || 'Gagal menyimpan perubahan.', 'error');
+                    }
                 },
 
                 async saveMultiUsage() {
