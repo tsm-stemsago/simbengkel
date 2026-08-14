@@ -1743,7 +1743,19 @@
                     if (type === 'usage') {
                         this.formUsageMeta = { kelas: '', topik: '', instruktor: '', items: [{ bahanId: '', jumlah: 1 }] };
                     }
-                    if (type === 'alat') this.formAlat = { id: null, kodeAlat: 'ALT-TSM-' + Math.floor(100+Math.random()*900), namaAlat: '', kategori: 'Hand Tools', merk: '', lokasiRak: 'RAK-A1', jumlahTotal: 1, kondisiBaik: 1, kondisiServis: 0, kondisiRusak: 0 };
+                    if (type === 'alat') {
+                        let nextAlatNum = 1;
+                        if (this.alatList && this.alatList.length > 0) {
+                            const nums = this.alatList.map(a => {
+                                const parts = (a.kodeAlat || '').split('-');
+                                const lastPart = parseInt(parts[parts.length - 1], 10);
+                                return isNaN(lastPart) ? 0 : lastPart;
+                            });
+                            nextAlatNum = Math.max(...nums) + 1;
+                        }
+                        const formattedAlatCode = 'ALT-TSM-' + String(nextAlatNum).padStart(3, '0');
+                        this.formAlat = { id: null, kodeAlat: formattedAlatCode, namaAlat: '', kategori: 'Hand Tools', merk: '', lokasiRak: 'RAK-A1', jumlahTotal: 1, kondisiBaik: 1, kondisiServis: 0, kondisiRusak: 0 };
+                    }
                     
                     if (type === 'bahan') {
                         let nextNum = 1;
