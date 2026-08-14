@@ -16,7 +16,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
-    <!-- SheetJS (xlsx) CDN untuk Export Excel -->
+    <!-- SheetJS (xlsx) CDN -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
     <!-- FIREBASE COMPAT SDK -->
@@ -97,13 +97,13 @@
                     <div class="hidden lg:flex items-center space-x-1.5 px-2.5 py-1 rounded-lg text-[11px] font-semibold border"
                          :class="cloudConnected ? 'bg-emerald-950/60 text-emerald-300 border-emerald-700/50' : 'bg-red-950/60 text-red-300 border-red-700/50'">
                         <span class="w-2 h-2 rounded-full" :class="cloudConnected ? 'bg-emerald-400 animate-pulse' : 'bg-red-500'"></span>
-                        <span x-text="cloudConnected ? 'Firebase Online' : 'Terputus'"></span>
+                        <span x-text="cloudConnected ? 'Penyimpanan Online' : 'Terputus'"></span>
                     </div>
 
                     <template x-if="currentUser">
                         <div class="flex items-center space-x-2 bg-slate-800 px-3 py-1.5 rounded-xl border border-slate-700">
                             <div class="text-right">
-                                <p class="text-[10px] text-amber-400 font-bold uppercase" x-text="userRole === 'admin' ? 'ADMIN BENGKEL' : 'PELIHAT'"></p>
+                                <p class="text-[10px] text-amber-400 font-bold uppercase" x-text="userRole === 'admin' ? 'MODE ADMIN' : 'MODE PELIHAT'"></p>
                                 <p class="text-[11px] text-slate-300 font-mono truncate max-w-[120px]" x-text="currentUser.email"></p>
                             </div>
                             <button @click="logout()" class="p-1.5 bg-red-600/20 hover:bg-red-600 text-red-400 hover:text-white rounded-lg transition" title="Logout">
@@ -115,17 +115,17 @@
                     <template x-if="!currentUser">
                         <button @click="modals.login = true" class="bg-slate-800 hover:bg-slate-700 text-amber-400 border border-slate-700 px-3 py-2 rounded-xl text-xs font-bold flex items-center space-x-1.5 transition">
                             <i class="fa-solid fa-user-shield"></i>
-                            <span>Login Admin</span>
+                            <span>ModeAdmin</span>
                         </button>
                     </template>
 
-                    <button @click="openModal('settingsModal')" class="p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-amber-400 border border-slate-700 rounded-xl transition shadow-sm" title="Pengaturan & Tool Data">
+                    <button @click="openModal('settingsModal')" class="p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-amber-400 border border-slate-700 rounded-xl transition shadow-sm" title="Pengaturan">
                         <i class="fa-solid fa-gear text-sm"></i>
                     </button>
 
                     <button @click="openModal('studentLoan')" class="bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 font-bold px-3 py-2 rounded-xl text-xs flex items-center space-x-1.5 shadow-lg transition active:scale-95">
                         <i class="fa-solid fa-hand-holding-hand"></i>
-                        <span class="hidden sm:inline">Ajukan</span> Pinjam Alat
+                        <span class="hidden sm:inline">AjukanPinjam Alat</span>
                     </button>
                 </div>
             </div>
@@ -174,6 +174,7 @@
                       :class="userRole === 'admin' ? 'bg-slate-900 text-amber-400' : 'bg-slate-200 text-slate-700'">
                     STATUS AKSES: <span x-text="userRole === 'admin' ? 'MODE ADMIN (AKSES PENUH)' : 'MODE PELIHAT (READ ONLY)'"></span>
                 </span>
+                <span class="text-slate-500 hidden md:inline" x-text="userRole === 'admin' ? 'Dapat menambah, mengedit, menyetujui peminjaman, & mengubah pengaturan.' : 'Siswa/Tamu dapat mengajukan peminjaman alat mandiri & melihat stok.'"></span>
             </div>
             <div class="font-mono text-[11px] text-slate-500 hidden sm:block">
                 <span x-text="currentDate"></span> | <span class="font-semibold text-slate-800" x-text="currentTime"></span>
@@ -194,85 +195,202 @@
             </div>
         </div>
 
-        <!-- TAB 1: DASHBOARD -->
-        <div x-show="activeTab === 'dashboard'" class="space-y-6">
+        <!-- ================= TAB 1: DASHBOARD (INFORMATIF LENGKAP) ================= -->
+        <div x-show="activeTab === 'dashboard'" class="space-y-6" x-cloak>
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200">
-                    <p class="text-xs font-semibold text-slate-500 uppercase">Menunggu Persetujuan</p>
-                    <h3 class="text-2xl font-bold text-slate-800 mt-1" x-text="pendingLoansCount">0</h3>
+                <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200 hover:shadow-md transition">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Menunggu Persetujuan</p>
+                            <h3 class="text-2xl font-bold text-slate-800 mt-1" x-text="pendingLoansCount">0</h3>
+                            <p class="text-xs mt-1" :class="pendingLoansCount > 0 ? 'text-amber-600 font-bold' : 'text-slate-400'" x-text="pendingLoansCount > 0 ? 'Perlu tindakan Admin' : 'Tidak ada antrean'"></p>
+                        </div>
+                        <div class="w-12 h-12 bg-amber-100 text-amber-700 rounded-xl flex items-center justify-center text-xl"><i class="fa-solid fa-hourglass-half"></i></div>
+                    </div>
                 </div>
-                <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200">
-                    <p class="text-xs font-semibold text-slate-500 uppercase">Alat Aktif Dipinjam</p>
-                    <h3 class="text-2xl font-bold text-slate-800 mt-1" x-text="activeLoansCount">0</h3>
+
+                <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200 hover:shadow-md transition">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Alat Aktif Dipinjam</p>
+                            <h3 class="text-2xl font-bold text-slate-800 mt-1" x-text="activeLoansCount">0</h3>
+                            <p class="text-xs text-slate-500 mt-1">Siswa/Kelompok Praktik</p>
+                        </div>
+                        <div class="w-12 h-12 bg-indigo-100 text-indigo-600 rounded-xl flex items-center justify-center text-xl"><i class="fa-solid fa-toolbox"></i></div>
+                    </div>
                 </div>
-                <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200">
-                    <p class="text-xs font-semibold text-slate-500 uppercase">Total Jenis Alat</p>
-                    <h3 class="text-2xl font-bold text-slate-800 mt-1" x-text="totalToolItems">0</h3>
+
+                <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200 hover:shadow-md transition">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Jenis Alat</p>
+                            <h3 class="text-2xl font-bold text-slate-800 mt-1" x-text="totalToolItems">0</h3>
+                            <p class="text-xs text-slate-500 mt-1">Total Unit: <span class="font-bold text-slate-700" x-text="totalToolUnits">0</span> Unit</p>
+                        </div>
+                        <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center text-xl"><i class="fa-solid fa-screwdriver-wrench"></i></div>
+                    </div>
                 </div>
-                <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200">
-                    <p class="text-xs font-semibold text-slate-500 uppercase">Stok Bahan Kritis</p>
-                    <h3 class="text-2xl font-bold text-slate-800 mt-1" x-text="lowStockCount">0</h3>
+
+                <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200 hover:shadow-md transition">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Stok Bahan Kritis</p>
+                            <h3 class="text-2xl font-bold text-slate-800 mt-1" x-text="lowStockCount">0</h3>
+                            <p class="text-xs mt-1" :class="lowStockCount > 0 ? 'text-red-600 font-bold' : 'text-emerald-600'" x-text="lowStockCount > 0 ? 'Perlu Restock Bahan' : 'Semua Stok Aman'"></p>
+                        </div>
+                        <div class="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-xl flex items-center justify-center text-xl"><i class="fa-solid fa-boxes-packing"></i></div>
+                    </div>
                 </div>
             </div>
-            
-            <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200">
-                <h3 class="font-bold text-slate-800 mb-4">Pengajuan Peminjaman Alat Mandiri (Siswa)</h3>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-xs">
-                        <thead class="bg-slate-50 text-slate-500 font-semibold uppercase">
-                            <tr>
-                                <th class="p-2.5">Peminjam</th>
-                                <th class="p-2.5">Kelas</th>
-                                <th class="p-2.5">Alat & Jml</th>
-                                <th class="p-2.5 text-right">Aksi Admin</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-slate-100">
-                            <template x-for="loan in pendingLoans" :key="loan.id">
-                                <tr>
-                                    <td class="p-2.5 font-bold" x-text="loan.namaPeminjam"></td>
-                                    <td class="p-2.5" x-text="loan.kelas"></td>
-                                    <td class="p-2.5 text-amber-700 font-bold" x-text="loan.namaAlat"></td>
-                                    <td class="p-2.5 text-right">
-                                        <template x-if="userRole === 'admin'">
-                                            <div class="flex justify-end space-x-1">
-                                                <button @click="approveLoan(loan.id)" class="bg-emerald-600 text-white px-2.5 py-1 rounded text-[10px] font-bold">Setujui</button>
-                                                <button @click="rejectLoan(loan.id)" class="bg-red-100 text-red-700 px-2 py-1 rounded text-[10px] font-semibold">Tolak</button>
-                                            </div>
-                                        </template>
-                                    </td>
-                                </tr>
+
+            <!-- Dashboard Panels Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="lg:col-span-2 space-y-6">
+                    <!-- Pending Approvals -->
+                    <div class="bg-white rounded-2xl p-5 shadow-sm border border-amber-200">
+                        <div class="flex justify-between items-center mb-4 pb-3 border-b border-slate-100">
+                            <div class="flex items-center space-x-2">
+                                <span class="w-2.5 h-2.5 rounded-full bg-amber-500 animate-ping"></span>
+                                <h3 class="font-bold text-slate-800">Pengajuan Peminjaman Alat Mandiri (Siswa)</h3>
+                            </div>
+                            <span class="text-xs font-bold px-2.5 py-1 rounded-full bg-amber-100 text-amber-800" x-text="pendingLoans.length + ' Pengajuan'"></span>
+                        </div>
+
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-xs">
+                                <thead class="bg-slate-50 text-slate-500 uppercase tracking-wider font-semibold">
+                                    <tr>
+                                        <th class="p-2.5">Peminjam / NIS</th>
+                                        <th class="p-2.5">Kelas</th>
+                                        <th class="p-2.5">Alat & Jml</th>
+                                        <th class="p-2.5">Tgl Pengajuan</th>
+                                        <th class="p-2.5 text-right">Aksi Admin</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-100">
+                                    <template x-for="loan in pendingLoans" :key="loan.id">
+                                        <tr class="hover:bg-slate-50">
+                                            <td class="p-2.5 font-semibold text-slate-800"><p x-text="loan.namaPeminjam"></p><p class="text-[10px] text-slate-400" x-text="'NIS: ' + (loan.nis || '-')"></p></td>
+                                            <td class="p-2.5 text-slate-600 font-medium" x-text="loan.kelas"></td>
+                                            <td class="p-2.5 font-bold text-amber-700" x-text="loan.namaAlat + ' (' + loan.jumlah + ' Unit)'"></td>
+                                            <td class="p-2.5 text-slate-500" x-text="formatDateTime(loan.tanggalPinjam)"></td>
+                                            <td class="p-2.5 text-right">
+                                                <template x-if="userRole === 'admin'">
+                                                    <div class="flex justify-end space-x-1">
+                                                        <button @click="approveLoan(loan.id)" class="bg-emerald-600 text-white px-2.5 py-1 rounded text-[10px] font-bold">Setujui</button>
+                                                        <button @click="rejectLoan(loan.id)" class="bg-red-100 text-red-700 px-2 py-1 rounded text-[10px] font-semibold">Tolak</button>
+                                                    </div>
+                                                </template>
+                                            </td>
+                                        </tr>
+                                    </template>
+                                    <template x-if="pendingLoans.length === 0">
+                                        <tr><td colspan="5" class="p-6 text-center text-slate-400">Tidak ada pengajuan yang menunggu persetujuan.</td></tr>
+                                    </template>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Active Loans -->
+                    <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200">
+                        <div class="flex justify-between items-center mb-4 pb-3 border-b border-slate-100">
+                            <div class="flex items-center space-x-2">
+                                <i class="fa-solid fa-clock-rotate-left text-amber-500"></i>
+                                <h3 class="font-bold text-slate-800">Daftar Alat Sedang Dipinjam</h3>
+                            </div>
+                            <button @click="activeTab = 'peminjaman'" class="text-xs font-semibold text-amber-600 hover:text-amber-700 flex items-center space-x-1">
+                                <span>Lihat Semua</span><i class="fa-solid fa-chevron-right text-[10px]"></i>
+                            </button>
+                        </div>
+
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-xs">
+                                <thead class="bg-slate-50 text-slate-500 uppercase tracking-wider font-semibold">
+                                    <tr>
+                                        <th class="p-2.5">Peminjam</th>
+                                        <th class="p-2.5">Kelas</th>
+                                        <th class="p-2.5">Alat Dipinjam</th>
+                                        <th class="p-2.5">Waktu Pinjam</th>
+                                        <th class="p-2.5 text-right">Aksi Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-100">
+                                    <template x-for="loan in activeLoans.slice(0, 5)" :key="loan.id">
+                                        <tr class="hover:bg-slate-50">
+                                            <td class="p-2.5 font-semibold text-slate-800" x-text="loan.namaPeminjam"></td>
+                                            <td class="p-2.5 text-slate-600" x-text="loan.kelas"></td>
+                                            <td class="p-2.5 font-medium text-slate-700" x-text="loan.namaAlat + ' (' + loan.jumlah + ' Unit)'"></td>
+                                            <td class="p-2.5 text-slate-500" x-text="formatDateTime(loan.tanggalPinjam)"></td>
+                                            <td class="p-2.5 text-right">
+                                                <template x-if="userRole === 'admin'">
+                                                    <button @click="openReturnModal(loan)" class="bg-indigo-600 hover:bg-indigo-700 text-white px-2.5 py-1 rounded-lg text-[10px] font-bold">Tandai Kembali</button>
+                                                </template>
+                                            </td>
+                                        </tr>
+                                    </template>
+                                    <template x-if="activeLoans.length === 0">
+                                        <tr><td colspan="5" class="p-6 text-center text-slate-400">Tidak ada peminjaman aktif saat ini.</td></tr>
+                                    </template>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Sidebar widgets -->
+                <div class="space-y-6">
+                    <div class="bg-gradient-to-br from-amber-500 to-amber-600 text-slate-950 p-5 rounded-2xl shadow-md space-y-3">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 bg-slate-900 text-amber-400 rounded-xl flex items-center justify-center text-lg font-bold"><i class="fa-solid fa-hand-holding-hand"></i></div>
+                            <div>
+                                <h4 class="font-black text-sm uppercase tracking-wide">Peminjaman Mandiri</h4>
+                                <p class="text-xs text-slate-900 font-medium">Siswa dapat mengisi alat yang ingin dipinjam</p>
+                            </div>
+                        </div>
+                        <button @click="openModal('studentLoan')" class="w-full bg-slate-900 hover:bg-slate-800 text-amber-400 font-bold py-2.5 rounded-xl text-xs flex items-center justify-center space-x-2 shadow">
+                            <i class="fa-solid fa-plus-circle"></i><span>Isi Form Peminjaman Alat</span>
+                        </button>
+                    </div>
+
+                    <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200">
+                        <div class="flex items-center space-x-2 mb-3 pb-2 border-b border-slate-100 text-red-600">
+                            <i class="fa-solid fa-triangle-exclamation"></i>
+                            <h3 class="font-bold text-slate-800 text-sm">Peringatan Stok Bahan Low/Habis</h3>
+                        </div>
+                        <div class="space-y-2.5 max-h-56 overflow-y-auto custom-scrollbar">
+                            <template x-for="bahan in lowStockItems" :key="bahan.id">
+                                <div class="p-2.5 rounded-xl bg-red-50 border border-red-100 flex justify-between items-center text-xs">
+                                    <div>
+                                        <p class="font-bold text-slate-800" x-text="bahan.namaBahan"></p>
+                                        <p class="text-[11px] text-slate-500">Min: <span x-text="bahan.minStok"></span> <span x-text="bahan.satuan"></span></p>
+                                    </div>
+                                    <span class="px-2 py-1 rounded-lg font-black text-xs bg-red-600 text-white" x-text="bahan.stokSistem + ' ' + bahan.satuan"></span>
+                                </div>
                             </template>
-                            <template x-if="pendingLoans.length === 0">
-                                <tr><td colspan="4" class="p-6 text-center text-slate-400">Tidak ada pengajuan peminjaman pending.</td></tr>
+                            <template x-if="lowStockItems.length === 0">
+                                <div class="p-4 text-center text-xs bg-emerald-50 rounded-xl text-emerald-700">
+                                    <i class="fa-solid fa-circle-check text-base mb-1"></i>
+                                    <p>Seluruh stok bahan mencukupi.</p>
+                                </div>
                             </template>
-                        </tbody>
-                    </table>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- TAB 2: PEMINJAMAN ALAT -->
+        <!-- ================= TAB 2: PEMINJAMAN ALAT ================= -->
         <div x-show="activeTab === 'peminjaman'" class="space-y-4" x-cloak>
             <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 flex justify-between items-center">
                 <h3 class="font-bold text-slate-800">Daftar Peminjaman & Pengembalian Alat</h3>
-                <button @click="openModal('studentLoan')" class="bg-amber-500 text-slate-950 font-bold px-3.5 py-2 rounded-xl text-xs">
-                    + Form Pinjam Mandiri
-                </button>
+                <button @click="openModal('studentLoan')" class="bg-amber-500 text-slate-950 font-bold px-3.5 py-2 rounded-xl text-xs">+ Form Pinjam Mandiri</button>
             </div>
-
             <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-xs">
                         <thead class="bg-slate-800 text-slate-200 uppercase font-semibold">
-                            <tr>
-                                <th class="p-3">Kode TRX</th>
-                                <th class="p-3">Peminjam</th>
-                                <th class="p-3">Kelas</th>
-                                <th class="p-3">Alat</th>
-                                <th class="p-3 text-center">Status</th>
-                                <th class="p-3 text-right">Aksi Admin</th>
-                            </tr>
+                            <tr><th class="p-3">Kode TRX</th><th class="p-3">Peminjam</th><th class="p-3">Kelas</th><th class="p-3">Alat</th><th class="p-3 text-center">Status</th><th class="p-3 text-right">Aksi Admin</th></tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100">
                             <template x-for="loan in loanList" :key="loan.id">
@@ -289,12 +407,8 @@
                                     <td class="p-3 text-right">
                                         <template x-if="userRole === 'admin'">
                                             <div class="flex justify-end space-x-1">
-                                                <template x-if="loan.status === 'Menunggu Persetujuan'">
-                                                    <button @click="approveLoan(loan.id)" class="bg-emerald-600 text-white px-2 py-1 rounded text-[10px] font-bold">Setujui</button>
-                                                </template>
-                                                <template x-if="loan.status === 'Dipinjam'">
-                                                    <button @click="openReturnModal(loan)" class="bg-indigo-600 text-white px-2 py-1 rounded text-[10px] font-bold">Kembali</button>
-                                                </template>
+                                                <template x-if="loan.status === 'Menunggu Persetujuan'"><button @click="approveLoan(loan.id)" class="bg-emerald-600 text-white px-2 py-1 rounded text-[10px] font-bold">Setujui</button></template>
+                                                <template x-if="loan.status === 'Dipinjam'"><button @click="openReturnModal(loan)" class="bg-indigo-600 text-white px-2 py-1 rounded text-[10px] font-bold">Kembali</button></template>
                                                 <button @click="confirmDelete('loans', loan.id, loan.kodePinjam)" class="p-1 text-red-600 hover:bg-red-50 rounded"><i class="fa-solid fa-trash-can"></i></button>
                                             </div>
                                         </template>
@@ -307,41 +421,26 @@
             </div>
         </div>
 
-        <!-- TAB 3: INVENTARIS ALAT -->
+        <!-- ================= TAB 3: INVENTARIS ALAT ================= -->
         <div x-show="activeTab === 'alat'" class="space-y-4" x-cloak>
             <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 flex justify-between items-center gap-4">
                 <input type="text" x-model="searchAlat" placeholder="Cari nama atau kode alat..." class="p-2 border rounded-xl text-xs w-72">
                 <div class="flex space-x-2">
-                    <button @click="exportAlatToExcel()" class="bg-emerald-600 text-white font-bold px-3.5 py-2 rounded-xl text-xs flex items-center space-x-1">
-                        <i class="fa-solid fa-file-excel"></i><span>Export Excel</span>
-                    </button>
-                    <template x-if="userRole === 'admin'">
-                        <button @click="openModal('alat')" class="bg-amber-500 text-slate-950 font-bold px-3.5 py-2 rounded-xl text-xs">+ Tambah Alat</button>
-                    </template>
+                    <button @click="exportAlatToExcel()" class="bg-emerald-600 text-white font-bold px-3.5 py-2 rounded-xl text-xs flex items-center space-x-1"><i class="fa-solid fa-file-excel"></i><span>Export Excel</span></button>
+                    <template x-if="userRole === 'admin'"><button @click="openModal('alat')" class="bg-amber-500 text-slate-950 font-bold px-3.5 py-2 rounded-xl text-xs">+ Tambah Alat</button></template>
                 </div>
             </div>
-
             <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-xs">
                         <thead class="bg-slate-800 text-slate-200 uppercase font-semibold">
-                            <tr>
-                                <th class="p-3">Kode</th>
-                                <th class="p-3">Nama Alat & Merk</th>
-                                <th class="p-3">Kategori</th>
-                                <th class="p-3 text-center">Total</th>
-                                <th class="p-3 text-center">Tersedia</th>
-                                <template x-if="userRole === 'admin'"><th class="p-3 text-right">Aksi Admin</th></template>
-                            </tr>
+                            <tr><th class="p-3">Kode</th><th class="p-3">Nama Alat & Merk</th><th class="p-3">Kategori</th><th class="p-3 text-center">Total</th><th class="p-3 text-center">Tersedia</th><template x-if="userRole === 'admin'"><th class="p-3 text-right">Aksi Admin</th></template></tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100">
                             <template x-for="alat in filteredAlat" :key="alat.id">
                                 <tr>
                                     <td class="p-3 font-mono font-bold text-amber-600" x-text="alat.kodeAlat"></td>
-                                    <td class="p-3">
-                                        <p class="font-bold text-slate-800" x-text="alat.namaAlat"></p>
-                                        <p class="text-[10px] text-slate-400" x-text="alat.merk || '-'"></p>
-                                    </td>
+                                    <td class="p-3"><p class="font-bold text-slate-800" x-text="alat.namaAlat"></p><p class="text-[10px] text-slate-400" x-text="alat.merk || '-'"></p></td>
                                     <td class="p-3" x-text="alat.kategori"></td>
                                     <td class="p-3 text-center font-bold" x-text="alat.jumlahTotal"></td>
                                     <td class="p-3 text-center font-bold text-emerald-700" x-text="alat.jumlahTersedia"></td>
@@ -361,32 +460,20 @@
             </div>
         </div>
 
-        <!-- TAB 4: STOK OPNAME BAHAN -->
+        <!-- ================= TAB 4: STOK OPNAME BAHAN ================= -->
         <div x-show="activeTab === 'opname'" class="space-y-4" x-cloak>
             <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 flex justify-between items-center gap-4">
                 <input type="text" x-model="searchBahan" placeholder="Cari bahan praktik..." class="p-2 border rounded-xl text-xs w-72">
                 <div class="flex space-x-2">
-                    <button @click="exportBahanToExcel()" class="bg-emerald-600 text-white font-bold px-3.5 py-2 rounded-xl text-xs flex items-center space-x-1">
-                        <i class="fa-solid fa-file-excel"></i><span>Export Excel</span>
-                    </button>
-                    <template x-if="userRole === 'admin'">
-                        <button @click="openModal('bahan')" class="bg-amber-500 text-slate-950 font-bold px-3.5 py-2 rounded-xl text-xs">+ Tambah Bahan</button>
-                    </template>
+                    <button @click="exportBahanToExcel()" class="bg-emerald-600 text-white font-bold px-3.5 py-2 rounded-xl text-xs flex items-center space-x-1"><i class="fa-solid fa-file-excel"></i><span>Export Excel</span></button>
+                    <template x-if="userRole === 'admin'"><button @click="openModal('bahan')" class="bg-amber-500 text-slate-950 font-bold px-3.5 py-2 rounded-xl text-xs">+ Tambah Bahan</button></template>
                 </div>
             </div>
-
             <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-xs">
                         <thead class="bg-slate-800 text-slate-200 uppercase font-semibold">
-                            <tr>
-                                <th class="p-3">Kode</th>
-                                <th class="p-3">Nama Bahan</th>
-                                <th class="p-3 text-center">Satuan</th>
-                                <th class="p-3 text-center">Stok Sistem</th>
-                                <th class="p-3 text-center">Status</th>
-                                <template x-if="userRole === 'admin'"><th class="p-3 text-right">Aksi Opname</th></template>
-                            </tr>
+                            <tr><th class="p-3">Kode</th><th class="p-3">Nama Bahan</th><th class="p-3 text-center">Satuan</th><th class="p-3 text-center">Stok Sistem</th><th class="p-3 text-center">Status</th><template x-if="userRole === 'admin'"><th class="p-3 text-right">Aksi Opname</th></template></tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100">
                             <template x-for="bahan in filteredBahan" :key="bahan.id">
@@ -395,11 +482,7 @@
                                     <td class="p-3 font-bold" x-text="bahan.namaBahan"></td>
                                     <td class="p-3 text-center" x-text="bahan.satuan"></td>
                                     <td class="p-3 text-center font-bold text-sm" x-text="bahan.stokSistem"></td>
-                                    <td class="p-3 text-center">
-                                        <span class="px-2 py-0.5 rounded text-[10px] font-bold"
-                                              :class="bahan.stokSistem <= bahan.minStok ? 'bg-red-100 text-red-800' : 'bg-emerald-100 text-emerald-800'"
-                                              x-text="bahan.stokSistem <= bahan.minStok ? 'Kritis' : 'Cukup'"></span>
-                                    </td>
+                                    <td class="p-3 text-center"><span class="px-2 py-0.5 rounded text-[10px] font-bold" :class="bahan.stokSistem <= bahan.minStok ? 'bg-red-100 text-red-800' : 'bg-emerald-100 text-emerald-800'" x-text="bahan.stokSistem <= bahan.minStok ? 'Kritis' : 'Cukup'"></span></td>
                                     <template x-if="userRole === 'admin'">
                                         <td class="p-3 text-right">
                                             <div class="flex justify-end space-x-1">
@@ -416,40 +499,28 @@
             </div>
         </div>
 
-        <!-- TAB 5: PENGGUNAAN BAHAN -->
+        <!-- ================= TAB 5: PENGGUNAAN BAHAN ================= -->
         <div x-show="activeTab === 'penggunaan'" class="space-y-4" x-cloak>
             <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 flex justify-between items-center">
                 <h3 class="font-bold text-slate-800">Catatan Pemakaian / Penggunaan Bahan Praktik</h3>
-                <template x-if="userRole === 'admin'">
-                    <button @click="openModal('usage')" class="bg-amber-500 text-slate-950 font-bold px-3.5 py-2 rounded-xl text-xs">+ Catat Penggunaan</button>
-                </template>
+                <template x-if="userRole === 'admin'"><button @click="openModal('usage')" class="bg-amber-500 text-slate-950 font-bold px-3.5 py-2 rounded-xl text-xs">+ Catat Penggunaan</button></template>
             </div>
-
             <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-xs">
                         <thead class="bg-slate-800 text-slate-200 uppercase font-semibold">
-                            <tr>
-                                <th class="p-3">Waktu</th>
-                                <th class="p-3">Nama Bahan</th>
-                                <th class="p-3 text-center">Jumlah Pakai</th>
-                                <th class="p-3">Kelas / Topik</th>
-                                <th class="p-3">Instruktur</th>
-                                <template x-if="userRole === 'admin'"><th class="p-3 text-right">Aksi</th></template>
-                            </tr>
+                            <tr><th class="p-3">Waktu</th><th class="p-3">Nama Bahan</th><th class="p-3 text-center">Jumlah Pakai</th><th class="p-3">Kelas / Topik</th><th class="p-3">Instruktur</th><template x-if="userRole === 'admin'"><th class="p-3 text-right">Aksi</th></template></tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100">
                             <template x-for="item in usageLogs" :key="item.id">
                                 <tr>
-                                    <td class="p-3 font-mono text-slate-500" x-text="item.timestamp ? item.timestamp.slice(0,10) : '-'"></td>
+                                    <td class="p-3 font-mono text-slate-500" x-text="formatDateTime(item.timestamp)"></td>
                                     <td class="p-3 font-bold" x-text="item.namaBahan"></td>
                                     <td class="p-3 text-center font-bold text-red-600" x-text="'-' + item.jumlah + ' ' + (item.satuan || '')"></td>
                                     <td class="p-3 text-slate-700" x-text="item.kelas + ' - ' + item.topik"></td>
                                     <td class="p-3" x-text="item.instruktur"></td>
                                     <template x-if="userRole === 'admin'">
-                                        <td class="p-3 text-right">
-                                            <button @click="confirmDelete('usage', item.id, item.namaBahan)" class="p-1.5 text-slate-400 hover:text-red-600 rounded"><i class="fa-solid fa-trash-can"></i></button>
-                                        </td>
+                                        <td class="p-3 text-right"><button @click="confirmDelete('usage', item.id, item.namaBahan)" class="p-1.5 text-slate-400 hover:text-red-600 rounded"><i class="fa-solid fa-trash-can"></i></button></td>
                                     </template>
                                 </tr>
                             </template>
@@ -459,18 +530,142 @@
             </div>
         </div>
 
-        <!-- TAB 6: LAPORAN & CETAK -->
-        <div x-show="activeTab === 'laporan'" class="space-y-4" x-cloak>
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-4">
-                <h3 class="font-bold text-slate-800">Cetak Laporan Bengkel TSM</h3>
-                <p class="text-xs text-slate-500">Klik tombol di bawah untuk mencetak laporan ke format PDF atau Printer.</p>
-                <button @click="window.print()" class="bg-slate-900 text-amber-400 font-bold px-4 py-2.5 rounded-xl text-xs flex items-center space-x-2">
-                    <i class="fa-solid fa-print"></i><span>Cetak Laporan PDF</span>
-                </button>
+        <!-- ================= TAB 6: LAPORAN & CETAK (LENGKAP DENGAN KOP & PREVIEW CETAK) ================= -->
+        <div x-show="activeTab === 'laporan'" class="space-y-6" x-cloak>
+            
+            <!-- PRINTABLE KOP SURAT (Hanya tampil saat cetak PDF) -->
+            <div class="hidden print-only text-center mb-4">
+                <div class="flex items-center justify-between">
+                    <div class="w-24 h-24 flex items-center justify-center">
+                        <img :src="settings.logoKananUrl || defaultLogo" class="max-h-24 max-w-24 object-contain" alt="Logo">
+                    </div>
+                    <div class="text-center flex-1 px-2 leading-tight">
+                        <h2 class="text-sm font-bold tracking-wider uppercase text-black">PEMERINTAH PROVINSI JAWA TENGAH</h2>
+                        <h3 class="text-sm font-bold tracking-wider uppercase text-black">DINAS PENDIDIKAN DAN KEBUDAYAAN</h3>
+                        <h1 class="text-xl font-extrabold font-serif tracking-tight text-black mt-0.5" x-text="settings.namaSekolah || 'SEKOLAH MENENGAH KEJURUAN NEGERI 1 GOMBONG'"></h1>
+                        <p class="text-[11px] text-black mt-1">Jalan Wilis Nomor 15 Wero Gombong Kebumen, Kode Pos 54416, Telepon 0287-472828</p>
+                    </div>
+                    <div class="w-24 h-24 flex items-center justify-center">
+                        <img :src="settings.logoTsmUrl || defaultLogo" class="max-h-24 max-w-24 object-contain" alt="Logo TSM">
+                    </div>
+                </div>
+                <div class="border-double-custom mt-2 mb-4"></div>
+                <h3 class="text-sm font-bold uppercase underline mb-3 text-black">LAPORAN REKAPITULASI BENGKEL TSM — PERIODE <span x-text="selectedMonthName.toUpperCase()"></span></h3>
+            </div>
+
+            <!-- FILTER BAR (Tampil di Web) -->
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 no-print">
+                <div>
+                    <h3 class="font-bold text-slate-800 text-base">Filter & Cetak Laporan Bulanan</h3>
+                    <p class="text-xs text-slate-500">Pilih periode bulan dan jenis modul untuk dicetak ke PDF atau Printer</p>
+                </div>
+                <div class="flex flex-wrap items-center gap-3 w-full lg:w-auto">
+                    <div class="flex items-center space-x-2 bg-slate-50 border border-slate-200 px-3 py-2 rounded-xl text-xs">
+                        <i class="fa-solid fa-calendar text-amber-500"></i>
+                        <span class="font-bold text-slate-700">Bulan:</span>
+                        <input type="month" x-model="reportMonth" class="bg-transparent font-bold focus:outline-none text-slate-800">
+                    </div>
+                    <button type="button" @click="triggerPrint()" class="bg-slate-900 hover:bg-slate-800 text-amber-400 font-bold px-4 py-2.5 rounded-xl text-xs flex items-center space-x-2 transition shadow-md active:scale-95">
+                        <i class="fa-solid fa-print text-sm"></i><span>Cetak Laporan (PDF)</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- STATISTIK RINGKASAN LAPORAN -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 no-print">
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                    <p class="text-xs font-semibold text-slate-500 uppercase">Peminjaman Alat</p>
+                    <h3 class="text-xl font-bold text-slate-800 mt-1" x-text="reportLoans.length + ' Transaksi'"></h3>
+                </div>
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                    <p class="text-xs font-semibold text-slate-500 uppercase">Penggunaan Bahan</p>
+                    <h3 class="text-xl font-bold text-slate-800 mt-1" x-text="reportUsage.length + ' Kali Pakai'"></h3>
+                </div>
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                    <p class="text-xs font-semibold text-slate-500 uppercase">Inventaris & Stok</p>
+                    <h3 class="text-xl font-bold text-slate-800 mt-1" x-text="alatList.length + ' Jenis Alat, ' + bahanList.length + ' Jenis Bahan'"></h3>
+                </div>
+            </div>
+
+            <!-- TABEL LAPORAN 1: PEMINJAMAN -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden p-4 space-y-3">
+                <h4 class="font-bold text-slate-800 text-xs uppercase">1. Rekapitulasi Peminjaman Alat Praktik</h4>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs">
+                        <thead class="bg-slate-800 text-slate-200 uppercase font-semibold">
+                            <tr><th class="p-2.5">No</th><th class="p-2.5">Kode</th><th class="p-2.5">Peminjam</th><th class="p-2.5">Kelas</th><th class="p-2.5">Nama Alat</th><th class="p-2.5 text-center">Qty</th><th class="p-2.5">Tgl Pinjam</th><th class="p-2.5">Status</th></tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            <template x-for="(loan, index) in reportLoans" :key="loan.id">
+                                <tr>
+                                    <td class="p-2.5" x-text="index + 1"></td>
+                                    <td class="p-2.5 font-mono text-slate-500" x-text="loan.kodePinjam || '-'"></td>
+                                    <td class="p-2.5 font-bold" x-text="loan.namaPeminjam"></td>
+                                    <td class="p-2.5" x-text="loan.kelas"></td>
+                                    <td class="p-2.5 font-semibold text-amber-700" x-text="loan.namaAlat"></td>
+                                    <td class="p-2.5 text-center font-bold" x-text="loan.jumlah"></td>
+                                    <td class="p-2.5 text-slate-500" x-text="formatDateTime(loan.tanggalPinjam)"></td>
+                                    <td class="p-2.5 font-bold" x-text="loan.status"></td>
+                                </tr>
+                            </template>
+                            <template x-if="reportLoans.length === 0">
+                                <tr><td colspan="8" class="p-4 text-center text-slate-400">Tidak ada data peminjaman pada periode ini.</td></tr>
+                            </template>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- TABEL LAPORAN 2: PENGGUNAAN BAHAN -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden p-4 space-y-3">
+                <h4 class="font-bold text-slate-800 text-xs uppercase">2. Rekapitulasi Penggunaan Bahan Praktik</h4>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs">
+                        <thead class="bg-slate-800 text-slate-200 uppercase font-semibold">
+                            <tr><th class="p-2.5">No</th><th class="p-2.5">Waktu</th><th class="p-2.5">Nama Bahan</th><th class="p-2.5 text-center">Jumlah Pakai</th><th class="p-2.5">Kelas</th><th class="p-2.5">Topik Praktik</th><th class="p-2.5">Instruktur</th></tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            <template x-for="(item, index) in reportUsage" :key="item.id">
+                                <tr>
+                                    <td class="p-2.5" x-text="index + 1"></td>
+                                    <td class="p-2.5 font-mono text-slate-500" x-text="formatDateTime(item.timestamp)"></td>
+                                    <td class="p-2.5 font-bold" x-text="item.namaBahan"></td>
+                                    <td class="p-2.5 text-center font-bold text-red-600" x-text="'-' + item.jumlah + ' ' + (item.satuan || '')"></td>
+                                    <td class="p-2.5" x-text="item.kelas"></td>
+                                    <td class="p-2.5" x-text="item.topik"></td>
+                                    <td class="p-2.5" x-text="item.instruktur"></td>
+                                </tr>
+                            </template>
+                            <template x-if="reportUsage.length === 0">
+                                <tr><td colspan="7" class="p-4 text-center text-slate-400">Tidak ada data penggunaan bahan pada periode ini.</td></tr>
+                            </template>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- TANDA TANGAN (Hanya tampil saat dicetak PDF) -->
+            <div class="hidden print-only mt-10 pt-4 page-break-inside-avoid">
+                <div class="flex justify-between text-xs text-black">
+                    <div class="text-center">
+                        <p>Mengetahui,</p>
+                        <p class="font-bold">Kepala Bengkel TSM</p>
+                        <br><br><br>
+                        <p class="font-bold underline">Den's Berlian Wais, S.Pd.</p>
+                        <p>NIP. 199502202022211002</p>
+                    </div>
+                    <div class="text-center">
+                        <p>Gombong, <span x-text="currentDate"></span></p>
+                        <p class="font-bold">Admin / Pengelola Bengkel</p>
+                        <br><br><br>
+                        <p class="font-bold underline" x-text="currentUser ? currentUser.email : 'Administrator'"></p>
+                        <p>NIP. -</p>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <!-- TAB 7: AUDIT LOG -->
+        <!-- ================= TAB 7: AUDIT LOG ================= -->
         <div x-show="activeTab === 'audit' && userRole === 'admin'" class="space-y-4" x-cloak>
             <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200">
                 <h3 class="font-bold text-slate-800">Catatan Audit Sistem (Audit Logs)</h3>
@@ -496,6 +691,33 @@
 
     </main>
 
+    <!-- MODAL SETTINGS -->
+    <div x-show="modals.settingsModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
+        <div class="bg-white rounded-2xl max-w-xl w-full p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto custom-scrollbar" @click.away="modals.settingsModal = false">
+            <div class="flex justify-between items-center border-b pb-3">
+                <h3 class="font-bold text-slate-800 text-sm">Pengaturan Sistem Bengkel TSM</h3>
+                <button @click="modals.settingsModal = false" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <form @submit.prevent="saveSettings()" class="space-y-4 text-xs">
+                <div class="space-y-3 bg-slate-50 p-4 rounded-xl border">
+                    <h4 class="font-bold text-slate-800">Identitas Sekolah & Kejuruan</h4>
+                    <div><label class="font-bold block mb-1">Nama Aplikasi Header</label><input type="text" x-model="settings.namaAplikasi" class="w-full p-2.5 bg-white border rounded-xl"></div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div><label class="font-bold block mb-1">Nama Sekolah</label><input type="text" x-model="settings.namaSekolah" class="w-full p-2.5 bg-white border rounded-xl"></div>
+                        <div><label class="font-bold block mb-1">Singkatan Bengkel</label><input type="text" x-model="settings.singkatanBengkel" class="w-full p-2.5 bg-white border rounded-xl"></div>
+                    </div>
+                </div>
+                <div class="flex justify-end space-x-2 pt-2">
+                    <button type="submit" class="px-4 py-2 bg-amber-500 text-slate-950 font-bold rounded-xl shadow">Simpan Pengaturan</button>
+                </div>
+            </form>
+            <div class="bg-amber-50 p-4 rounded-xl border border-amber-200 space-y-2">
+                <p class="font-bold text-slate-800">Inisialisasi Data (Seed Data)</p>
+                <button @click="runSeedData()" class="py-2 px-3 bg-slate-900 text-amber-400 font-bold rounded-lg text-xs"><i class="fa-solid fa-seedling mr-1"></i> Isi Data Contoh</button>
+            </div>
+        </div>
+    </div>
+
     <!-- MODAL LOGIN -->
     <div x-show="modals.login" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
         <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl space-y-4" @click.away="modals.login = false">
@@ -511,41 +733,7 @@
         </div>
     </div>
 
-    <!-- MODAL PENGATURAN LENGKAP -->
-    <div x-show="modals.settingsModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
-        <div class="bg-white rounded-2xl max-w-xl w-full p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto custom-scrollbar" @click.away="modals.settingsModal = false">
-            <div class="flex justify-between items-center border-b pb-3">
-                <h3 class="font-bold text-slate-800 text-sm">Pengaturan Sistem Bengkel TSM</h3>
-                <button @click="modals.settingsModal = false" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
-            </div>
-
-            <form @submit.prevent="saveSettings()" class="space-y-4 text-xs">
-                <div class="space-y-3 bg-slate-50 p-4 rounded-xl border">
-                    <h4 class="font-bold text-slate-800">Identitas Sekolah & Kejuruan</h4>
-                    <div><label class="font-bold block mb-1">Nama Aplikasi Header</label><input type="text" x-model="settings.namaAplikasi" class="w-full p-2.5 bg-white border rounded-xl"></div>
-                    <div class="grid grid-cols-2 gap-3">
-                        <div><label class="font-bold block mb-1">Nama Sekolah</label><input type="text" x-model="settings.namaSekolah" class="w-full p-2.5 bg-white border rounded-xl"></div>
-                        <div><label class="font-bold block mb-1">Singkatan Bengkel</label><input type="text" x-model="settings.singkatanBengkel" class="w-full p-2.5 bg-white border rounded-xl"></div>
-                    </div>
-                </div>
-
-                <template x-if="userRole === 'admin'">
-                    <div class="flex justify-end space-x-2 pt-2">
-                        <button type="submit" class="px-4 py-2 bg-amber-500 text-slate-950 font-bold rounded-xl shadow">Simpan Pengaturan</button>
-                    </div>
-                </template>
-            </form>
-
-            <div class="bg-amber-50 p-4 rounded-xl border border-amber-200 space-y-2">
-                <p class="font-bold text-slate-800">Inisialisasi Data (Seed Data)</p>
-                <button @click="runSeedData()" class="py-2 px-3 bg-slate-900 text-amber-400 font-bold rounded-lg text-xs">
-                    <i class="fa-solid fa-seedling mr-1"></i> Isi Data Contoh (Seed Data)
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- MODAL FORM PINJAM MANDIRI -->
+    <!-- SEMUA MODAL LAINNYA (STUDENT LOAN, ALAT, BAHAN, USAGE, OPNAME, RETURN, DELETE) -->
     <div x-show="modals.studentLoan" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
         <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4" @click.away="modals.studentLoan = false">
             <h3 class="font-bold text-slate-800 text-sm border-b pb-2">Form Peminjaman Alat Mandiri</h3>
@@ -556,9 +744,7 @@
                     <label class="font-bold block mb-1">Pilih Alat</label>
                     <select x-model="formStudentLoan.alatId" required class="w-full p-2.5 border rounded-xl">
                         <option value="">-- Pilih Alat --</option>
-                        <template x-for="alat in alatList" :key="alat.id">
-                            <option :value="alat.id" x-text="alat.namaAlat + ' (Sisa: ' + alat.jumlahTersedia + ')'"></option>
-                        </template>
+                        <template x-for="alat in alatList" :key="alat.id"><option :value="alat.id" x-text="alat.namaAlat + ' (Sisa: ' + alat.jumlahTersedia + ')'"></option></template>
                     </select>
                 </div>
                 <div><label class="font-bold block mb-1">Jumlah</label><input type="number" x-model.number="formStudentLoan.jumlah" min="1" required class="w-full p-2.5 border rounded-xl font-bold"></div>
@@ -570,7 +756,6 @@
         </div>
     </div>
 
-    <!-- MODAL ALAT (TAMBAH/EDIT) -->
     <div x-show="modals.alat" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
         <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4" @click.away="modals.alat = false">
             <h3 class="font-bold text-slate-800 text-sm border-b pb-2" x-text="formAlat.id ? 'Edit Alat Inventaris' : 'Tambah Alat Baru'"></h3>
@@ -589,7 +774,6 @@
         </div>
     </div>
 
-    <!-- MODAL BAHAN -->
     <div x-show="modals.bahan" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
         <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4" @click.away="modals.bahan = false">
             <h3 class="font-bold text-slate-800 text-sm border-b pb-2">Tambah Bahan Praktik</h3>
@@ -608,7 +792,6 @@
         </div>
     </div>
 
-    <!-- MODAL USAGE -->
     <div x-show="modals.usage" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
         <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4" @click.away="modals.usage = false">
             <h3 class="font-bold text-slate-800 text-sm border-b pb-2">Catat Penggunaan Bahan</h3>
@@ -617,9 +800,7 @@
                     <label class="font-bold block mb-1">Pilih Bahan</label>
                     <select x-model="formUsage.bahanId" required class="w-full p-2.5 border rounded-xl">
                         <option value="">-- Pilih Bahan --</option>
-                        <template x-for="b in bahanList" :key="b.id">
-                            <option :value="b.id" x-text="b.namaBahan + ' (Sisa: ' + b.stokSistem + ' ' + b.satuan + ')'"></option>
-                        </template>
+                        <template x-for="b in bahanList" :key="b.id"><option :value="b.id" x-text="b.namaBahan + ' (Sisa: ' + b.stokSistem + ' ' + b.satuan + ')'"></option></template>
                     </select>
                 </div>
                 <div><label class="font-bold block mb-1">Jumlah Pakai</label><input type="number" x-model.number="formUsage.jumlah" min="1" required class="w-full p-2.5 border rounded-xl font-bold"></div>
@@ -634,7 +815,6 @@
         </div>
     </div>
 
-    <!-- MODAL OPNAME ADJUST -->
     <div x-show="modals.opname" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
         <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl space-y-4" @click.away="modals.opname = false">
             <h3 class="font-bold text-slate-800 text-sm border-b pb-2">Penyesuaian Stok Opname</h3>
@@ -648,18 +828,13 @@
         </div>
     </div>
 
-    <!-- MODAL RETURN -->
     <div x-show="modals.return" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
         <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl space-y-4" @click.away="modals.return = false">
             <h3 class="font-bold text-slate-800 text-sm border-b pb-2">Pengembalian Alat</h3>
             <form @submit.prevent="processReturn()" class="space-y-3 text-xs">
                 <div>
                     <label class="font-bold block mb-1">Kondisi Saat Kembali</label>
-                    <select x-model="formReturn.kondisi" class="w-full p-2.5 border rounded-xl">
-                        <option value="Baik">Baik</option>
-                        <option value="Perlu Servis">Perlu Servis</option>
-                        <option value="Rusak">Rusak</option>
-                    </select>
+                    <select x-model="formReturn.kondisi" class="w-full p-2.5 border rounded-xl"><option value="Baik">Baik</option><option value="Perlu Servis">Perlu Servis</option><option value="Rusak">Rusak</option></select>
                 </div>
                 <div class="flex justify-end space-x-2 pt-2 border-t">
                     <button type="button" @click="modals.return = false" class="px-4 py-2 bg-slate-100 font-bold rounded-xl">Batal</button>
@@ -669,7 +844,6 @@
         </div>
     </div>
 
-    <!-- MODAL CONFIRM DELETE -->
     <div x-show="modals.confirmDelete.show" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
         <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl space-y-4 text-center">
             <div class="w-12 h-12 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto text-xl"><i class="fa-solid fa-trash-can"></i></div>
@@ -719,6 +893,7 @@
                 activeTab: 'dashboard',
                 currentDate: '', currentTime: '',
                 searchAlat: '', searchBahan: '',
+                reportMonth: new Date().toISOString().slice(0, 7), // Format YYYY-MM
 
                 alatList: [], bahanList: [], loanList: [], usageLogs: [], auditLogs: [],
                 settings: { namaAplikasi: 'SISTEM MANAJEMEN BENGKEL TSM', namaSekolah: 'SMK NEGERI 1 GOMBONG', singkatanBengkel: 'TSM STEMSAGO' },
@@ -941,13 +1116,30 @@
                     this.showToast('Seed Selesai', 'Data contoh dimasukkan');
                 },
 
+                // COMPUTED & HELPERS
                 get pendingLoans() { return (this.loanList || []).filter(l => l.status === 'Menunggu Persetujuan'); },
                 get pendingLoansCount() { return this.pendingLoans.length; },
-                get activeLoansCount() { return (this.loanList || []).filter(l => l.status === 'Dipinjam').length; },
+                get activeLoans() { return (this.loanList || []).filter(l => l.status === 'Dipinjam'); },
+                get activeLoansCount() { return this.activeLoans.length; },
                 get totalToolItems() { return (this.alatList || []).length; },
-                get lowStockCount() { return (this.bahanList || []).filter(b => Number(b.stokSistem || 0) <= Number(b.minStok || 0)).length; },
+                get totalToolUnits() { return (this.alatList || []).reduce((acc, curr) => acc + Number(curr.jumlahTotal || 0), 0); },
+                get lowStockItems() { return (this.bahanList || []).filter(b => Number(b.stokSistem || 0) <= Number(b.minStok || 0)); },
+                get lowStockCount() { return this.lowStockItems.length; },
                 get filteredAlat() { return (this.alatList || []).filter(a => (a.kodeAlat + (a.namaAlat || '')).toLowerCase().includes(this.searchAlat.toLowerCase())); },
                 get filteredBahan() { return (this.bahanList || []).filter(b => (b.kodeBahan + (b.namaBahan || '')).toLowerCase().includes(this.searchBahan.toLowerCase())); },
+
+                get reportLoans() {
+                    return (this.loanList || []).filter(l => l.tanggalPinjam && l.tanggalPinjam.startsWith(this.reportMonth));
+                },
+                get reportUsage() {
+                    return (this.usageLogs || []).filter(u => u.timestamp && u.timestamp.startsWith(this.reportMonth));
+                },
+                get selectedMonthName() {
+                    if (!this.reportMonth) return '';
+                    const [y, m] = this.reportMonth.split('-');
+                    const date = new Date(y, m - 1, 1);
+                    return date.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
+                },
 
                 showToast(title, message, type = 'success') {
                     this.toast = { show: true, title, message, type };
@@ -957,7 +1149,13 @@
                     const now = new Date();
                     this.currentDate = now.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
                     this.currentTime = now.toLocaleTimeString('id-ID') + ' WIB';
-                }
+                },
+                formatDateTime(iso) {
+                    if (!iso) return '-';
+                    const d = new Date(iso);
+                    return d.toLocaleDateString('id-ID', { day: '2-digit', month: 'short' }) + ' ' + d.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+                },
+                triggerPrint() { window.print(); }
             }));
         });
     </script>
