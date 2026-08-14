@@ -1731,7 +1731,20 @@
                         this.formUsageMeta = { kelas: '', topik: '', instruktor: '', items: [{ bahanId: '', jumlah: 1 }] };
                     }
                     if (type === 'alat') this.formAlat = { id: null, kodeAlat: 'ALT-TSM-' + Math.floor(100+Math.random()*900), namaAlat: '', kategori: 'Hand Tools', merk: '', lokasiRak: 'RAK-A1', jumlahTotal: 1, kondisiBaik: 1, kondisiServis: 0, kondisiRusak: 0 };
-                    if (type === 'bahan') this.formBahan = { kodeBahan: 'BHN-TSM-' + Math.floor(10+Math.random()*90), namaBahan: '', spesifikasi: '', satuan: 'Botol', stokSistem: 10, minStok: 2 };
+                    
+                    if (type === 'bahan') {
+                        let nextNum = 1;
+                        if (this.bahanList && this.bahanList.length > 0) {
+                            const nums = this.bahanList.map(b => {
+                                const parts = (b.kodeBahan || '').split('-');
+                                const lastPart = parseInt(parts[parts.length - 1], 10);
+                                return isNaN(lastPart) ? 0 : lastPart;
+                            });
+                            nextNum = Math.max(...nums) + 1;
+                        }
+                        this.formBahan = { kodeBahan: 'BHN-TSM-' + nextNum, namaBahan: '', spesifikasi: '', satuan: 'Botol', stokSistem: 10, minStok: 2 };
+                    }
+
                     this.modals[type] = true;
                 },
 
@@ -1750,8 +1763,8 @@
                         { id: 'A2', kodeAlat: 'ALT-TSM-003', namaAlat: 'Diagnostic Tool Injection Scanner', kategori: 'Diagnostic Tools', merk: 'MST-100P', lokasiRak: 'RAK-D1', jumlahTotal: 3, jumlahTersedia: 1, kondisiBaik: 3, kondisiServis: 0, kondisiRusak: 0 }
                     ];
                     const sBahan = [
-                        { id: 'B1', kodeBahan: 'BHN-TSM-01', namaBahan: 'Mata Gergaji Besi', spesifikasi: '24T HSS', satuan: 'Pcs', stokSistem: 10, minStok: 2 },
-                        { id: 'B2', kodeBahan: 'BHN-TSM-02', namaBahan: 'Oli Mesin MPX1', spesifikasi: '0.8L SAE 10W-30', satuan: 'Botol', stokSistem: 12, minStok: 3 }
+                        { id: 'B1', kodeBahan: 'BHN-TSM-1', namaBahan: 'Mata Gergaji Besi', spesifikasi: '24T HSS', satuan: 'Pcs', stokSistem: 10, minStok: 2 },
+                        { id: 'B2', kodeBahan: 'BHN-TSM-2', namaBahan: 'Oli Mesin MPX1', spesifikasi: '0.8L SAE 10W-30', satuan: 'Botol', stokSistem: 12, minStok: 3 }
                     ];
                     for (let a of sAlat) await db.collection('alat').doc(a.id).set(a, {merge:true});
                     for (let b of sBahan) await db.collection('bahan').doc(b.id).set(b, {merge:true});
