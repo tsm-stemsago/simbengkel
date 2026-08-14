@@ -586,44 +586,62 @@
                                         </span>
                                     </td>
                                     <td class="p-3.5 text-right no-print">
-                                        <template x-if="loan.status === 'Menunggu Persetujuan'">
-                                            <div>
-                                                <template x-if="userRole === 'admin'">
-                                                    <div class="flex items-center justify-end space-x-1">
-                                                        <button @click="approveLoan(loan.id)" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3 py-1.5 rounded-lg text-xs transition shadow-sm">
+                                        <template x-if="userRole === 'admin'">
+                                            <div class="flex items-center justify-end space-x-1">
+                                                <template x-if="loan.status === 'Menunggu Persetujuan'">
+                                                    <div class="flex items-center space-x-1">
+                                                        <button @click="approveLoan(loan.id)" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-2.5 py-1 rounded-lg text-xs transition shadow-sm">
                                                             Setujui
                                                         </button>
-                                                        <button @click="rejectLoan(loan.id)" class="bg-red-100 hover:bg-red-200 text-red-700 font-bold px-2 py-1.5 rounded-lg text-xs transition">
+                                                        <button @click="rejectLoan(loan.id)" class="bg-red-100 hover:bg-red-200 text-red-700 font-bold px-2 py-1 rounded-lg text-xs transition">
                                                             Tolak
                                                         </button>
                                                     </div>
                                                 </template>
-                                                <template x-if="userRole !== 'admin'">
-                                                    <span class="text-slate-400 text-[11px] italic">Menunggu Admin</span>
-                                                </template>
-                                            </div>
-                                        </template>
 
-                                        <template x-if="loan.status === 'Dipinjam'">
-                                            <div>
-                                                <template x-if="userRole === 'admin'">
-                                                    <button @click="openReturnModal(loan)" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-3 py-1.5 rounded-lg text-xs transition shadow-sm">
+                                                <template x-if="loan.status === 'Dipinjam'">
+                                                    <button @click="openReturnModal(loan)" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-2.5 py-1 rounded-lg text-xs transition shadow-sm">
                                                         Tandai Kembali
                                                     </button>
                                                 </template>
-                                                <template x-if="userRole !== 'admin'">
-                                                    <span class="text-indigo-600 font-bold text-[11px]">Sedang Dipinjam</span>
+
+                                                <template x-if="loan.status === 'Dikembalikan'">
+                                                    <span class="text-slate-500 text-[11px] italic mr-1">
+                                                        Kondisi: <strong class="text-slate-800" x-text="loan.kondisiKembali || 'Baik'"></strong>
+                                                    </span>
                                                 </template>
+
+                                                <template x-if="loan.status === 'Ditolak'">
+                                                    <span class="text-red-500 text-[11px] italic mr-1">Ditolak</span>
+                                                </template>
+
+                                                <!-- TOMBOL EDIT & DELETE PEMINJAMAN ALAT (MODE ADMIN) -->
+                                                <button @click="editLoan(loan)" class="p-1.5 text-slate-600 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition ml-1" title="Edit Peminjaman">
+                                                    <i class="fa-solid fa-pen-to-square"></i>
+                                                </button>
+                                                <button @click="confirmDelete('loan', loan.id, loan.kodePinjam + ' (' + loan.namaPeminjam + ')')" class="p-1.5 text-slate-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition" title="Hapus Peminjaman">
+                                                    <i class="fa-solid fa-trash-can"></i>
+                                                </button>
                                             </div>
                                         </template>
 
-                                        <template x-if="loan.status === 'Dikembalikan'">
-                                            <span class="text-slate-500 text-[11px] italic">
-                                                Kondisi: <strong class="text-slate-800" x-text="loan.kondisiKembali || 'Baik'"></strong>
-                                            </span>
-                                        </template>
-                                        <template x-if="loan.status === 'Ditolak'">
-                                            <span class="text-red-500 text-[11px] italic">Pengajuan Ditolak</span>
+                                        <template x-if="userRole !== 'admin'">
+                                            <div>
+                                                <template x-if="loan.status === 'Menunggu Persetujuan'">
+                                                    <span class="text-slate-400 text-[11px] italic">Menunggu Admin</span>
+                                                </template>
+                                                <template x-if="loan.status === 'Dipinjam'">
+                                                    <span class="text-indigo-600 font-bold text-[11px]">Sedang Dipinjam</span>
+                                                </template>
+                                                <template x-if="loan.status === 'Dikembalikan'">
+                                                    <span class="text-slate-500 text-[11px] italic">
+                                                        Kondisi: <strong class="text-slate-800" x-text="loan.kondisiKembali || 'Baik'"></strong>
+                                                    </span>
+                                                </template>
+                                                <template x-if="loan.status === 'Ditolak'">
+                                                    <span class="text-red-500 text-[11px] italic">Pengajuan Ditolak</span>
+                                                </template>
+                                            </div>
                                         </template>
                                     </td>
                                 </tr>
@@ -871,6 +889,7 @@
                                 <th class="p-3.5">Kelas / Kelompok</th>
                                 <th class="p-3.5">Topik Praktik</th>
                                 <th class="p-3.5">Instruktur</th>
+                                <template x-if="userRole === 'admin'"><th class="p-3.5 text-right no-print">Aksi Admin</th></template>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100">
@@ -884,11 +903,25 @@
                                     <td class="p-3.5 font-semibold text-slate-700" x-text="item.kelas"></td>
                                     <td class="p-3.5 text-slate-600" x-text="item.topik"></td>
                                     <td class="p-3.5 text-slate-800 font-medium" x-text="item.instruktur"></td>
+
+                                    <!-- TOMBOL EDIT & DELETE PENGGUNAAN BAHAN (MODE ADMIN) -->
+                                    <template x-if="userRole === 'admin'">
+                                        <td class="p-3.5 text-right no-print">
+                                            <div class="flex items-center justify-end space-x-1">
+                                                <button @click="editUsage(item)" class="p-1.5 text-slate-600 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition" title="Edit Penggunaan">
+                                                    <i class="fa-solid fa-pen-to-square"></i>
+                                                </button>
+                                                <button @click="confirmDelete('usage', item.id, item.namaBahan + ' (' + item.kelas + ')')" class="p-1.5 text-slate-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition" title="Hapus Penggunaan">
+                                                    <i class="fa-solid fa-trash-can"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </template>
                                 </tr>
                             </template>
                             <template x-if="usageLogs.length === 0">
                                 <tr>
-                                    <td colspan="6" class="p-8 text-center text-slate-400">Belum ada riwayat pencatatan penggunaan bahan.</td>
+                                    <td colspan="7" class="p-8 text-center text-slate-400">Belum ada riwayat pencatatan penggunaan bahan.</td>
                                 </tr>
                             </template>
                         </tbody>
@@ -1367,6 +1400,57 @@
         </div>
     </div>
 
+    <!-- Modal Edit Peminjaman (Admin) -->
+    <div x-show="modals.editLoan" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 no-print" @click.away="modals.editLoan = false">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
+            <div class="flex justify-between items-center border-b pb-3">
+                <div class="flex items-center space-x-2">
+                    <div class="w-9 h-9 bg-amber-100 text-amber-700 rounded-xl flex items-center justify-center text-base">
+                        <i class="fa-solid fa-pen-to-square"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-slate-800 text-sm">Edit Data Peminjaman</h3>
+                        <p class="text-[11px] text-slate-500" x-text="formEditLoan.kodePinjam"></p>
+                    </div>
+                </div>
+                <button @click="modals.editLoan = false" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+
+            <form @submit.prevent="saveEditLoan()" class="space-y-3 text-xs">
+                <div>
+                    <label class="font-bold text-slate-700 block mb-1">Nama Peminjam <span class="text-red-500">*</span></label>
+                    <input type="text" x-model="formEditLoan.namaPeminjam" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl">
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="font-bold text-slate-700 block mb-1">Kelas <span class="text-red-500">*</span></label>
+                        <input type="text" x-model="formEditLoan.kelas" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl">
+                    </div>
+                    <div>
+                        <label class="font-bold text-slate-700 block mb-1">NIS / NIP</label>
+                        <input type="text" x-model="formEditLoan.nis" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="font-bold text-slate-700 block mb-1">Status Peminjaman <span class="text-red-500">*</span></label>
+                    <select x-model="formEditLoan.status" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl">
+                        <option value="Menunggu Persetujuan">Menunggu Persetujuan</option>
+                        <option value="Dipinjam">Dipinjam</option>
+                        <option value="Dikembalikan">Dikembalikan</option>
+                        <option value="Ditolak">Ditolak</option>
+                    </select>
+                </div>
+
+                <div class="pt-2 flex justify-end space-x-2 border-t">
+                    <button type="button" @click="modals.editLoan = false" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl">Batal</button>
+                    <button type="submit" class="px-5 py-2 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold rounded-xl shadow">Simpan Perubahan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- Modal Form Pinjam Mandiri -->
     <div x-show="modals.studentLoan" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 no-print" @click.away="modals.studentLoan = false">
         <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto custom-scrollbar">
@@ -1691,7 +1775,7 @@
         </div>
     </div>
 
-    <!-- Modal Catat Penggunaan -->
+    <!-- Modal Catat / Edit Penggunaan -->
     <div x-show="modals.usage" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 no-print" @click.away="modals.usage = false">
         <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
             <div class="flex justify-between items-center border-b pb-3">
@@ -1700,8 +1784,8 @@
                         <i class="fa-solid fa-receipt"></i>
                     </div>
                     <div>
-                        <h3 class="font-bold text-slate-800 text-sm">Catat Penggunaan Bahan Praktik</h3>
-                        <p class="text-[11px] text-slate-500">Otomatis memotong stok opname bahan</p>
+                        <h3 class="font-bold text-slate-800 text-sm" x-text="formUsage.id ? 'Edit Catatan Penggunaan Bahan' : 'Catat Penggunaan Bahan Praktik'"></h3>
+                        <p class="text-[11px] text-slate-500">Otomatis memotong/menyesuaikan stok opname bahan</p>
                     </div>
                 </div>
                 <button @click="modals.usage = false" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
@@ -1713,7 +1797,7 @@
                     <select x-model="formUsage.bahanId" @change="updateUsageUnit()" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-amber-500">
                         <option value="">-- Pilih Bahan --</option>
                         <template x-for="bahan in bahanList" :key="bahan.id">
-                            <option :value="bahan.id" :disabled="bahan.stokSistem <= 0" 
+                            <option :value="bahan.id" :disabled="bahan.stokSistem <= 0 && formUsage.bahanId !== bahan.id" 
                                     x-text="bahan.namaBahan + ' (Sisa Stok: ' + bahan.stokSistem + ' ' + bahan.satuan + ')'">
                             </option>
                         </template>
@@ -1855,18 +1939,20 @@
                     bahan: false,
                     opname: false,
                     usage: false,
+                    editLoan: false,
                     settingsModal: false,
                     confirmDelete: { show: false, type: '', id: '', name: '' }
                 },
 
                 formStudentLoan: { namaPeminjam: '', kelas: '', nis: '', items: [{ alatId: '', jumlah: 1 }] },
+                formEditLoan: { id: null, kodePinjam: '', namaPeminjam: '', kelas: '', nis: '', status: 'Menunggu Persetujuan' },
                 selectedLoanReturn: null,
                 formReturn: { kondisi: 'Baik', catatan: '' },
                 formAlat: { id: null, kodeAlat: '', namaAlat: '', kategori: 'Hand Tools', merk: '', lokasiRak: '', jumlahTotal: 1, kondisiBaik: 1, kondisiServis: 0, kondisiRusak: 0 },
                 formBahan: { kodeBahan: '', namaBahan: '', spesifikasi: '', satuan: 'Liter', stokSistem: 10, minStok: 2 },
                 selectedBahanOpname: null,
                 formOpname: { stokFisik: 0 },
-                formUsage: { bahanId: '', jumlah: 1, satuan: '', kelas: '', topik: '', instruktur: '' },
+                formUsage: { id: null, bahanId: '', jumlah: 1, satuan: '', kelas: '', topik: '', instruktur: '' },
 
                 alatList: [
                     { id: '1', kodeAlat: 'ALT-TSM-001', namaAlat: 'Kunci T Set 8-10-12-14mm', kategori: 'Hand Tools', merk: 'Tekiro', lokasiRak: 'RAK-A1', jumlahTotal: 10, jumlahTersedia: 8, kondisiBaik: 10, kondisiServis: 0, kondisiRusak: 0 },
@@ -2341,6 +2427,22 @@
                     this.showToast('Pengajuan Terkirim', 'Peminjaman Anda telah tercatat, menunggu persetujuan Admin Bengkel');
                 },
 
+                editLoan(loan) {
+                    this.formEditLoan = JSON.parse(JSON.stringify(loan));
+                    this.modals.editLoan = true;
+                },
+
+                saveEditLoan() {
+                    const index = this.loanList.findIndex(l => l.id === this.formEditLoan.id);
+                    if (index !== -1) {
+                        this.loanList[index] = { ...this.loanList[index], ...this.formEditLoan };
+                        this.saveToStorage();
+                        this.syncCollectionItem('loans', this.formEditLoan.id, this.loanList[index]);
+                        this.modals.editLoan = false;
+                        this.showToast('Berhasil', 'Data peminjaman berhasil diperbarui');
+                    }
+                },
+
                 approveLoan(loanId) {
                     const loan = this.loanList.find(l => l.id === loanId);
                     if (!loan) return;
@@ -2444,7 +2546,7 @@
                         this.formBahan = { kodeBahan: autoBahanCode, namaBahan: '', spesifikasi: '', satuan: 'Liter', stokSistem: 10, minStok: 2 };
                         this.modals.bahan = true;
                     } else if (type === 'usage') {
-                        this.formUsage = { bahanId: '', jumlah: 1, satuan: '', kelas: '', topik: '', instruktur: '' };
+                        this.formUsage = { id: null, bahanId: '', jumlah: 1, satuan: '', kelas: '', topik: '', instruktur: '' };
                         this.modals.usage = true;
                     } else if (type === 'studentLoan') {
                         this.formStudentLoan = { namaPeminjam: '', kelas: '', nis: '', items: [{ alatId: '', jumlah: 1 }] };
@@ -2521,6 +2623,14 @@
                         this.bahanList = this.bahanList.filter(b => b.id !== id);
                         await this.deleteCollectionItem('bahan', id);
                         this.showToast('Terhapus', 'Bahan praktik berhasil dihapus secara permanen');
+                    } else if (type === 'loan') {
+                        this.loanList = this.loanList.filter(l => l.id !== id);
+                        await this.deleteCollectionItem('loans', id);
+                        this.showToast('Terhapus', 'Data peminjaman berhasil dihapus secara permanen');
+                    } else if (type === 'usage') {
+                        this.usageLogs = this.usageLogs.filter(u => u.id !== id);
+                        await this.deleteCollectionItem('usage', id);
+                        this.showToast('Terhapus', 'Data penggunaan bahan berhasil dihapus secara permanen');
                     }
 
                     this.saveToStorage();
@@ -2570,9 +2680,47 @@
                     }
                 },
 
+                editUsage(item) {
+                    this.formUsage = JSON.parse(JSON.stringify(item));
+                    this.modals.usage = true;
+                },
+
                 saveUsage() {
                     const bahan = this.bahanList.find(b => b.id === this.formUsage.bahanId);
                     if (!bahan) return;
+
+                    if (this.formUsage.id) {
+                        const index = this.usageLogs.findIndex(u => u.id === this.formUsage.id);
+                        if (index !== -1) {
+                            const oldUsage = this.usageLogs[index];
+                            const diff = Number(this.formUsage.jumlah) - Number(oldUsage.jumlah);
+                            if (diff > 0 && diff > bahan.stokSistem) {
+                                this.showToast('Stok Tidak Cukup', `Stok ${bahan.namaBahan} tidak mencukupi`, 'error');
+                                return;
+                            }
+                            bahan.stokSistem -= diff;
+                            bahan.stokFisik = bahan.stokSistem;
+
+                            this.usageLogs[index] = {
+                                ...this.usageLogs[index],
+                                bahanId: bahan.id,
+                                namaBahan: bahan.namaBahan,
+                                jumlah: Number(this.formUsage.jumlah),
+                                satuan: bahan.satuan,
+                                kelas: this.formUsage.kelas,
+                                topik: this.formUsage.topik,
+                                instruktur: this.formUsage.instruktur
+                            };
+
+                            this.saveToStorage();
+                            this.syncCollectionItem('bahan', bahan.id, bahan);
+                            this.syncCollectionItem('usage', this.formUsage.id, this.usageLogs[index]);
+
+                            this.modals.usage = false;
+                            this.showToast('Berhasil', 'Pencatatan penggunaan bahan telah diperbarui');
+                            return;
+                        }
+                    }
 
                     if (this.formUsage.jumlah > bahan.stokSistem) {
                         this.showToast('Stok Tidak Cukup', `Stok ${bahan.namaBahan} saat ini hanya sisa ${bahan.stokSistem} ${bahan.satuan}`, 'error');
