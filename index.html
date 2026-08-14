@@ -79,7 +79,7 @@
                         </div>
                         <div class="h-8 w-px bg-slate-600/60"></div>
                         <div class="h-10 sm:h-12 w-10 sm:w-12 flex items-center justify-center overflow-hidden rounded-lg bg-slate-800 p-0.5">
-                            <img :src="settings.logoTsmUrl || defaultLogo" alt="Logo Kanan" class="max-h-full max-w-full object-contain" @error="$event.target.src = defaultLogo">
+                            <img :src="settings.logoTsmHeaderUrl || defaultLogo" alt="Logo TSM Header" class="max-h-full max-w-full object-contain" @error="$event.target.src = defaultLogo">
                         </div>
                     </div>
 
@@ -513,17 +513,18 @@
         <!-- ================= TAB 6: LAPORAN & CETAK ================= -->
         <div x-show="activeTab === 'laporan'" class="space-y-6" x-cloak>
             
-            <!-- PRINTABLE KOP SURAT -->
+            <!-- PRINTABLE KOP SURAT SESUAI REFERENSI -->
             <div class="hidden print-only text-center mb-4">
                 <div class="flex items-center justify-between">
                     <div class="w-24 h-24 flex items-center justify-center">
                         <img :src="settings.logoKananUrl || defaultLogo" class="max-h-24 max-w-24 object-contain" alt="Logo Kiri">
                     </div>
                     <div class="text-center flex-1 px-2 leading-tight">
-                        <h2 class="text-sm font-bold tracking-wider uppercase text-black">PEMERINTAH PROVINSI JAWA TENGAH</h2>
-                        <h3 class="text-sm font-bold tracking-wider uppercase text-black">DINAS PENDIDIKAN DAN KEBUDAYAAN</h3>
-                        <h1 class="text-xl font-extrabold font-serif tracking-tight text-black mt-0.5" x-text="settings.namaSekolah || 'SEKOLAH MENENGAH KEJURUAN NEGERI 1 GOMBONG'"></h1>
-                        <p class="text-[11px] text-black mt-1">Jalan Wilis Nomor 15 Wero Gombong Kebumen, Kode Pos 54416, Telepon 0287-472828</p>
+                        <h2 class="text-xs font-bold tracking-wide uppercase text-black">PEMERINTAH PROVINSI JAWA TENGAH</h2>
+                        <h3 class="text-xs font-bold tracking-wide uppercase text-black">DINAS PENDIDIKAN</h3>
+                        <h1 class="text-lg font-extrabold uppercase tracking-tight text-black mt-1" x-text="settings.namaSekolah || 'SEKOLAH MENENGAH KEJURUAN NEGERI 1 GOMBONG'"></h1>
+                        <p class="text-[10px] text-black mt-1">Jalan Wilis No. 15 Gombong Kebumen. Kode Pos 54416 Telepon 0287-472828</p>
+                        <p class="text-[10px] text-black">Laman: www.smkn1gombong.sch.id Surat Elektronik: jaya@smkn1gombong.sch.id</p>
                     </div>
                     <div class="w-24 h-24 flex items-center justify-center">
                         <img :src="settings.logoTsmUrl || defaultLogo" class="max-h-24 max-w-24 object-contain" alt="Logo Kanan">
@@ -632,7 +633,7 @@
                         <p x-text="settings.nipKepalaBengkel || 'NIP. 199502202022211002'"></p>
                     </div>
                     <div class="text-center">
-                        <p>Gombong, <span x-text="currentDate"></span></p>
+                        <p>Kebumen, 14 Agustus 2026</p>
                         <p class="font-bold" x-text="settings.jabatanToolman || 'Toolman / Pengelola Bengkel'"></p>
                         <br><br><br>
                         <p class="font-bold underline" x-text="settings.namaToolman || 'Sidik Rustanto'"></p>
@@ -668,7 +669,7 @@
 
     </main>
 
-    <!-- ================= MODAL PENGATURAN LENGKAP ================= -->
+    <!-- ================= MODAL PENGATURAN LENGKAP (3 KOLOM LOGO TERPISAH) ================= -->
     <div x-show="modals.settingsModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
         <div class="bg-white rounded-2xl max-w-2xl w-full p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto custom-scrollbar" @click.away="modals.settingsModal = false">
             <div class="flex justify-between items-center border-b pb-3">
@@ -678,7 +679,7 @@
 
             <form @submit.prevent="saveSettings()" class="space-y-4 text-xs">
                 
-                <!-- Pengaturan Logo 3 Kolom -->
+                <!-- Pengaturan Logo 3 Kolom Terpisah -->
                 <div class="space-y-3 bg-amber-50/50 p-4 rounded-xl border border-amber-200">
                     <h4 class="font-bold text-slate-800"><i class="fa-solid fa-image mr-1.5"></i> Pengaturan Logo Header & Kop Laporan PDF</h4>
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -694,8 +695,8 @@
                         </div>
                         <div class="bg-white p-3 rounded-xl border space-y-2">
                             <label class="font-bold block text-slate-700">3. Logo Bengkel TSM</label>
-                            <div class="h-10 flex items-center"><img :src="settings.logoTsmUrl || defaultLogo" class="max-h-10 object-contain"></div>
-                            <input type="file" @change="uploadLogo($event, 'logoTsmUrl')" class="w-full text-[10px] text-slate-500">
+                            <div class="h-10 flex items-center"><img :src="settings.logoTsmHeaderUrl || defaultLogo" class="max-h-10 object-contain"></div>
+                            <input type="file" @change="uploadLogo($event, 'logoTsmHeaderUrl')" class="w-full text-[10px] text-slate-500">
                         </div>
                     </div>
                 </div>
@@ -753,7 +754,7 @@
         </div>
     </div>
 
-    <!-- ================= MODAL FORM PINJAM MANDIRI MULTI-ITEM ================= -->
+    <!-- MODAL FORM PINJAM MANDIRI MULTI-ITEM -->
     <div x-show="modals.studentLoan" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
         <div class="bg-white rounded-2xl max-w-xl w-full p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto custom-scrollbar" @click.away="modals.studentLoan = false">
             <div class="flex justify-between items-center border-b pb-3">
@@ -975,7 +976,8 @@
                     nipToolman: 'NIP. -',
                     jabatanToolman: 'Toolman / Pengelola Bengkel',
                     logoKananUrl: '',
-                    logoTsmUrl: ''
+                    logoTsmUrl: '',
+                    logoTsmHeaderUrl: ''
                 },
                 toast: { show: false, title: '', message: '', type: 'success' },
                 modals: { login: false, studentLoan: false, settingsModal: false, alat: false, bahan: false, usage: false, opname: false, return: false, confirmDelete: { show: false, type: '', id: '', name: '' } },
