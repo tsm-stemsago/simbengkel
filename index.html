@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistem Manajemen Bengkel TSM - SMKN 1 Gombong</title>
     
-    <!-- Preconnect & DNS Prefetch to Speed Up CDN Resources Loading -->
+    <!-- Preconnect & DNS Prefetch -->
     <link rel="preconnect" href="https://cdn.tailwindcss.com" crossorigin>
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
@@ -138,10 +138,10 @@
                 <!-- Mode Switcher & Actions -->
                 <div class="flex items-center space-x-2 sm:space-x-3">
                     
-                    <button @click="reconnectCloud()" title="Klik untuk rekoneksi database online" class="hidden lg:flex items-center space-x-1.5 px-2.5 py-1 rounded-lg text-[11px] font-semibold border transition cursor-pointer"
-                         :class="cloudConnected ? 'bg-emerald-950/60 text-emerald-300 border-emerald-700/50 hover:bg-emerald-900' : 'bg-slate-800 text-slate-400 border-slate-700 hover:bg-slate-700'">
-                        <span class="w-2 h-2 rounded-full" :class="cloudConnected ? 'bg-emerald-400 animate-pulse' : 'bg-amber-500'"></span>
-                        <span x-text="cloudConnected ? 'Penyimpanan Online' : 'Lokal Mode (Klik Connect)'"></span>
+                    <button @click="reconnectCloud()" title="Status Koneksi Firebase Database" class="hidden lg:flex items-center space-x-1.5 px-2.5 py-1 rounded-lg text-[11px] font-semibold border transition cursor-pointer"
+                         :class="cloudConnected ? 'bg-emerald-950/60 text-emerald-300 border-emerald-700/50 hover:bg-emerald-900' : 'bg-red-950/60 text-red-300 border-red-700/50 hover:bg-red-900'">
+                        <span class="w-2 h-2 rounded-full" :class="cloudConnected ? 'bg-emerald-400 animate-pulse' : 'bg-red-500'"></span>
+                        <span x-text="cloudConnected ? 'Firebase Online (Utama)' : 'Terputus (Klik Hubungkan)'"></span>
                     </button>
 
                     <!-- ROLE BADGE / TOGGLE BUTTON -->
@@ -679,7 +679,6 @@
                 </div>
 
                 <div class="flex items-center space-x-2">
-                    <!-- Tombol Export Excel Tab Alat -->
                     <button @click="exportAlatToExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3.5 py-2 rounded-xl text-xs flex items-center space-x-1.5 transition shadow active:scale-95">
                         <i class="fa-solid fa-file-excel text-sm"></i>
                         <span>Export Excel</span>
@@ -773,7 +772,6 @@
                 </div>
 
                 <div class="flex items-center space-x-2">
-                    <!-- Tombol Export Excel Tab Stok Opname Bahan -->
                     <button @click="exportBahanToExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3.5 py-2 rounded-xl text-xs flex items-center space-x-1.5 transition shadow active:scale-95">
                         <i class="fa-solid fa-file-excel text-sm"></i>
                         <span>Export Excel</span>
@@ -862,7 +860,6 @@
                 </div>
 
                 <div class="flex items-center space-x-2">
-                    <!-- Tombol Export Excel Tab Penggunaan Bahan -->
                     <button @click="exportUsageToExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3.5 py-2.5 rounded-xl text-xs flex items-center space-x-1.5 transition shadow active:scale-95">
                         <i class="fa-solid fa-file-excel text-sm"></i>
                         <span>Export Excel</span>
@@ -1001,7 +998,7 @@
                     <span>Menampilkan data periode: <strong x-text="formatMonthIndo(selectedReportMonth)"></strong></span>
                 </div>
                 <div class="font-mono text-[11px] text-amber-800">
-                    Status data: Up to date
+                    Status data: Firebase Firestore Realtime
                 </div>
             </div>
 
@@ -1954,46 +1951,15 @@
                 formOpname: { stokFisik: 0 },
                 formUsage: { id: null, bahanId: '', jumlah: 1, satuan: '', kelas: '', topik: '', instruktur: '' },
 
-                alatList: [
-                    { id: '1', kodeAlat: 'ALT-TSM-001', namaAlat: 'Kunci T Set 8-10-12-14mm', kategori: 'Hand Tools', merk: 'Tekiro', lokasiRak: 'RAK-A1', jumlahTotal: 10, jumlahTersedia: 8, kondisiBaik: 10, kondisiServis: 0, kondisiRusak: 0 },
-                    { id: '2', kodeAlat: 'ALT-TSM-002', namaAlat: 'Kunci Momen (Torque Wrench) 1/2"', kategori: 'Measuring Tools', merk: 'Matsu', lokasiRak: 'RAK-A2', jumlahTotal: 4, jumlahTersedia: 3, kondisiBaik: 4, kondisiServis: 0, kondisiRusak: 0 },
-                    { id: '3', kodeAlat: 'ALT-TSM-003', namaAlat: 'Diagnostic Tool Injection Scanner', kategori: 'Diagnostic Tools', merk: 'MST-100P', lokasiRak: 'RAK-D1', jumlahTotal: 3, jumlahTersedia: 2, kondisiBaik: 3, kondisiServis: 0, kondisiRusak: 0 },
-                    { id: '4', kodeAlat: 'ALT-TSM-004', namaAlat: 'Jangka Sorong (Vernier Caliper) 0.02mm', kategori: 'Measuring Tools', merk: 'Mitutoyo', lokasiRak: 'RAK-B1', jumlahTotal: 12, jumlahTersedia: 11, kondisiBaik: 11, kondisiServis: 1, kondisiRusak: 0 },
-                    { id: '5', kodeAlat: 'ALT-TSM-005', namaAlat: 'Flywheel Pulleys Holder / Treker CVT', kategori: 'Special Service Tools (SST)', merk: 'Honda Tool', lokasiRak: 'RAK-C2', jumlahTotal: 6, jumlahTersedia: 6, kondisiBaik: 5, kondisiServis: 1, kondisiRusak: 0 }
-                ],
-
-                bahanList: [
-                    { id: '1', kodeBahan: 'BHN-TSM-01', namaBahan: 'Mata Gergaji Besi', spesifikasi: '12" inch 300 mm BAHCO SANDVIK - 18TPI', satuan: 'Pcs', stokSistem: 8, stokFisik: 8, minStok: 3 },
-                    { id: '2', kodeBahan: 'BHN-TSM-02', namaBahan: 'Thinner', spesifikasi: 'Impala Thinner 5 L', satuan: 'Kaleng', stokSistem: 5, stokFisik: 5, minStok: 2 },
-                    { id: '3', kodeBahan: 'BHN-TSM-03', namaBahan: 'Baut Bleeding (Niple)', spesifikasi: 'Drat Kasar Screw Bleeder Motor Honda', satuan: 'Pcs', stokSistem: 10, stokFisik: 10, minStok: 4 }
-                ],
-
-                usageLogs: [
-                    { id: '101', bahanId: '1', namaBahan: 'Mata Gergaji Besi', jumlah: 2, satuan: 'Pcs', kelas: 'XI TSM 1', topik: 'Praktik Pemotongan Logam Dasar', instruktur: 'Sugeng Wibowo, S.Pd.', timestamp: new Date().toISOString() }
-                ],
-
-                loanList: [
-                    { id: '201', kodePinjam: 'TRX-20260810-01', alatId: '1', namaAlat: 'Kunci T Set 8-10-12-14mm', jumlah: 2, namaPeminjam: 'Bagas Aditya', kelas: 'XII TSM 2', nis: '12450', tanggalPinjam: new Date().toISOString(), tanggalKembali: null, status: 'Dipinjam', kondisiKembali: null },
-                    { id: '202', kodePinjam: 'TRX-20260810-02', alatId: '3', namaAlat: 'Diagnostic Tool Injection Scanner', jumlah: 1, namaPeminjam: 'Rian Prasetyo', kelas: 'XII TSM 1', nis: '12488', tanggalPinjam: new Date().toISOString(), tanggalKembali: null, status: 'Menunggu Persetujuan', kondisiKembali: null }
-                ],
+                // State array utama yang sepenuhnya dikendalikan oleh Firebase Snapshot
+                alatList: [],
+                bahanList: [],
+                usageLogs: [],
+                loanList: [],
 
                 async initApp() {
                     this.updateClock();
                     setInterval(() => this.updateClock(), 1000);
-
-                    const savedAlat = localStorage.getItem('tsm_alat');
-                    const savedBahan = localStorage.getItem('tsm_bahan');
-                    const savedUsage = localStorage.getItem('tsm_usage');
-                    const savedLoans = localStorage.getItem('tsm_loans');
-                    const savedSettings = localStorage.getItem('tsm_settings');
-                    const savedPin = localStorage.getItem('tsm_pin');
-
-                    if (savedAlat) this.alatList = JSON.parse(savedAlat);
-                    if (savedBahan) this.bahanList = JSON.parse(savedBahan);
-                    if (savedUsage) this.usageLogs = JSON.parse(savedUsage);
-                    if (savedLoans) this.loanList = JSON.parse(savedLoans);
-                    if (savedSettings) this.settings = { ...this.settings, ...JSON.parse(savedSettings) };
-                    if (savedPin) this.adminPin = savedPin;
 
                     if (window.FirebaseSDK) {
                         await this.initCloudStorage();
@@ -2039,89 +2005,97 @@
                         }
 
                         this.cloudConnected = true;
-                        this.showToast('Penyimpanan Online Aktif', 'Terhubung ke Firebase Cloud Firestore');
 
                         const publicPath = (col) => collection(this.db, 'artifacts', appId, 'public', 'data', col);
 
+                        // SEED DATA AWAL KE FIREBASE (jika koleksi masih kosong)
                         const seedCheck = async () => {
                             try {
                                 const alatSnap = await getDocs(publicPath('alat'));
                                 if (alatSnap.empty) {
-                                    this.alatList.forEach(a => this.syncCollectionItem('alat', a.id, a));
-                                    this.bahanList.forEach(b => this.syncCollectionItem('bahan', b.id, b));
-                                    this.usageLogs.forEach(u => this.syncCollectionItem('usage', u.id, u));
-                                    this.loanList.forEach(l => this.syncCollectionItem('loans', l.id, l));
+                                    const seedAlat = [
+                                        { id: '1', kodeAlat: 'ALT-TSM-001', namaAlat: 'Kunci T Set 8-10-12-14mm', kategori: 'Hand Tools', merk: 'Tekiro', lokasiRak: 'RAK-A1', jumlahTotal: 10, jumlahTersedia: 8, kondisiBaik: 10, kondisiServis: 0, kondisiRusak: 0 },
+                                        { id: '2', kodeAlat: 'ALT-TSM-002', namaAlat: 'Kunci Momen (Torque Wrench) 1/2"', kategori: 'Measuring Tools', merk: 'Matsu', lokasiRak: 'RAK-A2', jumlahTotal: 4, jumlahTersedia: 3, kondisiBaik: 4, kondisiServis: 0, kondisiRusak: 0 },
+                                        { id: '3', kodeAlat: 'ALT-TSM-003', namaAlat: 'Diagnostic Tool Injection Scanner', kategori: 'Diagnostic Tools', merk: 'MST-100P', lokasiRak: 'RAK-D1', jumlahTotal: 3, jumlahTersedia: 2, kondisiBaik: 3, kondisiServis: 0, kondisiRusak: 0 },
+                                        { id: '4', kodeAlat: 'ALT-TSM-004', namaAlat: 'Jangka Sorong (Vernier Caliper) 0.02mm', kategori: 'Measuring Tools', merk: 'Mitutoyo', lokasiRak: 'RAK-B1', jumlahTotal: 12, jumlahTersedia: 11, kondisiBaik: 11, kondisiServis: 1, kondisiRusak: 0 },
+                                        { id: '5', kodeAlat: 'ALT-TSM-005', namaAlat: 'Flywheel Pulleys Holder / Treker CVT', kategori: 'Special Service Tools (SST)', merk: 'Honda Tool', lokasiRak: 'RAK-C2', jumlahTotal: 6, jumlahTersedia: 6, kondisiBaik: 5, kondisiServis: 1, kondisiRusak: 0 }
+                                    ];
+                                    const seedBahan = [
+                                        { id: '1', kodeBahan: 'BHN-TSM-01', namaBahan: 'Mata Gergaji Besi', spesifikasi: '12" inch 300 mm BAHCO SANDVIK - 18TPI', satuan: 'Pcs', stokSistem: 8, stokFisik: 8, minStok: 3 },
+                                        { id: '2', kodeBahan: 'BHN-TSM-02', namaBahan: 'Thinner', spesifikasi: 'Impala Thinner 5 L', satuan: 'Kaleng', stokSistem: 5, stokFisik: 5, minStok: 2 },
+                                        { id: '3', kodeBahan: 'BHN-TSM-03', namaBahan: 'Baut Bleeding (Niple)', spesifikasi: 'Drat Kasar Screw Bleeder Motor Honda', satuan: 'Pcs', stokSistem: 10, stokFisik: 10, minStok: 4 }
+                                    ];
+                                    const seedUsage = [
+                                        { id: '101', bahanId: '1', namaBahan: 'Mata Gergaji Besi', jumlah: 2, satuan: 'Pcs', kelas: 'XI TSM 1', topik: 'Praktik Pemotongan Logam Dasar', instruktur: 'Sugeng Wibowo, S.Pd.', timestamp: new Date().toISOString() }
+                                    ];
+                                    const seedLoans = [
+                                        { id: '201', kodePinjam: 'TRX-20260810-01', alatId: '1', namaAlat: 'Kunci T Set 8-10-12-14mm', jumlah: 2, namaPeminjam: 'Bagas Aditya', kelas: 'XII TSM 2', nis: '12450', tanggalPinjam: new Date().toISOString(), tanggalKembali: null, status: 'Dipinjam', kondisiKembali: null },
+                                        { id: '202', kodePinjam: 'TRX-20260810-02', alatId: '3', namaAlat: 'Diagnostic Tool Injection Scanner', jumlah: 1, namaPeminjam: 'Rian Prasetyo', kelas: 'XII TSM 1', nis: '12488', tanggalPinjam: new Date().toISOString(), tanggalKembali: null, status: 'Menunggu Persetujuan', kondisiKembali: null }
+                                    ];
+
+                                    seedAlat.forEach(a => this.syncCollectionItem('alat', a.id, a));
+                                    seedBahan.forEach(b => this.syncCollectionItem('bahan', b.id, b));
+                                    seedUsage.forEach(u => this.syncCollectionItem('usage', u.id, u));
+                                    seedLoans.forEach(l => this.syncCollectionItem('loans', l.id, l));
                                     this.syncCollectionItem('config', 'settings', this.settings);
                                 }
                             } catch(e) { console.log('Seed check info:', e); }
                         };
                         seedCheck();
 
+                        // REALTIME LISTENERS - Menjadikan Firestore sebagai sumber data tunggal
                         onSnapshot(publicPath('alat'), (snap) => {
-                            if (!snap.empty) {
-                                this.alatList = snap.docs.map(d => ({ ...d.data(), id: d.id }));
-                            }
+                            this.alatList = snap.docs.map(d => ({ ...d.data(), id: d.id }));
                         });
 
                         onSnapshot(publicPath('bahan'), (snap) => {
-                            if (!snap.empty) {
-                                this.bahanList = snap.docs.map(d => ({ ...d.data(), id: d.id }));
-                            }
+                            this.bahanList = snap.docs.map(d => ({ ...d.data(), id: d.id }));
                         });
 
                         onSnapshot(publicPath('usage'), (snap) => {
-                            if (!snap.empty) {
-                                this.usageLogs = snap.docs.map(d => ({ ...d.data(), id: d.id })).sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
-                            }
+                            this.usageLogs = snap.docs.map(d => ({ ...d.data(), id: d.id })).sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
                         });
 
                         onSnapshot(publicPath('loans'), (snap) => {
-                            if (!snap.empty) {
-                                this.loanList = snap.docs.map(d => ({ ...d.data(), id: d.id })).sort((a,b) => new Date(b.tanggalPinjam) - new Date(a.tanggalPinjam));
-                            }
+                            this.loanList = snap.docs.map(d => ({ ...d.data(), id: d.id })).sort((a,b) => new Date(b.tanggalPinjam) - new Date(a.tanggalPinjam));
                         });
 
                         onSnapshot(doc(this.db, 'artifacts', appId, 'public', 'data', 'config', 'settings'), (snap) => {
                             if (snap.exists()) {
-                                this.settings = { ...this.settings, ...snap.data() };
+                                const data = snap.data();
+                                this.settings = { ...this.settings, ...data };
+                                if (data.adminPin) this.adminPin = data.adminPin;
                             }
                         });
 
                     } catch (e) {
-                        console.log('Online persistence offline, using local storage mode.', e);
+                        console.error('Koneksi Firebase gagal.', e);
                         this.cloudConnected = false;
+                        this.showToast('Koneksi Gagal', 'Gagal menghubungkan ke Firebase Cloud', 'error');
                     }
                 },
 
                 async syncCollectionItem(collectionName, itemId, data) {
                     try {
-                        if (!this.cloudConnected || !this.db) return;
+                        if (!this.db) return;
                         const { doc, setDoc } = window.FirebaseSDK;
                         const appId = typeof __app_id !== 'undefined' ? __app_id : 'tsm-bengkel-gombong';
                         await setDoc(doc(this.db, 'artifacts', appId, 'public', 'data', collectionName, itemId), data);
                     } catch (err) {
-                        console.log('Cloud sync error, stored locally');
+                        console.error('Firebase SetDoc Error:', err);
+                        this.showToast('Gagal Menyimpan', 'Terjadi kesalahan saat update data ke Firebase', 'error');
                     }
                 },
 
                 async deleteCollectionItem(collectionName, itemId) {
                     try {
-                        if (!this.cloudConnected || !this.db) return;
+                        if (!this.db) return;
                         const { doc, deleteDoc } = window.FirebaseSDK;
                         const appId = typeof __app_id !== 'undefined' ? __app_id : 'tsm-bengkel-gombong';
                         await deleteDoc(doc(this.db, 'artifacts', appId, 'public', 'data', collectionName, itemId));
                     } catch (err) {
-                        console.log('Cloud delete error:', err);
+                        console.error('Firebase DeleteDoc Error:', err);
                     }
-                },
-
-                saveToStorage() {
-                    localStorage.setItem('tsm_alat', JSON.stringify(this.alatList));
-                    localStorage.setItem('tsm_bahan', JSON.stringify(this.bahanList));
-                    localStorage.setItem('tsm_usage', JSON.stringify(this.usageLogs));
-                    localStorage.setItem('tsm_loans', JSON.stringify(this.loanList));
-                    localStorage.setItem('tsm_settings', JSON.stringify(this.settings));
-                    localStorage.setItem('tsm_pin', this.adminPin);
                 },
 
                 updateClock() {
@@ -2140,7 +2114,7 @@
                     setTimeout(() => { this.toast.show = false; }, 3500);
                 },
 
-                // ================= EXPORT EXCEL FUNCTIONS =================
+                // EXPORT EXCEL FUNCTIONS
                 downloadExcel(dataArray, filenamePrefix) {
                     if (!dataArray || dataArray.length === 0) {
                         this.showToast('Data Kosong', 'Tidak ada data untuk diexport', 'error');
@@ -2258,7 +2232,6 @@
                     }
 
                     this.adminPin = this.pinForm.newPin;
-                    this.saveToStorage();
                     this.syncCollectionItem('config', 'settings', { ...this.settings, adminPin: this.adminPin });
                     this.pinForm = { oldPin: '', newPin: '', confirmPin: '' };
                     this.showToast('PIN Berhasil Diubah', 'Gunakan PIN baru ini untuk masuk Mode Admin berikutnya');
@@ -2268,16 +2241,14 @@
                     if (confirm('Apakah Anda ingin meriset PIN Admin kembali ke PIN Default (1234)?')) {
                         this.adminPin = '1234';
                         this.adminPinInput = '1234';
-                        this.saveToStorage();
                         this.syncCollectionItem('config', 'settings', { ...this.settings, adminPin: '1234' });
                         this.showToast('PIN Di-reset', 'PIN Admin telah dikembalikan ke default: 1234', 'success');
                     }
                 },
 
                 saveSettings() {
-                    this.saveToStorage();
-                    this.syncCollectionItem('config', 'settings', this.settings);
-                    this.showToast('Pengaturan Disimpan', 'Identitas sekolah & logo kop laporan telah diperbarui');
+                    this.syncCollectionItem('config', 'settings', { ...this.settings, adminPin: this.adminPin });
+                    this.showToast('Pengaturan Disimpan', 'Identitas sekolah & logo kop laporan telah diperbarui di Cloud Firebase');
                 },
 
                 uploadLogo(event, keyName) {
@@ -2418,8 +2389,6 @@
                         kondisiKembali: null
                     };
 
-                    this.loanList.unshift(transaction);
-                    this.saveToStorage();
                     this.syncCollectionItem('loans', transaction.id, transaction);
 
                     this.modals.studentLoan = false;
@@ -2433,11 +2402,10 @@
                 },
 
                 saveEditLoan() {
-                    const index = this.loanList.findIndex(l => l.id === this.formEditLoan.id);
-                    if (index !== -1) {
-                        this.loanList[index] = { ...this.loanList[index], ...this.formEditLoan };
-                        this.saveToStorage();
-                        this.syncCollectionItem('loans', this.formEditLoan.id, this.loanList[index]);
+                    const existingLoan = this.loanList.find(l => l.id === this.formEditLoan.id);
+                    if (existingLoan) {
+                        const updatedData = { ...existingLoan, ...this.formEditLoan };
+                        this.syncCollectionItem('loans', this.formEditLoan.id, updatedData);
                         this.modals.editLoan = false;
                         this.showToast('Berhasil', 'Data peminjaman berhasil diperbarui');
                     }
@@ -2460,23 +2428,21 @@
                     for (let item of items) {
                         const alat = this.alatList.find(a => a.id === item.alatId);
                         if (alat) {
-                            alat.jumlahTersedia -= item.jumlah;
-                            this.syncCollectionItem('alat', alat.id, alat);
+                            const updatedAlat = { ...alat, jumlahTersedia: alat.jumlahTersedia - item.jumlah };
+                            this.syncCollectionItem('alat', alat.id, updatedAlat);
                         }
                     }
 
-                    loan.status = 'Dipinjam';
-                    this.saveToStorage();
-                    this.syncCollectionItem('loans', loan.id, loan);
+                    const updatedLoan = { ...loan, status: 'Dipinjam' };
+                    this.syncCollectionItem('loans', loan.id, updatedLoan);
                     this.showToast('Peminjaman Disetujui', `Peminjaman alat untuk ${loan.namaPeminjam} telah disetujui`);
                 },
 
                 rejectLoan(loanId) {
                     const loan = this.loanList.find(l => l.id === loanId);
                     if (loan) {
-                        loan.status = 'Ditolak';
-                        this.saveToStorage();
-                        this.syncCollectionItem('loans', loan.id, loan);
+                        const updatedLoan = { ...loan, status: 'Ditolak' };
+                        this.syncCollectionItem('loans', loan.id, updatedLoan);
                         this.showToast('Ditolak', 'Pengajuan peminjaman telah ditolak');
                     }
                 },
@@ -2495,29 +2461,40 @@
 
                     const items = loan.items && loan.items.length > 0 ? loan.items : [{ alatId: loan.alatId, jumlah: loan.jumlah }];
 
-                    loan.status = 'Dikembalikan';
-                    loan.tanggalKembali = new Date().toISOString();
-                    loan.kondisiKembali = this.formReturn.kondisi;
+                    const updatedLoan = {
+                        ...loan,
+                        status: 'Dikembalikan',
+                        tanggalKembali: new Date().toISOString(),
+                        kondisiKembali: this.formReturn.kondisi
+                    };
 
                     for (let item of items) {
                         const alat = this.alatList.find(a => a.id === item.alatId);
                         if (alat) {
-                            alat.jumlahTersedia += item.jumlah;
+                            let baik = alat.kondisiBaik;
+                            let servis = alat.kondisiServis;
+                            let rusak = alat.kondisiRusak;
 
                             if (this.formReturn.kondisi === 'Perlu Servis') {
-                                alat.kondisiBaik = Math.max(0, alat.kondisiBaik - item.jumlah);
-                                alat.kondisiServis += item.jumlah;
+                                baik = Math.max(0, baik - item.jumlah);
+                                servis += item.jumlah;
                             } else if (this.formReturn.kondisi === 'Rusak') {
-                                alat.kondisiBaik = Math.max(0, alat.kondisiBaik - item.jumlah);
-                                alat.kondisiRusak += item.jumlah;
+                                baik = Math.max(0, baik - item.jumlah);
+                                rusak += item.jumlah;
                             }
-                            this.syncCollectionItem('alat', alat.id, alat);
+
+                            const updatedAlat = {
+                                ...alat,
+                                jumlahTersedia: alat.jumlahTersedia + item.jumlah,
+                                kondisiBaik: baik,
+                                kondisiServis: servis,
+                                kondisiRusak: rusak
+                            };
+                            this.syncCollectionItem('alat', alat.id, updatedAlat);
                         }
                     }
 
-                    this.saveToStorage();
-                    this.syncCollectionItem('loans', loan.id, loan);
-
+                    this.syncCollectionItem('loans', loan.id, updatedLoan);
                     this.modals.return = false;
                     this.showToast('Pengembalian Berhasil', `Alat yang dipinjam ${loan.namaPeminjam} telah ditandai kembali ke inventaris`);
                 },
@@ -2573,37 +2550,26 @@
                     let targetId = this.formAlat.id;
 
                     if (this.formAlat.id) {
-                        const index = this.alatList.findIndex(a => a.id === this.formAlat.id);
-                        if (index !== -1) {
-                            const activeLoanForThis = this.loanList
-                                .filter(l => l.status === 'Dipinjam')
-                                .reduce((acc, loan) => {
-                                    if (loan.items && Array.isArray(loan.items)) {
-                                        const match = loan.items.find(i => i.alatId === this.formAlat.id);
-                                        return acc + (match ? Number(match.jumlah || 0) : 0);
-                                    } else if (loan.alatId === this.formAlat.id) {
-                                        return acc + Number(loan.jumlah || 0);
-                                    }
-                                    return acc;
-                                }, 0);
+                        const activeLoanForThis = this.loanList
+                            .filter(l => l.status === 'Dipinjam')
+                            .reduce((acc, loan) => {
+                                if (loan.items && Array.isArray(loan.items)) {
+                                    const match = loan.items.find(i => i.alatId === this.formAlat.id);
+                                    return acc + (match ? Number(match.jumlah || 0) : 0);
+                                } else if (loan.alatId === this.formAlat.id) {
+                                    return acc + Number(loan.jumlah || 0);
+                                }
+                                return acc;
+                            }, 0);
 
-                            this.formAlat.jumlahTersedia = baik - activeLoanForThis;
-                            this.alatList[index] = { ...this.formAlat };
-                        }
+                        this.formAlat.jumlahTersedia = baik - activeLoanForThis;
                     } else {
                         targetId = Date.now().toString();
-                        const newTool = {
-                            ...this.formAlat,
-                            id: targetId,
-                            jumlahTersedia: baik
-                        };
-                        this.alatList.push(newTool);
-                        this.formAlat = newTool;
+                        this.formAlat.id = targetId;
+                        this.formAlat.jumlahTersedia = baik;
                     }
 
-                    this.saveToStorage();
                     this.syncCollectionItem('alat', targetId, this.formAlat);
-
                     this.modals.alat = false;
                     this.showToast('Berhasil', 'Data alat praktik berhasil disimpan');
                 },
@@ -2616,24 +2582,19 @@
                     const { type, id } = this.modals.confirmDelete;
                     
                     if (type === 'alat') {
-                        this.alatList = this.alatList.filter(a => a.id !== id);
                         await this.deleteCollectionItem('alat', id);
                         this.showToast('Terhapus', 'Data alat berhasil dihapus secara permanen');
                     } else if (type === 'bahan') {
-                        this.bahanList = this.bahanList.filter(b => b.id !== id);
                         await this.deleteCollectionItem('bahan', id);
                         this.showToast('Terhapus', 'Bahan praktik berhasil dihapus secara permanen');
                     } else if (type === 'loan') {
-                        this.loanList = this.loanList.filter(l => l.id !== id);
                         await this.deleteCollectionItem('loans', id);
                         this.showToast('Terhapus', 'Data peminjaman berhasil dihapus secara permanen');
                     } else if (type === 'usage') {
-                        this.usageLogs = this.usageLogs.filter(u => u.id !== id);
                         await this.deleteCollectionItem('usage', id);
                         this.showToast('Terhapus', 'Data penggunaan bahan berhasil dihapus secara permanen');
                     }
 
-                    this.saveToStorage();
                     this.modals.confirmDelete.show = false;
                 },
 
@@ -2644,10 +2605,7 @@
                         id: newId,
                         stokFisik: Number(this.formBahan.stokSistem)
                     };
-                    this.bahanList.push(newBahan);
-                    this.saveToStorage();
                     this.syncCollectionItem('bahan', newId, newBahan);
-
                     this.modals.bahan = false;
                     this.showToast('Berhasil', 'Bahan praktik baru berhasil ditambahkan');
                 },
@@ -2660,14 +2618,14 @@
 
                 saveOpnameAdjustment() {
                     if (!this.selectedBahanOpname) return;
-                    const index = this.bahanList.findIndex(b => b.id === this.selectedBahanOpname.id);
-                    if (index !== -1) {
-                        this.bahanList[index].stokFisik = Number(this.formOpname.stokFisik);
-                        this.bahanList[index].stokSistem = Number(this.formOpname.stokFisik);
-                        
-                        this.saveToStorage();
-                        this.syncCollectionItem('bahan', this.selectedBahanOpname.id, this.bahanList[index]);
-
+                    const target = this.bahanList.find(b => b.id === this.selectedBahanOpname.id);
+                    if (target) {
+                        const updatedBahan = {
+                            ...target,
+                            stokFisik: Number(this.formOpname.stokFisik),
+                            stokSistem: Number(this.formOpname.stokFisik)
+                        };
+                        this.syncCollectionItem('bahan', target.id, updatedBahan);
                         this.modals.opname = false;
                         this.showToast('Opname Diperbarui', 'Stok fisik & sistem telah disesuaikan');
                     }
@@ -2690,19 +2648,21 @@
                     if (!bahan) return;
 
                     if (this.formUsage.id) {
-                        const index = this.usageLogs.findIndex(u => u.id === this.formUsage.id);
-                        if (index !== -1) {
-                            const oldUsage = this.usageLogs[index];
+                        const oldUsage = this.usageLogs.find(u => u.id === this.formUsage.id);
+                        if (oldUsage) {
                             const diff = Number(this.formUsage.jumlah) - Number(oldUsage.jumlah);
                             if (diff > 0 && diff > bahan.stokSistem) {
                                 this.showToast('Stok Tidak Cukup', `Stok ${bahan.namaBahan} tidak mencukupi`, 'error');
                                 return;
                             }
-                            bahan.stokSistem -= diff;
-                            bahan.stokFisik = bahan.stokSistem;
+                            const updatedBahan = {
+                                ...bahan,
+                                stokSistem: bahan.stokSistem - diff,
+                                stokFisik: bahan.stokSistem - diff
+                            };
 
-                            this.usageLogs[index] = {
-                                ...this.usageLogs[index],
+                            const updatedUsage = {
+                                ...oldUsage,
                                 bahanId: bahan.id,
                                 namaBahan: bahan.namaBahan,
                                 jumlah: Number(this.formUsage.jumlah),
@@ -2712,9 +2672,8 @@
                                 instruktur: this.formUsage.instruktur
                             };
 
-                            this.saveToStorage();
-                            this.syncCollectionItem('bahan', bahan.id, bahan);
-                            this.syncCollectionItem('usage', this.formUsage.id, this.usageLogs[index]);
+                            this.syncCollectionItem('bahan', bahan.id, updatedBahan);
+                            this.syncCollectionItem('usage', this.formUsage.id, updatedUsage);
 
                             this.modals.usage = false;
                             this.showToast('Berhasil', 'Pencatatan penggunaan bahan telah diperbarui');
@@ -2727,8 +2686,11 @@
                         return;
                     }
 
-                    bahan.stokSistem -= Number(this.formUsage.jumlah);
-                    bahan.stokFisik = bahan.stokSistem;
+                    const updatedBahan = {
+                        ...bahan,
+                        stokSistem: bahan.stokSistem - Number(this.formUsage.jumlah),
+                        stokFisik: bahan.stokSistem - Number(this.formUsage.jumlah)
+                    };
 
                     const log = {
                         id: Date.now().toString(),
@@ -2742,10 +2704,7 @@
                         timestamp: new Date().toISOString()
                     };
 
-                    this.usageLogs.unshift(log);
-                    this.saveToStorage();
-
-                    this.syncCollectionItem('bahan', bahan.id, bahan);
+                    this.syncCollectionItem('bahan', bahan.id, updatedBahan);
                     this.syncCollectionItem('usage', log.id, log);
 
                     this.modals.usage = false;
