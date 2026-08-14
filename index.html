@@ -74,12 +74,10 @@
                 
                 <div class="flex items-center space-x-3 sm:space-x-4">
                     <div class="flex items-center space-x-2 sm:space-x-3 bg-white/10 p-1.5 rounded-xl backdrop-blur-sm border border-white/10">
-                        <!-- Kotak 1: Logo Kop Kanan -->
                         <div class="h-10 sm:h-12 w-10 sm:w-12 flex items-center justify-center overflow-hidden rounded-lg bg-slate-800 p-0.5">
                             <img :src="settings.logoTsmUrl || defaultLogo" alt="Logo Kop Kanan" class="max-h-full max-w-full object-contain" @error="$event.target.src = defaultLogo">
                         </div>
                         <div class="h-8 w-px bg-slate-600/60"></div>
-                        <!-- Kotak 2: Logo Bengkel TSM -->
                         <div class="h-10 sm:h-12 w-10 sm:w-12 flex items-center justify-center overflow-hidden rounded-lg bg-slate-800 p-0.5">
                             <img :src="settings.logoTsmHeaderUrl || defaultLogo" alt="Logo Bengkel TSM" class="max-h-full max-w-full object-contain" @error="$event.target.src = defaultLogo">
                         </div>
@@ -366,7 +364,7 @@
             </div>
         </div>
 
-        <!-- ================= TAB 2: PEMINJAMAN ALAT (DENGAN TOMBOL EDIT) ================= -->
+        <!-- ================= TAB 2: PEMINJAMAN ALAT ================= -->
         <div x-show="activeTab === 'peminjaman'" class="space-y-4" x-cloak>
             <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 flex justify-between items-center">
                 <h3 class="font-bold text-slate-800">Daftar Peminjaman & Pengembalian Alat</h3>
@@ -516,7 +514,6 @@
         <!-- ================= TAB 6: LAPORAN & CETAK ================= -->
         <div x-show="activeTab === 'laporan'" class="space-y-6" x-cloak>
             
-            <!-- PRINTABLE KOP SURAT SESUAI REFERENSI -->
             <div class="hidden print-only text-center mb-4">
                 <div class="flex items-center justify-between">
                     <div class="w-24 h-24 flex items-center justify-center">
@@ -852,7 +849,7 @@
         </div>
     </div>
 
-    <!-- MODAL ALAT, BAHAN, USAGE (MULTI-BAHAN), OPNAME, RETURN, DELETE -->
+    <!-- MODAL ALAT, BAHAN, USAGE, OPNAME, RETURN, DELETE -->
     <div x-show="modals.alat" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
         <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4" @click.away="modals.alat = false">
             <h3 class="font-bold text-slate-800 text-sm border-b pb-2" x-text="formAlat.id ? 'Edit Alat Inventaris' : 'Tambah Alat Baru'"></h3>
@@ -975,7 +972,15 @@
             <form @submit.prevent="processReturn()" class="space-y-3 text-xs">
                 <div>
                     <label class="font-bold block mb-1">Kondisi Saat Kembali</label>
-                    <select x-model="formReturn.kondisi" class="w-full p-2.5 border rounded-xl"><option value="Baik">Baik</option><option value="Perlu Servis">Perlu Servis</option><option value="Rusak">Rusak</option></select>
+                    <select x-model="formReturn.kondisi" class="w-full p-2.5 border rounded-xl">
+                        <option value="Baik">Baik</option>
+                        <option value="Perlu Servis">Perlu Servis</option>
+                        <option value="Rusak">Rusak</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="font-bold block mb-1">Catatan Pengembalian (Opsional)</label>
+                    <input type="text" x-model="formReturn.catatan" placeholder="Keterangan kondisi..." class="w-full p-2.5 border rounded-xl">
                 </div>
                 <div class="flex justify-end space-x-2 pt-2 border-t">
                     <button type="button" @click="modals.return = false" class="px-4 py-2 bg-slate-100 font-bold rounded-xl">Batal</button>
@@ -1060,7 +1065,7 @@
                 formBahan: { kodeBahan: '', namaBahan: '', satuan: 'Botol', stokSistem: 10, minStok: 2 },
                 formUsageMeta: { kelas: '', topik: '', instruktor: '', items: [{ bahanId: '', jumlah: 1 }] },
                 selectedBahanOpname: null, formOpname: { stokFisik: 0 },
-                selectedLoanReturn: null, formReturn: { kondisi: 'Baik' },
+                selectedLoanReturn: null, formReturn: { kondisi: 'Baik', catatan: '' },
 
                 initApp() {
                     this.updateClock();
@@ -1182,21 +1187,59 @@
                     if (this.userRole !== 'admin') return;
                     try {
                         await db.runTransaction(async (t) => {
-                            const lRef = db.collection('loans').doc(loanId);
-                            const lDoc = await t.get(lRef);
-                            const lData = lDoc.data();
-                            const aRef = db.collection('alat').doc(lData.alatId);
-                            const aDoc = await t.get(aRef);
-                            const aData = aDoc.data();
+                            const loanRef = db.collection('loans').doc(loanId);
+                            const loanSnap = await t.get(loanRef);
 
-                            if (aData.jumlahTersedia < lData.jumlah) throw new Error("Stok alat tidak cukup");
+                            if (!loanSnap.exists) {
+                                throw new Error(`Data peminjaman #${loanId} tidak ditemukan.`);
+                            }
 
-                            t.update(aRef, { jumlahTersedia: aData.jumlahTersedia - lData.jumlah });
-                            t.update(lRef, { status: 'Dipinjam' });
+                            const loanData = loanSnap.data();
+                            if (loanData.status !== 'Menunggu Persetujuan') {
+                                throw new Error(`Peminjaman ini sudah diproses atau bukan status Menunggu Persetujuan.`);
+                            }
+
+                            const jumlahPinjam = Number(loanData.jumlah || 0);
+                            if (jumlahPinjam <= 0) {
+                                throw new Error(`Jumlah peminjaman untuk alat tidak valid.`);
+                            }
+
+                            const alatRef = db.collection('alat').doc(loanData.alatId);
+                            const alatSnap = await t.get(alatRef);
+
+                            if (!alatSnap.exists) {
+                                throw new Error(`Data alat dengan ID ${loanData.alatId} tidak ditemukan.`);
+                            }
+
+                            const alat = alatSnap.data();
+                            const tersedia = Number(alat.jumlahTersedia || 0);
+
+                            if (jumlahPinjam > tersedia) {
+                                throw new Error(
+                                    `Stok "${alat.namaAlat}" tidak cukup. ` +
+                                    `Tersedia: ${tersedia}, diminta: ${jumlahPinjam}.`
+                                );
+                            }
+
+                            t.update(alatRef, {
+                                jumlahTersedia: tersedia - jumlahPinjam,
+                                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                            });
+
+                            t.update(loanRef, {
+                                status: 'Dipinjam',
+                                tanggalDisetujui: firebase.firestore.FieldValue.serverTimestamp(),
+                                disetujuiOleh: auth.currentUser?.uid || null,
+                                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                            });
                         });
-                        this.showToast('Disetujui', 'Peminjaman disetujui');
+
+                        this.showToast('Disetujui', 'Peminjaman disetujui dan stok alat diperbarui.');
                         await createAuditLog('APPROVE_LOAN', `Menyetujui loan #${loanId}`);
-                    } catch(e) { this.showToast('Gagal', e.message, 'error'); }
+                    } catch (e) {
+                        console.error('approveLoan error:', e);
+                        this.showToast('Gagal', e.message || 'Gagal menyetujui peminjaman.', 'error');
+                    }
                 },
 
                 async rejectLoan(loanId) {
@@ -1208,20 +1251,63 @@
                 async processReturn() {
                     if (!this.selectedLoanReturn || this.userRole !== 'admin') return;
                     const loan = this.selectedLoanReturn;
+                    const kondisi = this.formReturn.kondisi;
+                    const catatan = this.formReturn.catatan || '';
+
                     try {
                         await db.runTransaction(async (t) => {
-                            const lRef = db.collection('loans').doc(loan.id);
-                            const aRef = db.collection('alat').doc(loan.alatId);
-                            const aDoc = await t.get(aRef);
-                            const aData = aDoc.data();
+                            const loanRef = db.collection('loans').doc(loan.id);
+                            const loanSnap = await t.get(loanRef);
+                            if (!loanSnap.exists) throw new Error('Data peminjaman tidak ditemukan.');
 
-                            t.update(aRef, { jumlahTersedia: Number(aData.jumlahTersedia || 0) + Number(loan.jumlah) });
-                            t.update(lRef, { status: 'Dikembalikan', tanggalKembali: new Date().toISOString() });
+                            const alatRef = db.collection('alat').doc(loan.alatId);
+                            const alatSnap = await t.get(alatRef);
+                            if (!alatSnap.exists) throw new Error('Data alat tidak ditemukan.');
+
+                            const alat = alatSnap.data();
+                            let jumlahTersedia = Number(alat.jumlahTersedia || 0);
+                            let kondisiBaik = Number(alat.kondisiBaik || alat.jumlahTotal || 0);
+                            let kondisiServis = Number(alat.kondisiServis || 0);
+                            let kondisiRusak = Number(alat.kondisiRusak || 0);
+                            const jumlah = Number(loan.jumlah || 0);
+
+                            if (kondisi === 'Baik') {
+                                jumlahTersedia += jumlah;
+                                kondisiBaik += jumlah;
+                            } else if (kondisi === 'Perlu Servis') {
+                                kondisiServis += jumlah;
+                            } else if (kondisi === 'Rusak') {
+                                kondisiRusak += jumlah;
+                            } else {
+                                throw new Error('Kondisi pengembalian tidak valid.');
+                            }
+
+                            t.update(alatRef, {
+                                jumlahTersedia,
+                                kondisiBaik,
+                                kondisiServis,
+                                kondisiRusak,
+                                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                            });
+
+                            t.update(loanRef, {
+                                status: 'Dikembalikan',
+                                tanggalKembali: firebase.firestore.FieldValue.serverTimestamp(),
+                                kondisiKembali: kondisi,
+                                catatanKembali: catatan,
+                                dikembalikanOleh: auth.currentUser?.uid || null,
+                                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                            });
                         });
+
                         this.modals.return = false;
-                        this.showToast('Dikembalikan', 'Alat kembali ke stok');
-                        await createAuditLog('RETURN_LOAN', `Pengembalian loan #${loan.id}`);
-                    } catch(e) { this.showToast('Gagal', e.message, 'error'); }
+                        this.formReturn = { kondisi: 'Baik', catatan: '' };
+                        this.showToast('Dikembalikan', 'Pengembalian berhasil diproses dan stok diperbarui.');
+                        await createAuditLog('RETURN_LOAN', `Pengembalian loan #${loan.id}, kondisi: ${kondisi}`);
+                    } catch (e) {
+                        console.error('processReturn error:', e);
+                        this.showToast('Gagal', e.message || 'Gagal memproses pengembalian.', 'error');
+                    }
                 },
 
                 editAlat(alat) { this.formAlat = JSON.parse(JSON.stringify(alat)); this.modals.alat = true; },
@@ -1266,40 +1352,67 @@
                         this.showToast('Gagal', 'Pilih minimal 1 bahan', 'error');
                         return;
                     }
+
                     try {
-                        for (let itm of this.formUsageMeta.items) {
-                            if (!itm.bahanId) throw new Error("Ada pilihan bahan yang kosong");
-                            const bDocSnap = await db.collection('bahan').doc(itm.bahanId).get();
-                            if (!bDocSnap.exists) throw new Error("Bahan tidak ditemukan");
-                            const bData = bDocSnap.data();
-                            const jml = Number(itm.jumlah);
+                        await db.runTransaction(async (t) => {
+                            const usageDataBatch = [];
 
-                            if (jml > bData.stokSistem) throw new Error(`Stok bahan "${bData.namaBahan}" tidak mencukupi (Sisa: ${bData.stokSistem})`);
+                            for (let itm of this.formUsageMeta.items) {
+                                if (!itm.bahanId) throw new Error("Ada pilihan bahan yang kosong");
+                                const bahanRef = db.collection('bahan').doc(itm.bahanId);
+                                const bahanSnap = await t.get(bahanRef);
 
-                            await db.runTransaction(async (t) => {
-                                const bRef = db.collection('bahan').doc(itm.bahanId);
-                                t.update(bRef, { stokSistem: bData.stokSistem - jml });
+                                if (!bahanSnap.exists) throw new Error(`Bahan dengan ID ${itm.bahanId} tidak ditemukan.`);
+                                const bahan = bahanSnap.data();
+                                const jumlah = Number(itm.jumlah || 0);
 
-                                const uId = crypto.randomUUID();
-                                t.set(db.collection('usage').doc(uId), {
-                                    id: uId,
-                                    bahanId: bData.id,
-                                    namaBahan: bData.namaBahan,
-                                    satuan: bData.satuan,
-                                    jumlah: jml,
+                                if (jumlah <= 0) throw new Error(`Jumlah pakai untuk bahan "${bahan.namaBahan}" tidak valid.`);
+                                const stokSistem = Number(bahan.stokSistem || 0);
+
+                                if (jumlah > stokSistem) {
+                                    throw new Error(
+                                        `Stok bahan "${bahan.namaBahan}" tidak mencukupi. ` +
+                                        `Tersedia: ${stokSistem}, diminta: ${jumlah}.`
+                                    );
+                                }
+
+                                t.update(bahanRef, {
+                                    stokSistem: stokSistem - jumlah,
+                                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                                });
+
+                                usageDataBatch.push({
+                                    bahanId: bahan.id,
+                                    namaBahan: bahan.namaBahan,
+                                    satuan: bahan.satuan,
+                                    jumlah,
                                     kelas: this.formUsageMeta.kelas,
                                     topik: this.formUsageMeta.topik,
                                     instruktur: this.formUsageMeta.instruktur,
-                                    timestamp: new Date().toISOString()
+                                    createdBy: auth.currentUser?.uid || null,
+                                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
                                 });
-                            });
-                        }
+                            }
+
+                            for (let usageItem of usageDataBatch) {
+                                const uId = crypto.randomUUID();
+                                const usageRef = db.collection('usage').doc(uId);
+                                t.set(usageRef, usageItem);
+                            }
+                        });
+
                         this.modals.usage = false;
-                        this.formUsageMeta = { kelas: '', topik: '', instruktor: '', items: [{ bahanId: '', jumlah: 1 }] };
-                        this.showToast('Tercatat', 'Penggunaan multi-bahan berhasil disimpan!');
-                        await createAuditLog('SAVE_USAGE', `Catat pemakaian multi-bahan`);
-                    } catch(e) {
-                        this.showToast('Gagal', e.message, 'error');
+                        this.formUsageMeta = {
+                            kelas: '',
+                            topik: '',
+                            instruktur: '',
+                            items: [{ bahanId: '', jumlah: 1 }]
+                        };
+                        this.showToast('Tercatat', 'Penggunaan multi-bahan berhasil disimpan.');
+                        await createAuditLog('SAVE_USAGE', `Mencatat penggunaan ${this.formUsageMeta.items.length} bahan`);
+                    } catch (e) {
+                        console.error('saveMultiUsage error:', e);
+                        this.showToast('Gagal', e.message || 'Gagal menyimpan penggunaan bahan.', 'error');
                     }
                 },
 
@@ -1321,7 +1434,11 @@
                     await createAuditLog('DELETE', `Hapus dokumen dari ${type}`);
                 },
 
-                openReturnModal(loan) { this.selectedLoanReturn = loan; this.modals.return = true; },
+                openReturnModal(loan) {
+                    this.selectedLoanReturn = loan;
+                    this.formReturn = { kondisi: 'Baik', catatan: '' };
+                    this.modals.return = true;
+                },
                 openModal(type) {
                     if (type === 'studentLoan') {
                         this.formStudentLoan = { namaPeminjam: '', kelas: '', nis: '', items: [{ alatId: '', jumlah: 1 }] };
