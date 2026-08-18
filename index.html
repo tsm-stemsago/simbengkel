@@ -1826,29 +1826,15 @@
                 },
 
                 openModal(type) {
-                    if (type === 'settingsModal') this.modals.settingsModal = true;
+                    if (type === 'settingsModal') {
+                        if (this.userRole !== 'admin') {
+                            this.showToast('Akses Dibatasi', 'Halaman pengaturan hanya dapat diakses oleh Admin. Silakan login terlebih dahulu.', 'error');
+                            return;
+                        }
+                        this.modals.settingsModal = true;
+                    }
                     else if (type === 'alat') {
                         this.formAlat = { id: null, kodeAlat: 'ALT-TSM-00' + (this.alatList.length + 1), namaAlat: '', kategori: 'Hand Tools', merk: '', lokasiRak: 'RAK-A1', jumlahTotal: 1, kondisiBaik: 1, kondisiServis: 0, kondisiRusak: 0 };
                         this.modals.alat = true;
                     } else if (type === 'bahan') {
-                        this.formBahan = { kodeBahan: 'BHN-TSM-0' + (this.bahanList.length + 1), namaBahan: '', spesifikasi: '', satuan: 'Botol', stokSistem: 10, minStok: 2 };
-                        this.modals.bahan = true;
-                    } else if (type === 'usage') {
-                        this.formUsageMeta = { kelas: '', topik: '', instruktur: '', items: [{ bahanId: '', jumlah: 1 }] };
-                        this.modals.usage = true;
-                    } else if (type === 'studentLoan') {
-                        this.formStudentLoan = { namaPeminjam: '', kelas: '', nis: '', items: [{ alatId: '', jumlah: 1 }] };
-                        this.modals.studentLoan = true;
-                    }
-                },
-
-                formatDateTime(isoString) {
-                    if (!isoString) return '-';
-                    const d = new Date(isoString);
-                    return d.toLocaleDateString('id-ID', { day: '2-digit', month: 'short' }) + ' ' + d.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
-                }
-            }));
-        });
-    </script>
-</body>
-</html>
+// ... existing code ... -->
