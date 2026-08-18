@@ -1329,6 +1329,22 @@
                     return b + s + r;
                 },
 
+                formatDateTime(ts) {
+                    if (!ts) return '-';
+                    if (typeof ts === 'string') {
+                        const d = new Date(ts);
+                        if (!isNaN(d.getTime())) {
+                            return d.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) + ' ' + d.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+                        }
+                        return ts.slice(0, 16).replace('T', ' ');
+                    }
+                    if (ts.toDate) {
+                        const d = ts.toDate();
+                        return d.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) + ' ' + d.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+                    }
+                    return '-';
+                },
+
                 async loginAdmin() {
                     try {
                         await auth.signInWithEmailAndPassword(this.loginForm.email, this.loginForm.password);
@@ -1837,4 +1853,18 @@
                         this.formAlat = { id: null, kodeAlat: 'ALT-TSM-00' + (this.alatList.length + 1), namaAlat: '', kategori: 'Hand Tools', merk: '', lokasiRak: 'RAK-A1', jumlahTotal: 1, kondisiBaik: 1, kondisiServis: 0, kondisiRusak: 0 };
                         this.modals.alat = true;
                     } else if (type === 'bahan') {
-// ... existing code ... -->
+                        this.formBahan = { kodeBahan: 'BHN-TSM-0' + (this.bahanList.length + 1), namaBahan: '', spesifikasi: '', satuan: 'Botol', stokSistem: 10, minStok: 2 };
+                        this.modals.bahan = true;
+                    } else if (type === 'usage') {
+                        this.formUsageMeta = { kelas: '', topik: '', instruktur: '', items: [{ bahanId: '', jumlah: 1 }] };
+                        this.modals.usage = true;
+                    } else if (type === 'studentLoan') {
+                        this.formStudentLoan = { namaPeminjam: '', kelas: '', nis: '', items: [{ alatId: '', jumlah: 1 }] };
+                        this.modals.studentLoan = true;
+                    }
+                }
+            }));
+        });
+    </script>
+</body>
+</html>
