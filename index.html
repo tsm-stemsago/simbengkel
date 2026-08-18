@@ -1737,6 +1737,10 @@
                     this.modals.return = true;
                 },
                 openModal(type) {
+                    if (type === 'settingsModal' && this.userRole !== 'admin') {
+                        this.showToast('Akses Ditolak', 'Hanya Admin yang dapat mengakses Pengaturan Sistem.', 'error');
+                        return;
+                    }
                     if (type === 'studentLoan') {
                         this.formStudentLoan = { namaPeminjam: '', kelas: '', nis: '', items: [{ alatId: '', jumlah: 1 }] };
                     }
