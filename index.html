@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem Manajemen Bengkel TSM - SMKN 1 Gombong (MD3)</title>
+    <title>Sistem Manajemen Bengkel TSM - SMKN 1 Gombong</title>
     
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -822,7 +822,7 @@
 
     <!-- ================= MODAL PENGATURAN LENGKAP ================= -->
     <div x-show="modals.settingsModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
-        <div class="bg-white rounded-md3-lg max-w-2xl w-full p-6 md3-elevation-3 space-y-4 max-h-[90vh] overflow-y-auto custom-scrollbar" @click.away="modals.settingsModal = false">
+        <div class="bg-white rounded-md3-lg max-w-2xl w-full p-6 md3-elevation-3 space-y-4 max-h-[90vh] overflow-y-auto custom-scrollbar">
             <div class="flex justify-between items-center border-b pb-3">
                 <h3 class="font-bold text-slate-800 text-sm">Pengaturan Sistem Bengkel TSM</h3>
                 <button @click="modals.settingsModal = false" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
@@ -889,7 +889,7 @@
 
     <!-- MODAL LOGIN -->
     <div x-show="modals.login" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
-        <div class="bg-white rounded-md3-lg max-w-sm w-full p-6 md3-elevation-3 space-y-4" @click.away="modals.login = false">
+        <div class="bg-white rounded-md3-lg max-w-sm w-full p-6 md3-elevation-3 space-y-4">
             <h3 class="font-bold text-slate-800 text-center">Masuk Mode Admin</h3>
             <form @submit.prevent="loginAdmin()" class="space-y-3 text-xs">
                 <div><label class="font-bold block mb-1">Email</label><input type="email" x-model="loginForm.email" required class="w-full p-2.5 bg-slate-50 border rounded-md3-sm"></div>
@@ -904,7 +904,7 @@
 
     <!-- MODAL FORM PINJAM MANDIRI MULTI-ITEM -->
     <div x-show="modals.studentLoan" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
-        <div class="bg-white rounded-md3-lg max-w-xl w-full p-6 md3-elevation-3 space-y-4 max-h-[90vh] overflow-y-auto custom-scrollbar" @click.away="modals.studentLoan = false">
+        <div class="bg-white rounded-md3-lg max-w-xl w-full p-6 md3-elevation-3 space-y-4 max-h-[90vh] overflow-y-auto custom-scrollbar">
             <div class="flex justify-between items-center border-b pb-3">
                 <div>
                     <h3 class="font-bold text-slate-800 text-sm">Form Peminjaman Alat Mandiri</h3>
@@ -972,7 +972,7 @@
 
     <!-- MODAL EDIT PEMINJAMAN ALAT -->
     <div x-show="modals.editLoan" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
-        <div class="bg-white rounded-md3-lg max-w-md w-full p-6 md3-elevation-3 space-y-4" @click.away="modals.editLoan = false">
+        <div class="bg-white rounded-md3-lg max-w-md w-full p-6 md3-elevation-3 space-y-4">
             <h3 class="font-bold text-slate-800 text-sm border-b pb-2">Edit Transaksi Peminjaman</h3>
             <form @submit.prevent="updateLoan()" class="space-y-3 text-xs">
                 <div><label class="font-bold block mb-1">Nama Peminjam</label><input type="text" x-model="formEditLoan.namaPeminjam" required class="w-full p-2.5 border rounded-md3-sm"></div>
@@ -1005,7 +1005,7 @@
 
     <!-- MODAL TAMBAH / EDIT ALAT INVENTARIS BARU -->
     <div x-show="modals.alat" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
-        <div class="bg-white rounded-md3-lg max-w-lg w-full p-6 md3-elevation-3 space-y-4 max-h-[90vh] overflow-y-auto custom-scrollbar" @click.away="modals.alat = false">
+        <div class="bg-white rounded-md3-lg max-w-lg w-full p-6 md3-elevation-3 space-y-4 max-h-[90vh] overflow-y-auto custom-scrollbar">
             <div class="flex justify-between items-center border-b pb-3">
                 <div class="flex items-center space-x-3">
                     <div class="w-9 h-9 bg-blue-50 text-blue-700 rounded-md3-md flex items-center justify-center"><i class="fa-solid fa-wrench"></i></div>
@@ -1084,7 +1084,7 @@
 
     <!-- MODAL TAMBAH BAHAN PRAKTIK -->
     <div x-show="modals.bahan" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
-        <div class="bg-white rounded-md3-lg max-w-md w-full p-6 md3-elevation-3 space-y-4" @click.away="modals.bahan = false">
+        <div class="bg-white rounded-md3-lg max-w-md w-full p-6 md3-elevation-3 space-y-4">
             <h3 class="font-bold text-slate-800 text-sm border-b pb-2">Tambah Bahan Praktik Baru</h3>
             <form @submit.prevent="saveBahan()" class="space-y-3 text-xs">
                 <div><label class="font-bold block mb-1">Kode Bahan</label><input type="text" x-model="formBahan.kodeBahan" required placeholder="BHN-TSM-03" class="w-full p-2.5 border rounded-md3-sm font-mono"></div>
@@ -1104,7 +1104,7 @@
 
     <!-- MODAL CATAT PENGGUNAAN BAHAN -->
     <div x-show="modals.usage" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
-        <div class="bg-white rounded-md3-lg max-w-xl w-full p-6 md3-elevation-3 space-y-4 max-h-[90vh] overflow-y-auto custom-scrollbar" @click.away="modals.usage = false">
+        <div class="bg-white rounded-md3-lg max-w-xl w-full p-6 md3-elevation-3 space-y-4 max-h-[90vh] overflow-y-auto custom-scrollbar">
             <div class="flex justify-between items-center border-b pb-3">
                 <h3 class="font-bold text-slate-800 text-sm">Catat Penggunaan Bahan (Multi-Bahan)</h3>
                 <button @click="modals.usage = false" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
@@ -1169,7 +1169,7 @@
 
     <!-- MODAL PENYESUAIAN STOK OPNAME -->
     <div x-show="modals.opname" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
-        <div class="bg-white rounded-md3-lg max-w-md w-full p-6 md3-elevation-3 space-y-4" @click.away="modals.opname = false">
+        <div class="bg-white rounded-md3-lg max-w-md w-full p-6 md3-elevation-3 space-y-4">
             <div class="flex justify-between items-center border-b pb-2">
                 <h3 class="font-bold text-slate-800 text-sm">Penyesuaian & Edit Stok Opname Bahan</h3>
                 <button @click="modals.opname = false" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-base"></i></button>
@@ -1196,7 +1196,7 @@
     </div>
 
     <div x-show="modals.return" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
-        <div class="bg-white rounded-md3-lg max-w-sm w-full p-6 md3-elevation-3 space-y-4" @click.away="modals.return = false">
+        <div class="bg-white rounded-md3-lg max-w-sm w-full p-6 md3-elevation-3 space-y-4">
             <h3 class="font-bold text-slate-800 text-sm border-b pb-2">Pengembalian Alat</h3>
             <form @submit.prevent="processReturn()" class="space-y-3 text-xs">
                 <div>
