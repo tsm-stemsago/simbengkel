@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem Manajemen Bengkel TSM - SMKN 1 Gombong</title>
+    <title>Sistem Manajemen Bengkel TSM - SMKN 1 Gombong (MD3)</title>
     
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -1094,6 +1094,7 @@
                     <div><label class="font-bold block mb-1">Satuan</label><input type="text" x-model="formBahan.satuan" required placeholder="Botol / Pcs / Lembar" class="w-full p-2.5 border rounded-md3-sm"></div>
                     <div><label class="font-bold block mb-1">Stok Awal</label><input type="number" x-model.number="formBahan.stokSistem" min="0" required class="w-full p-2.5 border rounded-md3-sm font-bold"></div>
                 </div>
+                <div><label class="font-bold block mb-1 text-slate-700">Batas Stok Kritis (Min Stok)</label><input type="number" x-model.number="formBahan.minStok" min="0" required placeholder="Contoh: 2" class="w-full p-2.5 border rounded-md3-sm font-bold bg-slate-50"></div>
                 <div class="flex justify-end space-x-2 pt-2 border-t">
                     <button type="button" @click="modals.bahan = false" class="px-4 py-2 bg-slate-100 font-bold rounded-md3-md">Batal</button>
                     <button type="submit" class="px-4 py-2 bg-blue-600 text-white font-bold rounded-md3-md">Simpan</button>
@@ -1183,9 +1184,15 @@
                     <label class="font-bold block mb-1 text-slate-700">Spesifikasi</label>
                     <input type="text" x-model="formOpname.spesifikasi" placeholder="Contoh: SAE 10W-30" class="w-full p-2.5 bg-slate-50 border rounded-md3-sm">
                 </div>
-                <div>
-                    <label class="font-bold block mb-1 text-slate-700">Stok Fisik Baru</label>
-                    <input type="number" x-model.number="formOpname.stokFisik" min="0" required class="w-full p-3 border-2 border-blue-600 rounded-md3-md font-black text-center text-lg bg-blue-50/50">
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="font-bold block mb-1 text-slate-700">Stok Fisik Baru</label>
+                        <input type="number" x-model.number="formOpname.stokFisik" min="0" required class="w-full p-2.5 border-2 border-blue-600 rounded-md3-md font-black text-center text-base bg-blue-50/50">
+                    </div>
+                    <div>
+                        <label class="font-bold block mb-1 text-slate-700">Batas Stok Kritis (Min)</label>
+                        <input type="number" x-model.number="formOpname.minStok" min="0" required class="w-full p-2.5 border rounded-md3-md font-bold text-center text-base bg-slate-50">
+                    </div>
                 </div>
                 <div class="flex justify-end space-x-2 pt-2 border-t">
                     <button type="button" @click="modals.opname = false" class="px-4 py-2 bg-slate-100 font-bold rounded-md3-md">Batal</button>
@@ -1295,7 +1302,7 @@
                 formAlat: { id: null, kodeAlat: '', namaAlat: '', kategori: 'Hand Tools', merk: '', lokasiRak: '', jumlahTotal: 1, kondisiBaik: 1, kondisiServis: 0, kondisiRusak: 0 },
                 formBahan: { kodeBahan: '', namaBahan: '', spesifikasi: '', satuan: 'Botol', stokSistem: 10, minStok: 2 },
                 formUsageMeta: { kelas: '', topik: '', instruktur: '', items: [{ bahanId: '', jumlah: 1 }] },
-                selectedBahanOpname: null, formOpname: { namaBahan: '', spesifikasi: '', stokFisik: 0 },
+                selectedBahanOpname: null, formOpname: { namaBahan: '', spesifikasi: '', stokFisik: 0, minStok: 2 },
                 selectedLoanReturn: null, formReturn: { kondisi: 'Baik', catatan: '' },
 
                 initApp() {
@@ -1608,7 +1615,7 @@
                     if (this.userRole !== 'admin') return;
                     const id = crypto.randomUUID();
                     await db.collection('bahan').doc(id).set({
-                        ...this.formBahan, id, stokFisik: Number(this.formBahan.stokSistem)
+                        ...this.formBahan, id, stokFisik: Number(this.formBahan.stokSistem), minStok: Number(this.formBahan.minStok || 2)
                     });
                     this.modals.bahan = false;
                     this.showToast('Berhasil', 'Bahan ditambahkan');
@@ -1620,7 +1627,8 @@
                     this.formOpname = {
                         namaBahan: bahan.namaBahan || '',
                         spesifikasi: bahan.spesifikasi || '',
-                        stokFisik: bahan.stokSistem !== undefined ? bahan.stokSistem : 0
+                        stokFisik: bahan.stokSistem !== undefined ? bahan.stokSistem : 0,
+                        minStok: bahan.minStok !== undefined ? bahan.minStok : 2
                     };
                     this.modals.opname = true;
                 },
@@ -1634,6 +1642,7 @@
                             spesifikasi: this.formOpname.spesifikasi,
                             stokSistem: Number(this.formOpname.stokFisik),
                             stokFisik: Number(this.formOpname.stokFisik),
+                            minStok: Number(this.formOpname.minStok || 2),
                             updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                         });
                         this.modals.opname = false;
