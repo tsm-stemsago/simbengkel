@@ -8,7 +8,7 @@
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- FontAwesome & Google Fonts (Material Design 3 vibe) -->
+    <!-- FontAwesome & Google Fonts -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -38,9 +38,6 @@
                             surfaceVariant: '#E1E2EC',
                             outline: '#74777F',
                             error: '#BA1A1A'
-                        },
-                        stemsago: {
-                            amber: '#FF8C00'
                         }
                     },
                     fontFamily: {
@@ -72,7 +69,6 @@
         .border-double-custom { border-bottom: 3px solid black; position: relative; }
         .border-double-custom::after { content: ''; display: block; border-bottom: 1px solid black; margin-top: 2px; }
         .md3-elevation-1 { box-shadow: 0px 1px 3px 1px rgba(0, 0, 0, 0.15), 0px 1px 2px 0px rgba(0, 0, 0, 0.3); }
-        .md3-elevation-2 { box-shadow: 0px 4px 8px 3px rgba(0, 0, 0, 0.15), 0px 1px 3px 0px rgba(0, 0, 0, 0.3); }
     </style>
 </head>
 <body class="bg-md3-surface text-slate-800 font-sans antialiased min-h-screen flex flex-col" x-data="tsmApp()" x-init="initApp()">
@@ -886,7 +882,7 @@
         </div>
     </div>
 
-    <!-- MODAL FORM PINJAM MANDIRI MULTI-ITEM (DENGAN PENCARIAN ALAT) -->
+    <!-- MODAL FORM PINJAM MANDIRI MULTI-ITEM -->
     <div x-show="modals.studentLoan" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
         <div class="bg-white rounded-[28px] max-w-xl w-full p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto custom-scrollbar" @click.stop>
             <div class="flex justify-between items-center border-b pb-3">
@@ -1079,7 +1075,7 @@
         </div>
     </div>
 
-    <!-- MODAL TAMBAH BAHAN PRAKTIK (DENGAN INPUT MIN STOK) -->
+    <!-- MODAL TAMBAH BAHAN PRAKTIK -->
     <div x-show="modals.bahan" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
         <div class="bg-white rounded-[28px] max-w-md w-full p-6 shadow-2xl space-y-4" @click.stop>
             <h3 class="font-bold text-slate-900 text-sm border-b pb-2">Tambah Bahan Praktik Baru</h3>
@@ -1100,7 +1096,7 @@
         </div>
     </div>
 
-    <!-- MODAL CATAT PENGGUNAAN BAHAN (MULTI-BAHAN DENGAN PENCARIAN) -->
+    <!-- MODAL CATAT PENGGUNAAN BAHAN (MULTI-BAHAN) -->
     <div x-show="modals.usage" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
         <div class="bg-white rounded-[28px] max-w-xl w-full p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto custom-scrollbar" @click.stop>
             <div class="flex justify-between items-center border-b pb-3">
@@ -1178,7 +1174,7 @@
         </div>
     </div>
 
-    <!-- MODAL PENYESUAIAN STOK OPNAME (DENGAN INPUT MIN STOK) -->
+    <!-- MODAL PENYESUAIAN STOK OPNAME -->
     <div x-show="modals.opname" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
         <div class="bg-white rounded-[28px] max-w-md w-full p-6 shadow-2xl space-y-4" @click.stop>
             <div class="flex justify-between items-center border-b pb-2">
@@ -1315,9 +1311,19 @@
                 selectedBahanOpname: null, formOpname: { namaBahan: '', spesifikasi: '', stokFisik: 0, minStok: 2 },
                 selectedLoanReturn: null, formReturn: { kondisi: 'Baik', catatan: '' },
 
+                // Variabel Timer Auto Logout (15 Menit)
+                idleTimer: null,
+                idleLimitMinutes: 15,
+
                 initApp() {
                     this.updateClock();
                     setInterval(() => this.updateClock(), 1000);
+
+                    // Setup listener aktivitas untuk Auto Logout Admin
+                    const activityEvents = ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'];
+                    activityEvents.forEach(evt => {
+                        window.addEventListener(evt, () => this.resetIdleTimer());
+                    });
 
                     auth.onAuthStateChanged(async (user) => {
                         if (user) {
@@ -1326,8 +1332,15 @@
                                 const userSnap = await db.collection('users').doc(user.uid).get();
                                 this.userRole = (userSnap.exists && userSnap.data().role === 'admin') ? 'admin' : 'pelihat';
                             } catch(e) { this.userRole = 'pelihat'; }
+                            
+                            // Mulai timer idle jika yang login adalah admin
+                            if (this.userRole === 'admin') {
+                                this.resetIdleTimer();
+                            }
                         } else {
-                            this.currentUser = null; this.userRole = 'pelihat';
+                            this.currentUser = null; 
+                            this.userRole = 'pelihat';
+                            clearTimeout(this.idleTimer);
                         }
                     });
 
@@ -1337,6 +1350,17 @@
                     db.collection('usage').onSnapshot(snap => { this.usageLogs = snap.docs.map(d => ({ ...d.data(), id: d.id })); });
                     db.collection('audit_logs').onSnapshot(snap => { this.auditLogs = snap.docs.map(d => ({ ...d.data(), id: d.id })).sort((a,b) => new Date(b.timestamp)-new Date(a.timestamp)); });
                     db.collection('settings').doc('general').onSnapshot(snap => { if (snap.exists) this.settings = { ...this.settings, ...snap.data() }; });
+                },
+
+                resetIdleTimer() {
+                    if (this.userRole !== 'admin') return;
+                    clearTimeout(this.idleTimer);
+                    this.idleTimer = setTimeout(() => {
+                        if (this.currentUser && this.userRole === 'admin') {
+                            this.logout();
+                            this.showToast('Sesi Berakhir', 'Auto Logout: Tidak ada aktivitas selama ' + this.idleLimitMinutes + ' menit.', 'error');
+                        }
+                    }, this.idleLimitMinutes * 60 * 1000);
                 },
 
                 get calculatedTotalQty() {
@@ -1357,7 +1381,10 @@
                 },
 
                 async logout() {
-                    await createAuditLog('LOGOUT', 'Admin logout');
+                    clearTimeout(this.idleTimer);
+                    try {
+                        await createAuditLog('LOGOUT', 'Admin logout / auto-logout');
+                    } catch(e) {}
                     await auth.signOut();
                     this.showToast('Logout', 'Kembali ke Mode Pelihat');
                 },
