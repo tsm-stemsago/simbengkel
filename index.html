@@ -1214,6 +1214,7 @@
             <form @submit.prevent="saveOpnameAdjustment()" class="space-y-3 text-xs">
                 <div><label class="font-bold block mb-1 text-slate-700">Nama Bahan</label><input type="text" x-model="formOpname.namaBahan" required class="w-full p-2.5 bg-slate-50 border rounded-xl font-semibold focus:outline-none"></div>
                 <div><label class="font-bold block mb-1 text-slate-700">Spesifikasi</label><input type="text" x-model="formOpname.spesifikasi" placeholder="Spesifikasi" class="w-full p-2.5 bg-slate-50 border rounded-xl focus:outline-none"></div>
+                <div><label class="font-bold block mb-1 text-slate-700">Satuan</label><input type="text" x-model="formOpname.satuan" required placeholder="Botol / Pcs" class="w-full p-2.5 bg-slate-50 border rounded-xl focus:outline-none"></div>
                 <div><label class="font-bold block mb-1 text-slate-700">Stok Fisik Baru</label><input type="number" x-model.number="formOpname.stokFisik" min="0" required class="w-full p-3 border-2 border-md3-primary rounded-xl font-black text-center text-lg bg-blue-50/50 focus:outline-none"></div>
                 <div><label class="font-bold block mb-1 text-slate-700">Batas Stok Kritis (Min Stok)</label><input type="number" x-model.number="formOpname.minStok" min="0" required class="w-full p-2.5 bg-slate-50 border rounded-xl font-bold focus:outline-none"></div>
                 <div class="flex justify-end space-x-2 pt-2 border-t">
@@ -1324,7 +1325,7 @@
                 formAlat: { id: null, kodeAlat: '', namaAlat: '', kategori: 'Hand Tools', merk: '', lokasiRak: '', jumlahTotal: 1, kondisiBaik: 1, kondisiServis: 0, kondisiRusak: 0 },
                 formBahan: { kodeBahan: '', namaBahan: '', spesifikasi: '', satuan: 'Botol', stokSistem: 10, minStok: 2 },
                 formUsageMeta: { kelas: '', topik: '', instruktur: '', items: [{ bahanId: '', searchBahanQuery: '', jumlah: 1 }] },
-                selectedBahanOpname: null, formOpname: { namaBahan: '', spesifikasi: '', stokFisik: 0, minStok: 2 },
+                selectedBahanOpname: null, formOpname: { namaBahan: '', spesifikasi: '', satuan: '', stokFisik: 0, minStok: 2 },
                 selectedLoanReturn: null, formReturn: { kondisi: 'Baik', catatan: '' },
                 selectedLoanDetail: {},
 
@@ -1570,14 +1571,14 @@
 
                 openOpnameModal(bahan) {
                     this.selectedBahanOpname = bahan;
-                    this.formOpname = { namaBahan: bahan.namaBahan || '', spesifikasi: bahan.spesifikasi || '', stokFisik: bahan.stokSistem !== undefined ? bahan.stokSistem : 0, minStok: bahan.minStok !== undefined ? bahan.minStok : 2 };
+                    this.formOpname = { namaBahan: bahan.namaBahan || '', spesifikasi: bahan.spesifikasi || '', satuan: bahan.satuan || 'Pcs', stokFisik: bahan.stokSistem !== undefined ? bahan.stokSistem : 0, minStok: bahan.minStok !== undefined ? bahan.minStok : 2 };
                     this.modals.opname = true;
                 },
                 async saveOpnameAdjustment() {
                     if (!this.selectedBahanOpname || this.userRole !== 'admin') return;
                     const b = this.selectedBahanOpname;
                     try {
-                        await db.collection('bahan').doc(b.id).update({ namaBahan: this.formOpname.namaBahan, spesifikasi: this.formOpname.spesifikasi, stokSistem: Number(this.formOpname.stokFisik), stokFisik: Number(this.formOpname.stokFisik), minStok: Number(this.formOpname.minStok || 2), updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
+                        await db.collection('bahan').doc(b.id).update({ namaBahan: this.formOpname.namaBahan, spesifikasi: this.formOpname.spesifikasi, satuan: this.formOpname.satuan, stokSistem: Number(this.formOpname.stokFisik), stokFisik: Number(this.formOpname.stokFisik), minStok: Number(this.formOpname.minStok || 2), updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
                         this.modals.opname = false;
                         this.showToast('Berhasil', 'Stok opname diperbarui');
                         await createAuditLog('OPNAME', `Adjust bahan ${this.formOpname.namaBahan}`);
