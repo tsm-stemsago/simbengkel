@@ -1716,9 +1716,20 @@
                     this.currentDate = now.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
                     this.currentTime = now.toLocaleTimeString('id-ID') + ' WIB';
                 },
-                formatDateTime(iso) {
-                    if (!iso) return '-';
-                    const d = new Date(iso);
+                formatDateTime(val) {
+                    if (!val) return '-';
+                    let d;
+                    // Cek jika val adalah Timestamp dari Firestore
+                    if (val && typeof val.toDate === 'function') {
+                        d = val.toDate();
+                    } else {
+                        // Jika val adalah string ISO biasa
+                        d = new Date(val);
+                    }
+                    
+                    // Hindari error invalid date
+                    if (isNaN(d.getTime())) return '-';
+                    
                     return d.toLocaleDateString('id-ID', { day: '2-digit', month: 'short' }) + ' ' + d.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
                 },
                 triggerPrint() { window.print(); }
