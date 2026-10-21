@@ -494,7 +494,7 @@
             <!-- ================= TAB 3: INVENTARIS ALAT ================= -->
             <div x-show="activeTab === 'alat'" class="space-y-4" x-cloak>
                 <div class="bg-white p-5 rounded-[24px] border border-md3-surfaceVariant shadow-sm flex flex-col sm:flex-row justify-between items-center gap-4">
-                    <input type="text" x-model="searchAlat" placeholder="Cari kode, nama, atau merk..." class="p-3 border border-md3-surfaceVariant rounded-2xl text-xs w-full sm:w-80 focus:ring-2 focus:ring-md3-primary focus:outline-none bg-slate-50">
+                    <input type="text" x-model="searchAlat" @input="currentPageAlat = 1" placeholder="Cari kode, nama, atau merk..." class="p-3 border border-md3-surfaceVariant rounded-2xl text-xs w-full sm:w-80 focus:ring-2 focus:ring-md3-primary focus:outline-none bg-slate-50">
                     <div class="flex space-x-2 w-full sm:w-auto justify-end">
                         <button @click="exportAlatToExcel()" class="bg-emerald-700 hover:bg-emerald-800 text-white font-bold px-4 py-2.5 rounded-md3-full text-xs flex items-center space-x-1 shadow transition"><i class="fa-solid fa-file-excel"></i><span class="hidden sm:inline">Export</span></button>
                         <template x-if="userRole === 'admin'"><button @click="openModal('alat')" class="bg-md3-primary hover:bg-blue-800 text-white font-bold px-5 py-2.5 rounded-md3-full text-xs shadow transition">+ Tambah Alat</button></template>
@@ -516,7 +516,7 @@
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-slate-100">
-                                <template x-for="alat in filteredAlat" :key="alat.id">
+                                <template x-for="alat in paginatedAlat" :key="alat.id">
                                     <tr class="hover:bg-slate-50 transition">
                                         <td class="p-3.5 font-mono font-bold text-md3-primary" x-text="alat.kodeAlat"></td>
                                         <td class="p-3.5"><p class="font-bold text-slate-900" x-text="alat.namaAlat"></p><p class="text-[10px] text-slate-400" x-text="alat.merk || '-'"></p></td>
@@ -595,6 +595,31 @@
                         </table>
                     </div>
                     
+                    <!-- FOOTER PAGINASI INVENTARIS ALAT -->
+                    <div class="p-4 border-t border-slate-100 flex flex-col sm:flex-row justify-between items-center gap-4 bg-slate-50/50">
+                        <div class="flex items-center space-x-2 text-xs text-slate-700 font-medium">
+                            <span>Tampilkan</span>
+                            <select x-model="itemsPerPageAlat" @change="currentPageAlat = 1" class="border border-slate-300 rounded-lg p-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-md3-primary font-bold cursor-pointer shadow-sm">
+                                <option value="10">10</option>
+                                <option value="25">25</option>
+                                <option value="50">50</option>
+                                <option value="100">100</option>
+                                <option value="all">Semua</option>
+                            </select>
+                            <span>data per halaman</span>
+                        </div>
+                        <div class="flex items-center space-x-3 text-xs">
+                            <span class="text-slate-500 font-medium" x-text="`Halaman ${currentPageAlat} dari ${totalPagesAlat === 0 ? 1 : totalPagesAlat}`"></span>
+                            <div class="flex space-x-1">
+                                <button @click="currentPageAlat--" :disabled="currentPageAlat === 1" class="px-3 py-1.5 rounded-lg bg-white border border-slate-300 text-slate-700 hover:bg-slate-100 disabled:opacity-50 disabled:cursor-not-allowed transition font-semibold shadow-sm" title="Halaman Sebelumnya"><i class="fa-solid fa-chevron-left"></i></button>
+                                <button @click="currentPageAlat++" :disabled="currentPageAlat >= totalPagesAlat" class="px-3 py-1.5 rounded-lg bg-white border border-slate-300 text-slate-700 hover:bg-slate-100 disabled:opacity-50 disabled:cursor-not-allowed transition font-semibold shadow-sm" title="Halaman Selanjutnya"><i class="fa-solid fa-chevron-right"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================= TAB 4: STOK OPNAME BAHAN ================= -->
                     <!-- FOOTER PAGINASI -->
                     <div class="p-4 border-t border-slate-100 flex flex-col sm:flex-row justify-between items-center gap-4 bg-slate-50/50">
                         <div class="flex items-center space-x-2 text-xs text-slate-700 font-medium">
@@ -1330,6 +1355,7 @@
                 currentDate: '', currentTime: '',
                 searchAlat: '', searchBahan: '',
                 currentPageBahan: 1, itemsPerPageBahan: 10,
+                currentPageAlat: 1, itemsPerPageAlat: 10,
                 reportMonth: new Date().toISOString().slice(0, 7),
                 reportPrintDate: new Date().toISOString().slice(0, 10),
                 reportFilterType: 'semua',
@@ -1713,20 +1739,20 @@
                 get totalToolUnits() { return (this.alatList || []).reduce((acc, curr) => acc + Number(curr.jumlahTotal || 0), 0); },
                 get lowStockItems() { return (this.bahanList || []).filter(b => Number(b.stokSistem || 0) <= Number(b.minStok || 2)); },
                 get lowStockCount() { return this.lowStockItems.length; },
+                
                 get filteredAlat() { return (this.alatList || []).filter(a => ((a.kodeAlat || '') + (a.namaAlat || '') + (a.merk || '')).toLowerCase().includes(this.searchAlat.toLowerCase())); },
-                get filteredBahan() { return (this.bahanList || []).filter(b => ((b.kodeBahan || '') + (b.namaBahan || '') + (b.spesifikasi || '')).toLowerCase().includes(this.searchBahan.toLowerCase())); },
-                get totalPagesBahan() { return Math.ceil(this.filteredBahan.length / this.itemsPerPageBahan); },
-                get paginatedBahan() { 
-                    const start = (this.currentPageBahan - 1) * this.itemsPerPageBahan;
-                    return this.filteredBahan.slice(start, start + this.itemsPerPageBahan); 
+                get totalPagesAlat() { 
+                    if (this.itemsPerPageAlat === 'all') return 1;
+                    return Math.ceil(this.filteredAlat.length / this.itemsPerPageAlat); 
+                },
+                get paginatedAlat() { 
+                    if (this.itemsPerPageAlat === 'all') return this.filteredAlat;
+                    const start = (this.currentPageAlat - 1) * this.itemsPerPageAlat;
+                    return this.filteredAlat.slice(start, start + parseInt(this.itemsPerPageAlat)); 
                 },
 
-                get reportLoans() { return (this.loanList || []).filter(l => l.tanggalPinjam && l.tanggalPinjam.startsWith(this.reportMonth)); },
-                get reportUsage() { return (this.usageLogs || []).filter(u => u.timestamp && u.timestamp.startsWith(this.reportMonth)); },
-                get selectedMonthName() {
-                    if (!this.reportMonth) return '';
-                    const [y, m] = this.reportMonth.split('-');
-                    return new Date(y, m - 1, 1).toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
+                get filteredBahan() { return (this.bahanList || []).filter(b => ((b.kodeBahan || '') + (b.namaBahan || '') + (b.spesifikasi || '')).toLowerCase().includes(this.searchBahan.toLowerCase())); },
+                get totalPagesBahan() { 
                 },
                 get formattedPrintDate() {
                     if (!this.reportPrintDate) return 'Kebumen, ...';
