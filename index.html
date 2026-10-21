@@ -1027,8 +1027,8 @@
                                 <template x-if="formStudentLoan.items.length > 1"><button type="button" @click="removeLoanItem(index)" class="text-red-500 hover:text-red-700 p-1"><i class="fa-solid fa-trash-can text-xs"></i></button></template>
                             </div>
                             <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                                <div class="sm:col-span-2 relative" x-data="{ openDropdown: false }">
-                                    <input type="text" x-model="item.searchAlatQuery" @focus="openDropdown = true" @click.away="openDropdown = false" placeholder="Ketik nama alat untuk mencari..." class="w-full p-2.5 bg-white border rounded-xl text-xs focus:ring-2 focus:ring-md3-primary focus:outline-none font-medium">
+                                <div class="sm:col-span-2 relative" x-data="{ openDropdown: false }" @click.outside="openDropdown = false">
+                                    <input type="text" x-model="item.searchAlatQuery" @focus="openDropdown = true" placeholder="Ketik nama alat untuk mencari..." class="w-full p-2.5 bg-white border rounded-xl text-xs focus:ring-2 focus:ring-md3-primary focus:outline-none font-medium">
                                     <div x-show="openDropdown" class="absolute z-30 left-0 right-0 mt-1 bg-white border border-slate-200 rounded-2xl shadow-xl max-h-48 overflow-y-auto custom-scrollbar" x-cloak>
                                         <template x-for="alat in alatList.filter(a => (a.namaAlat + ' ' + (a.kodeAlat || '')).toLowerCase().includes((item.searchAlatQuery || '').toLowerCase()))" :key="alat.id">
                                             <div @click="item.alatId = alat.id; item.searchAlatQuery = alat.namaAlat + ' (Sisa: ' + alat.jumlahTersedia + ')'; openDropdown = false" class="p-2 hover:bg-blue-50 cursor-pointer text-xs border-b border-slate-50 flex justify-between items-center">
@@ -1178,8 +1178,8 @@
                                 <template x-if="formUsageMeta.items.length > 1"><button type="button" @click="removeUsageItem(index)" class="text-red-500 hover:text-red-700 p-1"><i class="fa-solid fa-trash-can text-xs"></i></button></template>
                             </div>
                             <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                                <div class="sm:col-span-2 relative" x-data="{ openDropdown: false }">
-                                    <input type="text" x-model="item.searchBahanQuery" @focus="openDropdown = true" @click.away="openDropdown = false" placeholder="Ketik nama bahan untuk mencari..." class="w-full p-2.5 bg-white border rounded-xl text-xs focus:ring-2 focus:ring-md3-primary focus:outline-none font-medium">
+                                <div class="sm:col-span-2 relative" x-data="{ openDropdown: false }" @click.outside="openDropdown = false">
+                                    <input type="text" x-model="item.searchBahanQuery" @focus="openDropdown = true" placeholder="Ketik nama bahan untuk mencari..." class="w-full p-2.5 bg-white border rounded-xl text-xs focus:ring-2 focus:ring-md3-primary focus:outline-none font-medium">
                                     <div x-show="openDropdown" class="absolute z-30 left-0 right-0 mt-1 bg-white border border-slate-200 rounded-2xl shadow-xl max-h-48 overflow-y-auto custom-scrollbar" x-cloak>
                                         <template x-for="b in bahanList.filter(x => (x.namaBahan + ' ' + (x.spesifikasi || '')).toLowerCase().includes((item.searchBahanQuery || '').toLowerCase()))" :key="b.id">
                                             <div @click="item.bahanId = b.id; item.searchBahanQuery = b.namaBahan + (b.spesifikasi ? ' (' + b.spesifikasi + ')' : '') + ' (Sisa: ' + b.stokSistem + ' ' + b.satuan + ')'; openDropdown = false" class="p-2 hover:bg-blue-50 cursor-pointer text-xs border-b border-slate-50 flex justify-between items-center">
