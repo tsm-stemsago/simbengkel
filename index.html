@@ -550,7 +550,7 @@
             <!-- ================= TAB 4: STOK OPNAME BAHAN ================= -->
             <div x-show="activeTab === 'opname'" class="space-y-4" x-cloak>
                 <div class="bg-white p-5 rounded-[24px] border border-md3-surfaceVariant shadow-sm flex flex-col sm:flex-row justify-between items-center gap-4">
-                    <input type="text" x-model="searchBahan" placeholder="Cari bahan praktik..." class="p-3 border border-md3-surfaceVariant rounded-2xl text-xs w-full sm:w-80 focus:ring-2 focus:ring-md3-primary focus:outline-none bg-slate-50">
+                    <input type="text" x-model="searchBahan" @input="currentPageBahan = 1" placeholder="Cari bahan praktik..." class="p-3 border border-md3-surfaceVariant rounded-2xl text-xs w-full sm:w-80 focus:ring-2 focus:ring-md3-primary focus:outline-none bg-slate-50">
                     <div class="flex space-x-2 w-full sm:w-auto justify-end">
                         <button @click="exportBahanToExcel()" class="bg-emerald-700 hover:bg-emerald-800 text-white font-bold px-4 py-2.5 rounded-md3-full text-xs flex items-center space-x-1 shadow transition"><i class="fa-solid fa-file-excel"></i><span class="hidden sm:inline">Export</span></button>
                         <template x-if="userRole === 'admin'"><button @click="openModal('bahan')" class="bg-md3-primary hover:bg-blue-800 text-white font-bold px-5 py-2.5 rounded-md3-full text-xs shadow transition">+ Tambah Bahan</button></template>
@@ -572,7 +572,7 @@
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-slate-100">
-                                <template x-for="bahan in filteredBahan" :key="bahan.id">
+                                <template x-for="bahan in paginatedBahan" :key="bahan.id">
                                     <tr class="hover:bg-slate-50 transition">
                                         <td class="p-3.5 font-mono font-bold text-md3-primary" x-text="bahan.kodeBahan"></td>
                                         <td class="p-3.5 font-bold text-slate-900" x-text="bahan.namaBahan"></td>
@@ -593,6 +593,27 @@
                                 </template>
                             </tbody>
                         </table>
+                    </div>
+                    
+                    <!-- FOOTER PAGINASI -->
+                    <div class="p-4 border-t border-slate-100 flex flex-col sm:flex-row justify-between items-center gap-4 bg-slate-50/50">
+                        <div class="flex items-center space-x-2 text-xs text-slate-700 font-medium">
+                            <span>Tampilkan</span>
+                            <select x-model.number="itemsPerPageBahan" @change="currentPageBahan = 1" class="border border-slate-300 rounded-lg p-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-md3-primary font-bold cursor-pointer shadow-sm">
+                                <option value="10">10</option>
+                                <option value="25">25</option>
+                                <option value="50">50</option>
+                                <option value="100">100</option>
+                            </select>
+                            <span>data per halaman</span>
+                        </div>
+                        <div class="flex items-center space-x-3 text-xs">
+                            <span class="text-slate-500 font-medium" x-text="`Halaman ${currentPageBahan} dari ${totalPagesBahan === 0 ? 1 : totalPagesBahan}`"></span>
+                            <div class="flex space-x-1">
+                                <button @click="currentPageBahan--" :disabled="currentPageBahan === 1" class="px-3 py-1.5 rounded-lg bg-white border border-slate-300 text-slate-700 hover:bg-slate-100 disabled:opacity-50 disabled:cursor-not-allowed transition font-semibold shadow-sm" title="Halaman Sebelumnya"><i class="fa-solid fa-chevron-left"></i></button>
+                                <button @click="currentPageBahan++" :disabled="currentPageBahan >= totalPagesBahan" class="px-3 py-1.5 rounded-lg bg-white border border-slate-300 text-slate-700 hover:bg-slate-100 disabled:opacity-50 disabled:cursor-not-allowed transition font-semibold shadow-sm" title="Halaman Selanjutnya"><i class="fa-solid fa-chevron-right"></i></button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1308,6 +1329,7 @@
                 activeTab: 'dashboard',
                 currentDate: '', currentTime: '',
                 searchAlat: '', searchBahan: '',
+                currentPageBahan: 1, itemsPerPageBahan: 10,
                 reportMonth: new Date().toISOString().slice(0, 7),
                 reportPrintDate: new Date().toISOString().slice(0, 10),
                 reportFilterType: 'semua',
@@ -1693,6 +1715,11 @@
                 get lowStockCount() { return this.lowStockItems.length; },
                 get filteredAlat() { return (this.alatList || []).filter(a => ((a.kodeAlat || '') + (a.namaAlat || '') + (a.merk || '')).toLowerCase().includes(this.searchAlat.toLowerCase())); },
                 get filteredBahan() { return (this.bahanList || []).filter(b => ((b.kodeBahan || '') + (b.namaBahan || '') + (b.spesifikasi || '')).toLowerCase().includes(this.searchBahan.toLowerCase())); },
+                get totalPagesBahan() { return Math.ceil(this.filteredBahan.length / this.itemsPerPageBahan); },
+                get paginatedBahan() { 
+                    const start = (this.currentPageBahan - 1) * this.itemsPerPageBahan;
+                    return this.filteredBahan.slice(start, start + this.itemsPerPageBahan); 
+                },
 
                 get reportLoans() { return (this.loanList || []).filter(l => l.tanggalPinjam && l.tanggalPinjam.startsWith(this.reportMonth)); },
                 get reportUsage() { return (this.usageLogs || []).filter(u => u.timestamp && u.timestamp.startsWith(this.reportMonth)); },
