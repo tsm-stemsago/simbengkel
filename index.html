@@ -74,10 +74,10 @@
         .md3-elevation-1 { box-shadow: 0px 1px 3px 1px rgba(0, 0, 0, 0.15), 0px 1px 2px 0px rgba(0, 0, 0, 0.3); }
     </style>
 </head>
-<body class="bg-md3-surface text-slate-800 font-sans min-h-screen flex flex-col antialiased selection:bg-md3-primaryContainer selection:text-md3-primary">
+<body class="bg-md3-surface text-slate-800 font-sans min-h-screen flex flex-col antialiased selection:bg-md3-primaryContainer selection:text-md3-primary" x-data="tsmApp()" x-init="initApp()">
 
 <!-- TOAST NOTIFICATION -->
-<div x-data x-show="$store.toast && $store.toast.show" x-transition class="fixed bottom-5 right-5 z-50 p-4 rounded-2xl shadow-xl flex items-center space-x-3 text-white border no-print"
+<div x-show="$store.toast && $store.toast.show" x-transition class="fixed bottom-5 right-5 z-50 p-4 rounded-2xl shadow-xl flex items-center space-x-3 text-white border no-print"
      :class="$store.toast.type === 'success' ? 'bg-emerald-700 border-emerald-600' : 'bg-red-700 border-red-600'" x-cloak>
     <i class="text-xl" :class="$store.toast.type === 'success' ? 'fa-solid fa-circle-check' : 'fa-solid fa-triangle-exclamation'"></i>
     <div>
@@ -87,7 +87,7 @@
 </div>
 
 <!-- WRAPPER UTAMA APLIKASI -->
-<div x-data="tsmApp()" x-init="initApp()" class="flex flex-col min-h-screen w-full">
+<div class="flex flex-col min-h-screen w-full">
 
     <!-- LAYAR LOADING DENGAN TIMEOUT SAFETY & TOMBOL LEWATI MANUAL -->
     <div x-show="!authCheckComplete" class="fixed inset-0 flex flex-col items-center justify-center bg-md3-surface z-50" x-cloak>
@@ -184,7 +184,7 @@
                             </div>
                         </template>
 
-                        <button @click="openModal('settingsModal')" class="hidden sm:block p-2.5 bg-white hover:bg-slate-50 text-slate-700 hover:text-md3-primary border border-md3-outline/40 rounded-2xl transition shadow-sm" title="Pengaturan Sistem">
+                        <button @click="openSettingsModal()" class="hidden sm:block p-2.5 bg-white hover:bg-slate-50 text-slate-700 hover:text-md3-primary border border-md3-outline/40 rounded-2xl transition shadow-sm" title="Pengaturan Sistem">
                             <i class="fa-solid fa-gear text-sm"></i>
                         </button>
 
@@ -1398,7 +1398,7 @@
         <div class="bg-amber-50 text-amber-800 p-2.5 rounded-xl border border-amber-200 text-[10px] leading-tight">
             <i class="fa-solid fa-triangle-exclamation mr-1"></i> Jika alat dikembalikan rusak/perlu servis, stok tidak akan masuk ke alat yang siap pakai.
         </div>
-        <form @submit.prevent="processReturn()" class="space-y-3 text-xs mt-2" x-data>
+        <form @submit.prevent="processReturn()" class="space-y-3 text-xs" x-data>
             <div>
                 <label class="font-bold block mb-1">Kondisi Saat Kembali</label>
                 <select x-model="formReturn.kondisi" class="w-full p-2.5 border rounded-xl focus:ring-2 focus:ring-md3-primary focus:outline-none bg-slate-50">
@@ -1536,14 +1536,14 @@
                 const activityEvents = ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'];
                 activityEvents.forEach(evt => { window.addEventListener(evt, () => this.resetIdleTimer()); });
 
-                // Load settings before checking auth state so login logo renders immediately
+                // Fetch settings before auth check so logos render correctly on login screen
                 try {
                     const settingsSnap = await db.collection('settings').doc('general').get();
                     if (settingsSnap.exists) {
                         this.settings = { ...this.settings, ...settingsSnap.data() };
                     }
                 } catch(e) {
-                    console.error("Gagal memuat pengaturan awal:", e);
+                    console.warn("Pengaturan umum belum tersedia:", e.message);
                 }
 
                 const safetyTimeout = setTimeout(() => {
@@ -2158,6 +2158,22 @@
                 } finally {
                     this.actionLoading = false;
                 }
+            },
+
+            async openSettingsModal() {
+                if (this.userRole !== 'admin') {
+                    showToastGlobal('Akses Ditolak', 'Hanya admin yang dapat mengakses pengaturan.', 'error');
+                    return;
+                }
+                try {
+                    const snap = await db.collection('settings').doc('general').get();
+                    if (snap.exists) {
+                        this.settings = { ...this.settings, ...snap.data() };
+                    }
+                } catch (e) {
+                    console.warn("Gagal memuat pengaturan terbaru:", e.message);
+                }
+                Alpine.store('modals').settingsModal = true;
             },
 
             async saveSettings() {
