@@ -471,7 +471,9 @@
                                                         <template x-if="loan.status === 'Menunggu Persetujuan'"><button @click="approveLoan(loan.id)" :disabled="actionLoading" class="bg-emerald-700 hover:bg-emerald-800 text-white px-2.5 py-1.5 rounded-xl text-[10px] font-bold shadow-sm disabled:opacity-50">Setujui</button></template>
                                                         <template x-if="loan.status === 'Dipinjam'"><button @click="openReturnModal(loan)" class="bg-indigo-600 hover:bg-indigo-700 text-white px-2.5 py-1.5 rounded-xl text-[10px] font-bold shadow-sm">Kembali</button></template>
                                                         <button @click="editLoan(loan)" class="p-1.5 text-slate-600 hover:text-md3-primary rounded-xl bg-slate-100 hover:bg-slate-200 transition" title="Edit Peminjaman"><i class="fa-solid fa-pen-to-square"></i></button>
-                                                        <button @click="confirmDelete('loans', loan.id, loan.kodePinjam, loan.status)" class="p-1.5 text-red-600 hover:bg-red-100 rounded-xl bg-red-50 transition" title="Hapus / Batalkan"><i class="fa-solid fa-trash-can"></i></button>
+                                                        <template x-if="loan.status !== 'Dipinjam'">
+                                                            <button @click="confirmDelete('loans', loan.id, loan.kodePinjam, loan.status)" class="p-1.5 text-red-600 hover:bg-red-100 rounded-xl bg-red-50 transition" title="Hapus / Batalkan"><i class="fa-solid fa-trash-can"></i></button>
+                                                        </template>
                                                     </div>
                                                 </template>
                                             </div>
@@ -1528,6 +1530,14 @@
                         clearTimeout(safetyTimeout);
                         this.cleanupListeners();
                         if (user) {
+                            // Validasi ganda domain
+                            if (!user.email.endsWith('@smkn1gombong.sch.id')) {
+                                await auth.signOut();
+                                this.showToast('Akses Ditolak', 'Hanya akun @smkn1gombong.sch.id yang diizinkan.', 'error');
+                                this.authCheckComplete = true;
+                                return;
+                            }
+
                             this.currentUser = user;
                             this.isAuthenticated = true;
                             
@@ -1880,6 +1890,7 @@
                             let kondisiRusak = Number(alat.kondisiRusak || 0);
                             const jumlah = Number(loan.jumlah || 0);
 
+                            // Perbaikan Logika Stok saat Pengembalian
                             if (kondisi === 'Baik') { 
                                 jumlahTersedia += jumlah; 
                             } else if (kondisi === 'Perlu Servis') { 
@@ -1946,6 +1957,7 @@
                     this.actionLoading = true;
                     try {
                         if (this.formAlat.id) {
+                            // Proses Edit - Update dengan mengecek alat yang sedang dipinjam
                             await db.runTransaction(async (t) => {
                                 const alatRef = db.collection('alat').doc(this.formAlat.id);
                                 const alatSnap = await t.get(alatRef);
@@ -1973,6 +1985,7 @@
                                 });
                             });
                         } else {
+                            // Tambah Alat Baru
                             await db.collection('alat').doc(id).set({
                                 ...this.formAlat, id, jumlahTotal: total, jumlahTersedia: baik, kondisiBaik: baik, kondisiServis: servis, kondisiRusak: rusak, createdAt: firebase.firestore.FieldValue.serverTimestamp()
                             });
@@ -2044,6 +2057,7 @@
                         return; 
                     }
 
+                    // Validasi Klien
                     for (let itm of this.formUsageMeta.items) {
                         if (!itm.bahanId) {
                             this.showToast('Validasi Gagal', 'Ada baris bahan yang belum dipilih dari daftar dropdown.', 'error');
@@ -2055,6 +2069,7 @@
                         }
                     }
 
+                    // Gabungkan duplikat bahan jika ada
                     const mergedItemsMap = new Map();
                     for (let itm of this.formUsageMeta.items) {
                         const currentQty = mergedItemsMap.get(itm.bahanId) || 0;
@@ -2100,6 +2115,7 @@
                                 });
                             }
 
+                            // Eksekusi jika semua data valid
                             for (let item of updatesToApply) {
                                 t.update(item.ref, { 
                                     stokSistem: item.newStock,
