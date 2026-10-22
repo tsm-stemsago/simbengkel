@@ -101,10 +101,10 @@
         <div class="bg-white rounded-[32px] max-w-md w-full p-8 md:p-10 shadow-2xl border border-md3-surfaceVariant text-center space-y-6">
             <div class="flex justify-center space-x-3">
                 <div class="h-16 w-16 flex items-center justify-center overflow-hidden rounded-2xl bg-white p-1 shadow-sm border border-slate-100">
-                    <img :src="settings.logoKananUrl || defaultLogo" alt="Logo Kiri" class="max-h-full max-w-full object-contain" @error="$event.target.src = defaultLogo">
+                    <img :src="settings.logoTsmUrl || defaultLogo" alt="Logo Stemsago" class="max-h-full max-w-full object-contain" @error="$event.target.src = defaultLogo">
                 </div>
                 <div class="h-16 w-16 flex items-center justify-center overflow-hidden rounded-2xl bg-white p-1 shadow-sm border border-slate-100">
-                    <img :src="settings.logoTsmUrl || defaultLogo" alt="Logo TSM" class="max-h-full max-w-full object-contain" @error="$event.target.src = defaultLogo">
+                    <img :src="settings.logoTsmHeaderUrl || defaultLogo" alt="Logo Bengkel TSM" class="max-h-full max-w-full object-contain" @error="$event.target.src = defaultLogo">
                 </div>
             </div>
             <div>
@@ -146,11 +146,11 @@
                     <div class="flex items-center space-x-2 sm:space-x-4 min-w-0">
                         <div class="flex items-center space-x-1 sm:space-x-3 bg-md3-surfaceVariant/40 p-1 sm:p-1.5 rounded-2xl border border-md3-surfaceVariant shrink-0">
                             <div class="h-8 w-8 sm:h-12 sm:w-12 flex items-center justify-center overflow-hidden rounded-xl bg-white p-0.5 shadow-sm">
-                                <img :src="settings.logoKananUrl || defaultLogo" alt="Logo Kop Kiri" class="max-h-full max-w-full object-contain" @error="$event.target.src = defaultLogo">
+                                <img :src="settings.logoTsmUrl || defaultLogo" alt="Logo TSM" class="max-h-full max-w-full object-contain" @error="$event.target.src = defaultLogo">
                             </div>
                             <div class="h-6 sm:h-8 w-px bg-slate-300"></div>
                             <div class="h-8 w-8 sm:h-12 sm:w-12 flex items-center justify-center overflow-hidden rounded-xl bg-white p-0.5 shadow-sm">
-                                <img :src="settings.logoTsmUrl || defaultLogo" alt="Logo Bengkel TSM" class="max-h-full max-w-full object-contain" @error="$event.target.src = defaultLogo">
+                                <img :src="settings.logoTsmHeaderUrl || defaultLogo" alt="Logo Bengkel TSM" class="max-h-full max-w-full object-contain" @error="$event.target.src = defaultLogo">
                             </div>
                         </div>
 
