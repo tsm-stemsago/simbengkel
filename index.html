@@ -430,7 +430,7 @@
 
             <!-- ================= TAB 2: PEMINJAMAN ALAT ================= -->
             <div x-show="activeTab === 'peminjaman'" class="space-y-4" x-cloak>
-                <div class="bg-white p-5 rounded-[24px] border border-md3-surfaceVariant shadow-sm flex flex-col sm:flex-row justify-between items-center gap-4 max-w-5xl mx-auto">
+                <div class="bg-white px-5 py-3 rounded-[24px] border border-md3-surfaceVariant shadow-sm flex flex-col sm:flex-row justify-between items-center gap-4 max-w-5xl mx-auto">
                     <input type="text" x-model="searchLoan" @input="currentPageLoan = 1" placeholder="Cari nama peminjam, kelas, atau kode TRX..." class="p-3 border border-md3-surfaceVariant rounded-2xl text-xs w-full sm:w-80 focus:ring-2 focus:ring-md3-primary focus:outline-none bg-slate-50">
                     <button @click="openModal('studentLoan')" class="bg-md3-primary hover:bg-blue-800 text-white font-bold px-5 py-2.5 rounded-md3-full text-xs shadow transition whitespace-nowrap">+ Pinjam Mandiri</button>
                 </div>
@@ -515,7 +515,7 @@
 
             <!-- ================= TAB 3: INVENTARIS ALAT ================= -->
             <div x-show="activeTab === 'alat'" class="space-y-4" x-cloak>
-                <div class="bg-white p-5 rounded-[24px] border border-md3-surfaceVariant shadow-sm flex flex-col sm:flex-row justify-between items-center gap-4 max-w-5xl mx-auto">
+                <div class="bg-white px-5 py-3 rounded-[24px] border border-md3-surfaceVariant shadow-sm flex flex-col sm:flex-row justify-between items-center gap-4 max-w-5xl mx-auto">
                     <input type="text" x-model="searchAlat" @input="currentPageAlat = 1" placeholder="Cari kode, nama, atau merk..." class="p-3 border border-md3-surfaceVariant rounded-2xl text-xs w-full sm:w-80 focus:ring-2 focus:ring-md3-primary focus:outline-none bg-slate-50">
                     <div class="flex space-x-2 w-full sm:w-auto justify-end">
                         <button @click="exportAlatToExcel()" class="bg-emerald-700 hover:bg-emerald-800 text-white font-bold px-4 py-2.5 rounded-md3-full text-xs flex items-center space-x-1 shadow transition"><i class="fa-solid fa-file-excel"></i><span class="hidden sm:inline">Export</span></button>
@@ -595,7 +595,7 @@
 
             <!-- ================= TAB 4: STOK OPNAME BAHAN ================= -->
             <div x-show="activeTab === 'opname'" class="space-y-4" x-cloak>
-                <div class="bg-white p-5 rounded-[24px] border border-md3-surfaceVariant shadow-sm flex flex-col sm:flex-row justify-between items-center gap-4 max-w-5xl mx-auto">
+                <div class="bg-white px-5 py-3 rounded-[24px] border border-md3-surfaceVariant shadow-sm flex flex-col sm:flex-row justify-between items-center gap-4 max-w-5xl mx-auto">
                     <input type="text" x-model="searchBahan" @input="currentPageOpname = 1" placeholder="Cari bahan praktik..." class="p-3 border border-md3-surfaceVariant rounded-2xl text-xs w-full sm:w-80 focus:ring-2 focus:ring-md3-primary focus:outline-none bg-slate-50">
                     <div class="flex space-x-2 w-full sm:w-auto justify-end">
                         <button @click="exportBahanToExcel()" class="bg-emerald-700 hover:bg-emerald-800 text-white font-bold px-4 py-2.5 rounded-md3-full text-xs flex items-center space-x-1 shadow transition"><i class="fa-solid fa-file-excel"></i><span class="hidden sm:inline">Export</span></button>
@@ -669,7 +669,7 @@
 
             <!-- ================= TAB 5: PENGGUNAAN BAHAN ================= -->
             <div x-show="activeTab === 'penggunaan'" class="space-y-4" x-cloak>
-                <div class="bg-white p-5 rounded-[24px] border border-md3-surfaceVariant shadow-sm flex justify-between items-center max-w-5xl mx-auto">
+                <div class="bg-white px-5 py-3 rounded-[24px] border border-md3-surfaceVariant shadow-sm flex justify-between items-center max-w-5xl mx-auto">
                     <div>
                         <h3 class="font-bold text-slate-900 text-base">Catatan Pemakaian Bahan Praktik</h3>
                         <p class="text-xs text-md3-outline">Rekapitulasi bahan habis pakai yang digunakan dalam praktik</p>
@@ -975,7 +975,7 @@
 
             <!-- ================= TAB 7: AUDIT LOG ================= -->
             <div x-show="activeTab === 'audit' && userRole === 'admin'" class="space-y-4" x-cloak>
-                <div class="bg-white p-5 rounded-[24px] border border-md3-surfaceVariant shadow-sm max-w-5xl mx-auto">
+                <div class="bg-white px-5 py-3 rounded-[24px] border border-md3-surfaceVariant shadow-sm max-w-5xl mx-auto">
                     <h3 class="font-bold text-slate-900">Catatan Audit Sistem (Audit Logs)</h3>
                 </div>
                 <div class="bg-white rounded-[24px] border border-md3-surfaceVariant shadow-sm overflow-hidden max-w-5xl mx-auto">
