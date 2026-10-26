@@ -998,9 +998,9 @@
                 </div>
             </div>
 
-            <!-- ================= TAB 7: AUDIT LOG (OPTIMIZED WITH FIRESTORE CURSOR PAGINATION) ================= -->
+            <!-- ================= TAB 7: AUDIT LOG DENGAN PAGINASI CURSOR & MIGRATION UTILITY ================= -->
             <div x-show="activeTab === 'audit' && userRole === 'admin'" class="space-y-4" x-cloak>
-                <!-- PANEL DIAGNOSTIK AUDIT LOG (WHITE BACKGROUND SESUAI PERMINTAAN) -->
+                <!-- CONTAINER PANEL DIAGNOSTIK (WHITE BACKGROUND SESUAI PERMINTAAN) -->
                 <div class="bg-white text-slate-800 p-4 rounded-[20px] shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-3 text-xs max-w-5xl mx-auto border border-slate-200">
                     <div class="flex items-center space-x-3">
                         <div class="w-8 h-8 rounded-xl flex items-center justify-center font-bold"
@@ -1019,29 +1019,59 @@
                     </div>
                     <div class="flex flex-wrap items-center gap-3 text-[11px] font-mono border-t md:border-t-0 pt-2 md:pt-0 border-slate-100 w-full md:w-auto justify-end">
                         <div class="bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-200">
-                            <span class="text-slate-500">Loaded:</span> <span class="font-bold text-md3-primary" x-text="auditLogs.length + ' item'"></span>
+                            <span class="text-slate-500">Total Dimuat:</span> <span class="font-bold text-md3-primary" x-text="auditLogs.length + ' item'"></span>
                         </div>
                         <div class="bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-200">
-                            <span class="text-slate-500">Log Terbaru:</span> <span class="font-bold text-cyan-700" x-text="auditLatestDocTime || '-'"></span>
+                            <span class="text-slate-500">Waktu Dok Terbaru:</span> <span class="font-bold text-cyan-700" x-text="auditLatestDocTime || '-'"></span>
                         </div>
                         <div class="bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-200">
-                            <span class="text-slate-500">Sinkron:</span> <span class="font-bold text-emerald-700" x-text="auditLastSync || '-'"></span>
+                            <span class="text-slate-500">Sinkron Terakhir:</span> <span class="font-bold text-emerald-700" x-text="auditLastSync || '-'"></span>
                         </div>
                     </div>
                 </div>
 
+                <!-- ADMIN MIGRATION & DRY-RUN UTILITY PANEL -->
+                <div class="bg-blue-50/70 text-slate-800 p-4 rounded-[20px] shadow-sm max-w-5xl mx-auto border border-blue-200 space-y-3 text-xs">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                        <div>
+                            <h4 class="font-bold text-blue-900 flex items-center"><i class="fa-solid fa-database mr-1.5 text-md3-primary"></i> Utilitas Migrasi Timestamp Audit Log</h4>
+                            <p class="text-[11px] text-slate-600">Periksa dan ubah string tanggal lama pada field `timestamp` menjadi standar Firestore Timestamp secara aman.</p>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <button @click="runAuditMigration(true)" :disabled="migrationLoading" class="px-3.5 py-2 bg-white hover:bg-slate-50 text-blue-700 border border-blue-300 font-bold rounded-xl shadow-sm transition">
+                                <i class="fa-solid fa-magnifying-glass mr-1"></i> Jalankan Dry-Run
+                            </button>
+                            <button @click="runAuditMigration(false)" :disabled="migrationLoading" class="px-3.5 py-2 bg-md3-primary hover:bg-blue-800 text-white font-bold rounded-xl shadow-sm transition">
+                                <i class="fa-solid fa-play mr-1"></i> Mulai Migrasi Batch
+                            </button>
+                        </div>
+                    </div>
+                    <template x-if="migrationReport">
+                        <div class="bg-white p-3 rounded-xl border border-blue-100 font-mono text-[11px] space-y-1 text-slate-700">
+                            <p class="font-bold text-slate-900" x-text="migrationReport.mode === 'DRY-RUN' ? '--- HASIL DRY-RUN (TIDAK ADA PERUBAHAN DATA) ---' : '--- LAPORAN EKSEKUSI MIGRASI ---'"></p>
+                            <p x-text="'Total Dokumen Diperiksa: ' + migrationReport.total"></p>
+                            <p x-text="'Sudah Firestore Timestamp: ' + migrationReport.validTimestamps"></p>
+                            <p x-text="'String Tanggal Valid (Dapat Dimigrasi): ' + migrationReport.convertibleStrings"></p>
+                            <p x-text="'Format Lain / Pengecualian: ' + migrationReport.exceptions"></p>
+                            <p class="text-emerald-700 font-bold" x-text="migrationReport.message"></p>
+                        </div>
+                    </template>
+                </div>
+
+                <!-- SEARCH & FILTER BAR -->
                 <div class="bg-white px-5 py-3 rounded-[24px] border border-md3-surfaceVariant shadow-sm flex flex-col sm:flex-row justify-between items-center gap-4 max-w-5xl mx-auto">
                     <div class="flex items-center space-x-2 w-full sm:w-80">
-                        <input type="text" x-model="searchAudit" placeholder="Cari aksi, user, rincian pada data aktif..." class="p-3 border border-md3-surfaceVariant rounded-2xl text-xs w-full focus:ring-2 focus:ring-md3-primary focus:outline-none bg-slate-50">
+                        <input type="text" x-model="searchAudit" placeholder="Cari aksi, user, rincian pada data dimuat..." class="p-3 border border-md3-surfaceVariant rounded-2xl text-xs w-full focus:ring-2 focus:ring-md3-primary focus:outline-none bg-slate-50">
                     </div>
-                    <div class="flex items-center space-x-2 w-full sm:w-auto justify-end">
+                    <div class="flex items-center space-x-3 w-full sm:w-auto justify-end">
                         <template x-if="searchAudit">
                             <button @click="searchAudit = ''" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition">Reset Cari</button>
                         </template>
-                        <span class="text-xs text-slate-500" x-text="'Ditampilkan: ' + filteredAuditLogs.length + ' catatan'"></span>
+                        <span class="text-xs text-slate-500 font-mono" x-text="'Ditampilkan: ' + filteredAuditLogs.length + ' catatan'"></span>
                     </div>
                 </div>
 
+                <!-- AUDIT LOG TABLE -->
                 <div class="bg-white rounded-[24px] border border-md3-surfaceVariant shadow-sm overflow-hidden max-w-5xl mx-auto">
                     <div class="overflow-x-auto">
                         <table class="w-full text-left text-xs">
@@ -1063,7 +1093,7 @@
                             </tbody>
                         </table>
                     </div>
-                    <!-- FIRESTORE CURSOR PAGINATION / LOAD MORE BUTTON -->
+                    <!-- CURSOR PAGINATION / LOAD MORE BUTTON -->
                     <div class="p-4 border-t bg-slate-50 flex flex-col sm:flex-row justify-between items-center gap-3 text-xs text-slate-700">
                         <div>
                             <p class="font-semibold">Optimasi Firestore Read: Memuat 50 data terbaru secara realtime.</p>
@@ -1553,16 +1583,12 @@
         try {
             const logId = crypto.randomUUID();
             const user = auth.currentUser;
-            const email = user ? user.email : 'System';
             await db.collection('audit_logs').doc(logId).set({
                 id: logId, action, details,
-                userEmail: email,
+                userEmail: user ? user.email : 'Public',
                 timestamp: firebase.firestore.FieldValue.serverTimestamp()
             });
-            console.log(`[AuditLog] Aksi tercatat: ${action}`);
-        } catch(e) { 
-            console.error("[AuditLog] Gagal mencatat log:", e); 
-        }
+        } catch(e) { console.error("Audit log error:", e); }
     }
 
     function showToastGlobal(title, message, type = 'success') {
@@ -1586,31 +1612,31 @@
             cloudStatus: 'connecting',
             activeUnsubscribers: [],
             
-            // Variabel Diagnostik & Paginasi Audit Log (Optimized Firestore Reads)
-            auditStatus: 'connecting',
-            auditStatusMessage: 'Menghubungkan ke koleksi audit_logs...',
-            auditLastSync: '-',
-            auditLatestDocTime: '-',
-            lastVisibleAuditDoc: null,
-            hasMoreAudit: true,
-            auditLoadingMore: false,
-
             activeTab: 'dashboard',
             currentDate: '', currentTime: '',
-            searchAlat: '', searchBahan: '', searchLoan: '',
-            searchUsage: '', searchAudit: '',
+            searchAlat: '', searchBahan: '', searchLoan: '', searchAudit: '',
             reportMonth: new Date().toISOString().slice(0, 7),
             reportPrintDate: new Date().toISOString().slice(0, 10),
             reportFilterType: 'semua',
 
-            currentPageLoan: 1, itemsPerPageLoan: 10,
-            currentPageAlat: 1, itemsPerPageAlat: 10,
-            currentPageOpname: 1, itemsPerPageOpname: 10,
-            currentPageLaporanAlat: 1, itemsPerPageLaporanAlat: 10,
-            currentPageLaporanBahan: 1, itemsPerPageLaporanBahan: 10,
-            currentPageUsage: 1, itemsPerPageUsage: 10,
+            currentPageLoan: 1,
+            itemsPerPageLoan: 10,
+            currentPageAlat: 1,
+            itemsPerPageAlat: 10,
+            currentPageOpname: 1,
+            itemsPerPageOpname: 10,
+            currentPageUsage: 1,
+            itemsPerPageUsage: 10,
+            currentPageLaporanAlat: 1,
+            itemsPerPageLaporanAlat: 10,
+            currentPageLaporanBahan: 1,
+            itemsPerPageLaporanBahan: 10,
 
             alatList: [], bahanList: [], loanList: [], usageLogs: [], auditLogs: [],
+            lastAuditDoc: null, hasMoreAudit: true, auditLoadingMore: false,
+            auditStatus: 'connecting', auditStatusMessage: 'Menghubungkan ke koleksi audit_logs...', auditLatestDocTime: '-', auditLastSync: '-',
+            migrationLoading: false, migrationReport: null,
+
             settings: {
                 namaAplikasi: 'SISTEM MANAJEMEN BENGKEL TSM',
                 namaSekolah: 'SMK NEGERI 1 GOMBONG',
@@ -1750,49 +1776,33 @@
                         this.cloudStatus = 'error';
                     });
 
-                    let unsubAudit = null;
                     if (this.userRole === 'admin') {
                         this.auditStatus = 'connecting';
-                        this.auditStatusMessage = 'Menghubungkan ke koleksi audit_logs (Limit 50 Teratas)...';
-                        
-                        // OPTIMIZED FIRESTORE READ: Limit 50 realtime listener + cursor pagination
-                        unsubAudit = db.collection('audit_logs')
+                        this.auditStatusMessage = 'Menghubungkan real-time listener audit log...';
+                        const unsubAudit = db.collection('audit_logs')
                             .orderBy('timestamp', 'desc')
                             .limit(50)
                             .onSnapshot(snap => {
                                 const docs = snap.docs.map(d => ({ ...d.data(), id: d.id }));
+                                this.auditLogs = docs;
                                 if (snap.docs.length > 0) {
-                                    this.lastVisibleAuditDoc = snap.docs[snap.docs.length - 1];
-                                }
-                                
-                                // Merge realtime updates without duplicate IDs
-                                const existingMap = new Map();
-                                this.auditLogs.forEach(item => existingMap.set(item.id, item));
-                                docs.forEach(doc => existingMap.set(doc.id, doc));
-                                
-                                const merged = Array.from(existingMap.values()).sort((a, b) => {
-                                    const timeA = a.timestamp && typeof a.timestamp.toDate === 'function' ? a.timestamp.toDate().getTime() : (a.timestamp ? new Date(a.timestamp).getTime() : 0);
-                                    const timeB = b.timestamp && typeof b.timestamp.toDate === 'function' ? b.timestamp.toDate().getTime() : (b.timestamp ? new Date(b.timestamp).getTime() : 0);
-                                    return timeB - timeA;
-                                });
-
-                                this.auditLogs = merged;
-                                this.auditStatus = 'connected';
-                                this.auditStatusMessage = `Berhasil menyinkronkan ${docs.length} dokumen terbaru secara real-time.`;
-                                this.auditLastSync = new Date().toLocaleTimeString('id-ID');
-                                
-                                if (merged.length > 0 && merged[0].timestamp) {
-                                    let dt = (typeof merged[0].timestamp.toDate === 'function') ? merged[0].timestamp.toDate() : new Date(merged[0].timestamp);
-                                    this.auditLatestDocTime = !isNaN(dt.getTime()) ? dt.toLocaleTimeString('id-ID') + ' ' + dt.toLocaleDateString('id-ID') : '-';
+                                    this.lastAuditDoc = snap.docs[snap.docs.length - 1];
+                                    this.hasMoreAudit = snap.docs.length >= 50;
+                                    const topItem = docs[0];
+                                    this.auditLatestDocTime = this.formatDateTime(topItem?.timestamp);
                                 } else {
-                                    this.auditLatestDocTime = '-';
+                                    this.auditLatestDocTime = 'Kosong';
+                                    this.hasMoreAudit = false;
                                 }
+                                this.auditStatus = 'connected';
+                                this.auditStatusMessage = `Berhasil menyinkronkan ${docs.length} dokumen audit terbaru secara real-time.`;
+                                this.auditLastSync = new Date().toLocaleTimeString('id-ID');
                             }, err => {
-                                console.error("[AuditLog Real-time] Gagal memuat snapshot:", err);
+                                console.error("Listener Audit Log Error:", err);
                                 this.auditStatus = 'error';
                                 this.auditStatusMessage = `Error: ${err.message}`;
-                                showToastGlobal('Gagal Sinkron Log', 'Gagal memuat Audit Log: ' + err.message, 'error');
                             });
+                        this.activeUnsubscribers.push(unsubAudit);
                     }
 
                     const unsubSettings = db.collection('settings').doc('general').onSnapshot(snap => { 
@@ -1803,7 +1813,6 @@
                     });
 
                     this.activeUnsubscribers.push(unsubAlat, unsubBahan, unsubLoans, unsubUsage, unsubSettings);
-                    if (unsubAudit) this.activeUnsubscribers.push(unsubAudit);
                 } catch (e) {
                     console.error("Gagal menginisialisasi listener:", e);
                     this.cloudStatus = 'error';
@@ -1811,38 +1820,92 @@
             },
 
             async loadMoreAuditLogs() {
-                if (!this.lastVisibleAuditDoc || this.auditLoadingMore || !this.hasMoreAudit) return;
+                if (this.auditLoadingMore || !this.lastAuditDoc) return;
                 this.auditLoadingMore = true;
                 try {
-                    const nextSnap = await db.collection('audit_logs')
+                    const snap = await db.collection('audit_logs')
                         .orderBy('timestamp', 'desc')
-                        .startAfter(this.lastVisibleAuditDoc)
+                        .startAfter(this.lastAuditDoc)
                         .limit(50)
                         .get();
 
-                    if (nextSnap.empty) {
-                        this.hasMoreAudit = false;
-                        showToastGlobal('Arsip Selesai', 'Seluruh riwayat audit lama telah dimuat.');
-                    } else {
-                        this.lastVisibleAuditDoc = nextSnap.docs[nextSnap.docs.length - 1];
-                        const moreDocs = nextSnap.docs.map(d => ({ ...d.data(), id: d.id }));
-                        
-                        const existingMap = new Map();
-                        this.auditLogs.forEach(item => existingMap.set(item.id, item));
-                        moreDocs.forEach(doc => existingMap.set(doc.id, doc));
+                    if (!snap.empty) {
+                        const olderDocs = snap.docs.map(d => ({ ...d.data(), id: d.id }));
+                        const existingIds = new Set(this.auditLogs.map(l => l.id));
+                        const uniqueOlder = olderDocs.filter(l => !existingIds.has(l.id));
 
-                        this.auditLogs = Array.from(existingMap.values()).sort((a, b) => {
-                            const timeA = a.timestamp && typeof a.timestamp.toDate === 'function' ? a.timestamp.toDate().getTime() : (a.timestamp ? new Date(a.timestamp).getTime() : 0);
-                            const timeB = b.timestamp && typeof b.timestamp.toDate === 'function' ? b.timestamp.toDate().getTime() : (b.timestamp ? new Date(b.timestamp).getTime() : 0);
-                            return timeB - timeA;
-                        });
-                        showToastGlobal('Arsip Dimuat', `Berhasil mengambil ${moreDocs.length} riwayat audit tambahan.`);
+                        this.auditLogs = [...this.auditLogs, ...uniqueOlder];
+                        this.lastAuditDoc = snap.docs[snap.docs.length - 1];
+                        this.hasMoreAudit = snap.docs.length >= 50;
+                        showToastGlobal('Arsip Dimuat', `Berhasil memuat ${uniqueOlder.length} catatan audit sebelumnya.`);
+                    } else {
+                        this.hasMoreAudit = false;
+                        showToastGlobal('Informasi', 'Seluruh arsip audit terdahulu telah habis dimuat.', 'error');
                     }
                 } catch (e) {
-                    console.error("Gagal memuat arsip audit:", e);
+                    console.error("Load more audit error:", e);
                     showToastGlobal('Gagal Memuat Arsip', e.message, 'error');
                 } finally {
                     this.auditLoadingMore = false;
+                }
+            },
+
+            async runAuditMigration(isDryRun = true) {
+                if (this.userRole !== 'admin') return;
+                this.migrationLoading = true;
+                this.migrationReport = null;
+                try {
+                    const snap = await db.collection('audit_logs').get();
+                    let total = snap.size;
+                    let validTimestamps = 0;
+                    let convertibleStrings = 0;
+                    let exceptions = 0;
+                    let batch = db.batch();
+                    let batchCount = 0;
+
+                    const batchLimit = 400;
+
+                    for (let docSnap of snap.docs) {
+                        const data = docSnap.data();
+                        const ts = data.timestamp;
+
+                        if (ts && typeof ts.toDate === 'function') {
+                            validTimestamps++;
+                        } else if (typeof ts === 'string' && !isNaN(Date.parse(ts))) {
+                            convertibleStrings++;
+                            if (!isDryRun) {
+                                const parsedDate = new Date(ts);
+                                batch.update(docSnap.ref, { timestamp: firebase.firestore.Timestamp.fromDate(parsedDate) });
+                                batchCount++;
+                                if (batchCount >= batchLimit) {
+                                    await batch.commit();
+                                    batch = db.batch();
+                                    batchCount = 0;
+                                }
+                            }
+                        } else {
+                            exceptions++;
+                        }
+                    }
+
+                    if (!isDryRun && batchCount > 0) {
+                        await batch.commit();
+                    }
+
+                    this.migrationReport = {
+                        mode: isDryRun ? 'DRY-RUN' : 'LIVE-EXECUTION',
+                        total,
+                        validTimestamps,
+                        convertibleStrings,
+                        exceptions,
+                        message: isDryRun ? 'Dry-run selesai. Tidak ada data yang diubah.' : 'Migrasi batch berhasil diterapkan pada dokumen valid!'
+                    };
+                    showToastGlobal('Utilitas Migrasi', isDryRun ? 'Dry-run selesai diperiksa.' : 'Migrasi timestamp berhasil dijalankan.');
+                } catch (e) {
+                    console.error("Migration utility error:", e);
+                    showToastGlobal('Migrasi Gagal', e.message, 'error');
+                } finally {
+                    this.migrationLoading = false;
                 }
             },
 
@@ -1881,8 +1944,8 @@
 
             async logout() {
                 clearTimeout(this.idleTimer);
-                try { await createAuditLog('LOGOUT', 'User keluar sistem'); } catch(e) {}
                 this.cleanupListeners();
+                try { await createAuditLog('LOGOUT', 'User keluar sistem'); } catch(e) {}
                 await auth.signOut();
                 this.activeTab = 'dashboard';
                 showToastGlobal('Logout Berhasil', 'Anda telah keluar dari sistem.');
@@ -1951,7 +2014,6 @@
                     Alpine.store('modals').studentLoan = false;
                     this.formStudentLoan = { namaPeminjam: '', kelas: '', nis: '', noHp: '', items: [{ alatId: '', searchAlatQuery: '', jumlah: 1 }] };
                     showToastGlobal('Terkirim', 'Pengajuan berhasil dikirim!');
-                    await createAuditLog('AJUKAN_PINJAM', `Siswa ${this.formStudentLoan.namaPeminjam} mengajukan pinjaman alat.`);
                 } catch(e) { 
                     showToastGlobal('Gagal', e.message, 'error'); 
                 } finally {
@@ -2020,13 +2082,11 @@
                 }
                 this.actionLoading = true;
                 try {
-                    let loanCode = '';
                     await db.runTransaction(async (t) => {
                         const loanRef = db.collection('loans').doc(loanId);
                         const loanSnap = await t.get(loanRef);
                         if (!loanSnap.exists) throw new Error(`Data pinjam tidak ditemukan.`);
                         const loanData = loanSnap.data();
-                        loanCode = loanData.kodePinjam || loanId;
                         if (loanData.status !== 'Menunggu Persetujuan') throw new Error(`Transaksi sudah diproses sebelumnya.`);
 
                         const jumlahPinjam = Number(loanData.jumlah || 0);
@@ -2041,7 +2101,7 @@
                         t.update(loanRef, { status: 'Dipinjam', tanggalDisetujui: firebase.firestore.FieldValue.serverTimestamp(), disetujuiOleh: auth.currentUser?.email });
                     });
                     showToastGlobal('Disetujui', 'Peminjaman disetujui.');
-                    await createAuditLog('APPROVE_LOAN', `Menyetujui peminjaman ${loanCode}`);
+                    await createAuditLog('APPROVE_LOAN', `Setujui loan #${loanId}`);
                 } catch (e) { 
                     showToastGlobal('Gagal', e.message, 'error'); 
                 } finally {
@@ -2056,17 +2116,15 @@
                 }
                 this.actionLoading = true;
                 try {
-                    let loanCode = '';
                     await db.runTransaction(async (t) => {
                         const loanRef = db.collection('loans').doc(loanId);
                         const loanSnap = await t.get(loanRef);
                         if (!loanSnap.exists) throw new Error("Data transaksi pinjam tidak ditemukan.");
-                        loanCode = loanSnap.data().kodePinjam || loanId;
                         if (loanSnap.data().status !== 'Menunggu Persetujuan') throw new Error("Hanya pengajuan baru (Menunggu) yang bisa ditolak.");
                         t.update(loanRef, { status: 'Ditolak' });
                     });
                     showToastGlobal('Ditolak', 'Peminjaman telah ditolak');
-                    await createAuditLog('REJECT_LOAN', `Menolak peminjaman ${loanCode}`);
+                    await createAuditLog('REJECT_LOAN', `Tolak loan #${loanId}`);
                 } catch (e) { 
                     showToastGlobal('Gagal Penolakan', e.message, 'error'); 
                 } finally {
@@ -2138,7 +2196,7 @@
                     Alpine.store('modals').return = false;
                     this.formReturn = { kondisi: 'Baik', catatan: '' };
                     showToastGlobal('Sukses', 'Alat berhasil dikembalikan dan stok diperbarui.');
-                    await createAuditLog('RETURN_LOAN', `Pengembalian alat transaksi #${loan.kodePinjam} (${kondisi})`);
+                    await createAuditLog('RETURN_LOAN', `Proses kembalikan alat transaksi #${loan.kodePinjam} (${kondisi})`);
                 } catch (e) { 
                     showToastGlobal('Gagal Proses', e.message, 'error'); 
                 } finally {
@@ -2223,7 +2281,7 @@
                     await db.collection('bahan').doc(id).set({ ...this.formBahan, id, stokSistem: Number(this.formBahan.stokSistem), minStok: Number(this.formBahan.minStok || 2), stokFisik: Number(this.formBahan.stokSistem) });
                     Alpine.store('modals').bahan = false;
                     showToastGlobal('Berhasil', 'Bahan ditambahkan');
-                    await createAuditLog('SAVE_BAHAN', `Menambah bahan praktik ${this.formBahan.namaBahan}`);
+                    await createAuditLog('SAVE_BAHAN', `Simpan bahan ${this.formBahan.namaBahan}`);
                 } catch (e) {
                     showToastGlobal('Gagal Menyimpan', e.message, 'error');
                 } finally {
@@ -2251,7 +2309,7 @@
                     await db.collection('bahan').doc(b.id).update({ namaBahan: this.formOpname.namaBahan, spesifikasi: this.formOpname.spesifikasi, satuan: this.formOpname.satuan, stokSistem: Number(this.formOpname.stokFisik), stokFisik: Number(this.formOpname.stokFisik), minStok: Number(this.formOpname.minStok || 2), updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
                     Alpine.store('modals').opname = false;
                     showToastGlobal('Berhasil', 'Stok opname & satuan diperbarui');
-                    await createAuditLog('OPNAME', `Stok opname bahan ${this.formOpname.namaBahan} disesuaikan ke ${this.formOpname.stokFisik}`);
+                    await createAuditLog('OPNAME', `Adjust bahan ${this.formOpname.namaBahan}`);
                 } catch (e) { 
                     showToastGlobal('Gagal Penyesuaian', e.message, 'error'); 
                 } finally {
@@ -2341,7 +2399,7 @@
                     Alpine.store('modals').usage = false;
                     this.formUsageMeta = { namaPencatat: '', noHpPencatat: '', kelas: '', topik: '', instruktur: '', items: [{ bahanId: '', searchBahanQuery: '', jumlah: 1 }] };
                     showToastGlobal('Sukses', 'Penggunaan bahan berhasil dicatat.');
-                    await createAuditLog('SAVE_USAGE', `Mencatat pemakaian bahan praktik kelas ${this.formUsageMeta.kelas || '-'}`);
+                    await createAuditLog('SAVE_USAGE', `Mencatat pemakaian multi-bahan untuk kelas ${this.formUsageMeta.kelas}`);
                 } catch (e) { 
                     showToastGlobal('Gagal Menyimpan', e.message, 'error'); 
                 } finally {
@@ -2375,7 +2433,7 @@
                     await db.collection('settings').doc('general').set(this.settings, { merge: true });
                     Alpine.store('modals').settingsModal = false;
                     showToastGlobal('Disimpan', 'Pengaturan diperbarui');
-                    await createAuditLog('SETTINGS', 'Memperbarui pengaturan umum sistem');
+                    await createAuditLog('SETTINGS', 'Update pengaturan');
                 } catch (e) {
                     showToastGlobal('Gagal Menyimpan', e.message, 'error');
                 } finally {
@@ -2406,7 +2464,7 @@
                     await db.collection(type).doc(id).delete();
                     Alpine.store('modals').confirmDelete.show = false;
                     showToastGlobal('Terhapus', `${name} berhasil dihapus.`);
-                    await createAuditLog('DELETE', `Menghapus data ${type} (${name})`);
+                    await createAuditLog('DELETE', `Hapus dokumen ${type} (${name})`);
                 } catch(e) {
                     showToastGlobal('Gagal Menghapus', e.message, 'error');
                 } finally {
@@ -2494,6 +2552,38 @@
                 return this.filteredBahan.slice(start, start + parseInt(this.itemsPerPageOpname));
             },
 
+            get filteredUsageLogs() {
+                return (this.usageLogs || []).filter(u => ((u.namaBahan || '') + (u.kelas || '') + (u.topik || '') + (u.instruktur || '')).toLowerCase().includes((this.searchUsage || '').toLowerCase()));
+            },
+            get totalPagesUsage() { return Math.ceil(this.filteredUsageLogs.length / this.itemsPerPageUsage) || 1; },
+            get paginatedUsageLogs() {
+                if (this.itemsPerPageUsage == 1000000) return this.filteredUsageLogs;
+                const start = (this.currentPageUsage - 1) * this.itemsPerPageUsage;
+                return this.filteredUsageLogs.slice(start, start + parseInt(this.itemsPerPageUsage));
+            },
+
+            get filteredAuditLogs() {
+                try {
+                    const q = (this.searchAudit || '').toLowerCase();
+                    const list = (this.auditLogs || []).filter(l => {
+                        const action = (l.action || '').toLowerCase();
+                        const email = (l.userEmail || '').toLowerCase();
+                        const details = (l.details || '').toLowerCase();
+                        return action.includes(q) || email.includes(q) || details.includes(q);
+                    });
+
+                    return list.sort((a, b) => {
+                        let ta = a.timestamp && typeof a.timestamp.toDate === 'function' ? a.timestamp.toDate().getTime() : (typeof a.timestamp === 'string' ? new Date(a.timestamp).getTime() : 0);
+                        let tb = b.timestamp && typeof b.timestamp.toDate === 'function' ? b.timestamp.toDate().getTime() : (typeof b.timestamp === 'string' ? new Date(b.timestamp).getTime() : 0);
+                        if (isNaN(ta)) ta = 0;
+                        if (isNaN(tb)) tb = 0;
+                        return tb - ta;
+                    });
+                } catch(e) {
+                    return this.auditLogs || [];
+                }
+            },
+
             get totalPagesLaporanAlat() { 
                 if (this.itemsPerPageLaporanAlat == 1000000) return 1;
                 return Math.ceil(this.alatList.length / this.itemsPerPageLaporanAlat) || 1; 
@@ -2512,29 +2602,6 @@
                 if (this.itemsPerPageLaporanBahan == 1000000) return this.bahanList;
                 const start = (this.currentPageLaporanBahan - 1) * this.itemsPerPageLaporanBahan;
                 return this.bahanList.slice(start, start + parseInt(this.itemsPerPageLaporanBahan));
-            },
-
-            get filteredUsageLogs() { 
-                return (this.usageLogs || []).filter(u => 
-                    ((u.namaBahan || '') + (u.kelas || '') + (u.topik || '') + (u.instruktur || '')).toLowerCase().includes(this.searchUsage.toLowerCase())
-                ); 
-            },
-            get totalPagesUsage() { return Math.ceil(this.filteredUsageLogs.length / this.itemsPerPageUsage) || 1; },
-            get paginatedUsageLogs() {
-                if (this.itemsPerPageUsage == 1000000) return this.filteredUsageLogs;
-                const start = (this.currentPageUsage - 1) * this.itemsPerPageUsage;
-                return this.filteredUsageLogs.slice(start, start + parseInt(this.itemsPerPageUsage));
-            },
-
-            // COMPUTED AUDIT LOG DENGAN FILTER PENCARIAN DI DATA YANG SUDAH DIMUAT
-            get filteredAuditLogs() {
-                return (this.auditLogs || []).filter(l => 
-                    ((l.action || '') + (l.userEmail || '') + (l.details || '')).toLowerCase().includes(this.searchAudit.toLowerCase())
-                ).sort((a, b) => {
-                    const timeA = a.timestamp && typeof a.timestamp.toDate === 'function' ? a.timestamp.toDate().getTime() : (a.timestamp ? new Date(a.timestamp).getTime() : 0);
-                    const timeB = b.timestamp && typeof b.timestamp.toDate === 'function' ? b.timestamp.toDate().getTime() : (b.timestamp ? new Date(b.timestamp).getTime() : 0);
-                    return timeB - timeA;
-                });
             },
 
             get reportLoans() {
@@ -2595,8 +2662,8 @@
             formatDateTime(iso) {
                 if (!iso) return '-';
                 try {
-                    let d = (typeof iso.toDate === 'function') ? iso.toDate() : new Date(iso);
-                    if (isNaN(d.getTime())) return '-';
+                    let d = (typeof iso.toDate === 'function') ? iso.toDate() : (typeof iso === 'string' ? new Date(iso) : null);
+                    if (!d || isNaN(d.getTime())) return '-';
                     return d.toLocaleDateString('id-ID', { day: '2-digit', month: 'short' }) + ' ' + d.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
                 } catch (e) { return '-'; }
             },
