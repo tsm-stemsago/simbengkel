@@ -705,25 +705,6 @@
                                 </template>
                             </tbody>
                         </table>
-                    <!-- Paginasi Penggunaan Bahan -->
-                    <div class="p-3 border-t bg-white flex justify-between items-center text-xs">
-                        <div class="flex items-center space-x-2">
-                            <span>Tampilkan</span>
-                            <select x-model="itemsPerPageUsage" @change="currentPageUsage = 1" class="border p-1 rounded">
-                                <option value="10">10</option>
-                                <option value="25">25</option>
-                                <option value="50">50</option>
-                                <option value="1000000">Semua</option>
-                            </select>
-                            <span>data</span>
-                        </div>
-                        <div class="flex items-center space-x-4">
-                            <span x-text="'Halaman ' + currentPageUsage + ' dari ' + totalPagesUsage"></span>
-                            <div class="flex space-x-1">
-                                <button @click="if(currentPageUsage > 1) currentPageUsage--" :disabled="currentPageUsage === 1" class="px-2 py-1 border rounded"><i class="fa-solid fa-chevron-left"></i></button>
-                                <button @click="if(currentPageUsage < totalPagesUsage) currentPageUsage++" :disabled="currentPageUsage === totalPagesUsage || totalPagesUsage === 0" class="px-2 py-1 border rounded"><i class="fa-solid fa-chevron-right"></i></button>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -1016,26 +997,6 @@
                             </template>
                         </tbody>
                     </table>
-      <!-- Paginasi Audit Log -->
-                    <div class="p-3 border-t bg-white flex justify-between items-center text-xs">
-                        <div class="flex items-center space-x-2">
-                            <span>Tampilkan</span>
-                            <select x-model="itemsPerPageAudit" @change="currentPageAudit = 1" class="border p-1 rounded">
-                                <option value="10">10</option>
-                                <option value="25">25</option>
-                                <option value="50">50</option>
-                                <option value="1000000">Semua</option>
-                            </select>
-                            <span>data</span>
-                        </div>
-                        <div class="flex items-center space-x-4">
-                            <span x-text="'Halaman ' + currentPageAudit + ' dari ' + (totalPagesAudit || 1)"></span>
-                            <div class="flex space-x-1">
-                                <button @click="if(currentPageAudit > 1) currentPageAudit--" :disabled="currentPageAudit === 1" class="px-2 py-1 border rounded"><i class="fa-solid fa-chevron-left"></i></button>
-                                <button @click="if(currentPageAudit < totalPagesAudit) currentPageAudit++" :disabled="currentPageAudit === totalPagesAudit || totalPagesAudit === 0" class="px-2 py-1 border rounded"><i class="fa-solid fa-chevron-right"></i></button>
-                            </div>
-                        </div>
-                    </div>
                 </div>
             </div>
 
