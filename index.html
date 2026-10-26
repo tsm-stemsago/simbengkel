@@ -666,12 +666,17 @@
 
             <!-- ================= TAB 5: PENGGUNAAN BAHAN ================= -->
             <div x-show="activeTab === 'penggunaan'" class="space-y-4" x-cloak>
-                <div class="bg-white px-5 py-3 rounded-[24px] border border-md3-surfaceVariant shadow-sm flex justify-between items-center max-w-5xl mx-auto">
+                <div class="bg-white px-5 py-3 rounded-[24px] border border-md3-surfaceVariant shadow-sm flex flex-col sm:flex-row justify-between items-center gap-4 max-w-5xl mx-auto">
                     <div>
                         <h3 class="font-bold text-slate-900 text-base">Catatan Pemakaian Bahan Praktik</h3>
                         <p class="text-xs text-md3-outline">Rekapitulasi bahan habis pakai yang digunakan dalam praktik</p>
                     </div>
-                    <template x-if="userRole === 'admin'"><button @click="openModal('usage')" class="bg-md3-primary hover:bg-blue-800 text-white font-bold px-5 py-2.5 rounded-md3-full text-xs shadow transition">+ Catat Penggunaan</button></template>
+                    <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3 w-full sm:w-auto">
+                        <input type="text" x-model="searchUsage" @input="currentPageUsage = 1" placeholder="Cari bahan, kelas, topik..." class="p-2.5 border border-md3-surfaceVariant rounded-xl text-xs w-full sm:w-64 focus:ring-2 focus:ring-md3-primary focus:outline-none bg-slate-50">
+                        <template x-if="userRole === 'admin'">
+                            <button @click="openModal('usage')" class="bg-md3-primary hover:bg-blue-800 text-white font-bold px-5 py-2.5 rounded-md3-full text-xs shadow transition whitespace-nowrap">+ Catat Penggunaan</button>
+                        </template>
+                    </div>
                 </div>
                 <div class="bg-white rounded-[24px] border border-md3-surfaceVariant shadow-sm overflow-hidden max-w-5xl mx-auto">
                     <div class="overflow-x-auto">
@@ -680,7 +685,7 @@
                                 <tr><th class="p-3.5">Waktu</th><th class="p-3.5">Nama Bahan</th><th class="p-3.5 text-center">Jumlah Pakai</th><th class="p-3.5">Kelas / Topik</th><th class="p-3.5">Instruktur</th><th class="p-3.5 text-right">Aksi</th></tr>
                             </thead>
                             <tbody class="divide-y divide-slate-100">
-                                <template x-for="item in usageLogs" :key="item.id">
+                                <template x-for="item in paginatedUsageLogs" :key="item.id">
                                     <tr class="hover:bg-slate-50 transition">
                                         <td class="p-3.5 font-mono text-slate-500" x-text="formatDateTime(item.timestamp)"></td>
                                         <td class="p-3.5 font-bold text-slate-900" x-text="item.namaBahan"></td>
@@ -697,11 +702,32 @@
                                         </td>
                                     </tr>
                                 </template>
-                                <template x-if="usageLogs.length === 0">
-                                    <tr><td colspan="6" class="p-8 text-center text-slate-400 font-medium">Belum ada catatan penggunaan bahan praktik.</td></tr>
+                                <template x-if="filteredUsageLogs.length === 0">
+                                    <tr><td colspan="6" class="p-8 text-center text-slate-400 font-medium">Data catatan penggunaan tidak ditemukan.</td></tr>
                                 </template>
                             </tbody>
                         </table>
+                    </div>
+                    <!-- Paginasi Tabel Penggunaan Bahan -->
+                    <div class="p-3 border-t bg-white flex justify-between items-center text-xs text-slate-600 pagination-controls">
+                        <div class="flex items-center space-x-2">
+                            <span>Tampilkan</span>
+                            <select x-model="itemsPerPageUsage" @change="currentPageUsage = 1" class="border p-1 rounded">
+                                <option value="10">10</option>
+                                <option value="25">25</option>
+                                <option value="50">50</option>
+                                <option value="100">100</option>
+                                <option value="1000000">Semua</option>
+                            </select>
+                            <span>data per halaman</span>
+                        </div>
+                        <div class="flex items-center space-x-4">
+                            <span x-text="'Halaman ' + currentPageUsage + ' dari ' + totalPagesUsage"></span>
+                            <div class="flex space-x-1">
+                                <button @click="if(currentPageUsage > 1) currentPageUsage--" :disabled="currentPageUsage === 1" class="px-2 py-1 border rounded disabled:opacity-50 hover:bg-slate-50"><i class="fa-solid fa-chevron-left"></i></button>
+                                <button @click="if(currentPageUsage < totalPagesUsage) currentPageUsage++" :disabled="currentPageUsage === totalPagesUsage || totalPagesUsage === 0" class="px-2 py-1 border rounded disabled:opacity-50 hover:bg-slate-50"><i class="fa-solid fa-chevron-right"></i></button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -972,8 +998,9 @@
 
             <!-- ================= TAB 7: AUDIT LOG ================= -->
             <div x-show="activeTab === 'audit' && userRole === 'admin'" class="space-y-4" x-cloak>
-                <div class="bg-white px-5 py-3 rounded-[24px] border border-md3-surfaceVariant shadow-sm max-w-5xl mx-auto">
+                <div class="bg-white px-5 py-3 rounded-[24px] border border-md3-surfaceVariant shadow-sm flex flex-col sm:flex-row justify-between items-center gap-4 max-w-5xl mx-auto">
                     <h3 class="font-bold text-slate-900">Catatan Audit Sistem (Audit Logs)</h3>
+                    <input type="text" x-model="searchAudit" @input="currentPageAudit = 1" placeholder="Cari aksi, user, rincian..." class="p-2.5 border border-md3-surfaceVariant rounded-xl text-xs w-full sm:w-64 focus:ring-2 focus:ring-md3-primary focus:outline-none bg-slate-50">
                 </div>
                 <div class="bg-white rounded-[24px] border border-md3-surfaceVariant shadow-sm overflow-hidden max-w-5xl mx-auto">
                     <table class="w-full text-left text-xs">
@@ -981,7 +1008,7 @@
                             <tr><th class="p-3.5">Waktu</th><th class="p-3.5">Aksi</th><th class="p-3.5">User/Admin</th><th class="p-3.5">Rincian</th></tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100">
-                            <template x-for="log in auditLogs" :key="log.id">
+                            <template x-for="log in paginatedAuditLogs" :key="log.id">
                                 <tr class="hover:bg-slate-50 transition">
                                     <td class="p-3.5 font-mono text-slate-500" x-text="formatDateTime(log.timestamp)"></td>
                                     <td class="p-3.5 font-bold text-md3-primary" x-text="log.action"></td>
@@ -989,11 +1016,32 @@
                                     <td class="p-3.5 text-slate-700" x-text="log.details"></td>
                                 </tr>
                             </template>
-                            <template x-if="auditLogs.length === 0">
-                                <tr><td colspan="4" class="p-8 text-center text-slate-400 font-medium">Belum ada catatan audit sistem.</td></tr>
+                            <template x-if="filteredAuditLogs.length === 0">
+                                <tr><td colspan="4" class="p-8 text-center text-slate-400 font-medium">Data catatan audit tidak ditemukan.</td></tr>
                             </template>
                         </tbody>
                     </table>
+                    <!-- Paginasi Tabel Audit Log -->
+                    <div class="p-3 border-t bg-white flex justify-between items-center text-xs text-slate-600 pagination-controls">
+                        <div class="flex items-center space-x-2">
+                            <span>Tampilkan</span>
+                            <select x-model="itemsPerPageAudit" @change="currentPageAudit = 1" class="border p-1 rounded">
+                                <option value="10">10</option>
+                                <option value="25">25</option>
+                                <option value="50">50</option>
+                                <option value="100">100</option>
+                                <option value="1000000">Semua</option>
+                            </select>
+                            <span>data per halaman</span>
+                        </div>
+                        <div class="flex items-center space-x-4">
+                            <span x-text="'Halaman ' + currentPageAudit + ' dari ' + totalPagesAudit"></span>
+                            <div class="flex space-x-1">
+                                <button @click="if(currentPageAudit > 1) currentPageAudit--" :disabled="currentPageAudit === 1" class="px-2 py-1 border rounded disabled:opacity-50 hover:bg-slate-50"><i class="fa-solid fa-chevron-left"></i></button>
+                                <button @click="if(currentPageAudit < totalPagesAudit) currentPageAudit++" :disabled="currentPageAudit === totalPagesAudit || totalPagesAudit === 0" class="px-2 py-1 border rounded disabled:opacity-50 hover:bg-slate-50"><i class="fa-solid fa-chevron-right"></i></button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -1513,20 +1561,18 @@
             activeTab: 'dashboard',
             currentDate: '', currentTime: '',
             searchAlat: '', searchBahan: '', searchLoan: '',
+            searchUsage: '', searchAudit: '', // Tambahan state pencarian
             reportMonth: new Date().toISOString().slice(0, 7),
             reportPrintDate: new Date().toISOString().slice(0, 10),
             reportFilterType: 'semua',
 
-            currentPageLoan: 1,
-            itemsPerPageLoan: 10,
-            currentPageAlat: 1,
-            itemsPerPageAlat: 10,
-            currentPageOpname: 1,
-            itemsPerPageOpname: 10,
-            currentPageLaporanAlat: 1,
-            itemsPerPageLaporanAlat: 10,
-            currentPageLaporanBahan: 1,
-            itemsPerPageLaporanBahan: 10,
+            currentPageLoan: 1, itemsPerPageLoan: 10,
+            currentPageAlat: 1, itemsPerPageAlat: 10,
+            currentPageOpname: 1, itemsPerPageOpname: 10,
+            currentPageLaporanAlat: 1, itemsPerPageLaporanAlat: 10,
+            currentPageLaporanBahan: 1, itemsPerPageLaporanBahan: 10,
+            currentPageUsage: 1, itemsPerPageUsage: 10, // Tambahan state paginasi penggunaan
+            currentPageAudit: 1, itemsPerPageAudit: 10, // Tambahan state paginasi audit
 
             alatList: [], bahanList: [], loanList: [], usageLogs: [], auditLogs: [],
             settings: {
@@ -1671,7 +1717,8 @@
                     
                     let unsubAudit;
                     if(this.userRole === 'admin') {
-                        unsubAudit = db.collection('audit_logs').orderBy('timestamp', 'desc').limit(100).onSnapshot(snap => { 
+                        // Batasan (limit) telah dihapus dari pemanggilan audit logs
+                        unsubAudit = db.collection('audit_logs').orderBy('timestamp', 'desc').onSnapshot(snap => { 
                             this.auditLogs = snap.docs.map(d => ({ ...d.data(), id: d.id })); 
                             this.cloudStatus = 'connected';
                         }, err => { 
@@ -1708,7 +1755,6 @@
                         throw new Error("Domain email tidak diizinkan mengakses aplikasi ini. Gunakan akun @smkn1gombong.sch.id");
                     }
                     
-                    // Client log bypass karena Firestore rule akan mencegat jika userEmail != request.auth.token.email
                     const logId = crypto.randomUUID();
                     await db.collection('audit_logs').doc(logId).set({
                         id: logId, action: 'LOGIN', details: 'User masuk via SSO Google', userEmail: email, timestamp: firebase.firestore.FieldValue.serverTimestamp()
@@ -1802,12 +1848,10 @@
                                 emailPengaju: this.currentUser?.email || ''
                             });
                             
-                            // Audit log for student submission
                             attachAuditLog(t, 'AJUKAN_PINJAM', `Mengajukan pinjam alat ${alat ? alat.namaAlat : ''}`, this.currentUser?.email);
 
                             nextTrxNum++;
                         }
-                        // Pembaruan counter, mengandalkan rule: current == old.current + jumlah yang ditambahkan
                         t.set(counterRef, { current: nextTrxNum - 1 }, { merge: true });
                     });
 
@@ -2429,6 +2473,32 @@
                 if (this.itemsPerPageLaporanBahan == 1000000) return this.bahanList;
                 const start = (this.currentPageLaporanBahan - 1) * this.itemsPerPageLaporanBahan;
                 return this.bahanList.slice(start, start + parseInt(this.itemsPerPageLaporanBahan));
+            },
+            
+            // Computed & Paginasi untuk Penggunaan Bahan (BARU)
+            get filteredUsageLogs() {
+                return (this.usageLogs || []).filter(u => 
+                    ((u.namaBahan || '') + (u.kelas || '') + (u.topik || '') + (u.instruktur || '')).toLowerCase().includes(this.searchUsage.toLowerCase())
+                );
+            },
+            get totalPagesUsage() { return Math.ceil(this.filteredUsageLogs.length / this.itemsPerPageUsage) || 1; },
+            get paginatedUsageLogs() {
+                if (this.itemsPerPageUsage == 1000000) return this.filteredUsageLogs;
+                const start = (this.currentPageUsage - 1) * this.itemsPerPageUsage;
+                return this.filteredUsageLogs.slice(start, start + parseInt(this.itemsPerPageUsage));
+            },
+
+            // Computed & Paginasi untuk Audit Logs (BARU)
+            get filteredAuditLogs() {
+                return (this.auditLogs || []).filter(l => 
+                    ((l.action || '') + (l.userEmail || '') + (l.details || '')).toLowerCase().includes(this.searchAudit.toLowerCase())
+                );
+            },
+            get totalPagesAudit() { return Math.ceil(this.filteredAuditLogs.length / this.itemsPerPageAudit) || 1; },
+            get paginatedAuditLogs() {
+                if (this.itemsPerPageAudit == 1000000) return this.filteredAuditLogs;
+                const start = (this.currentPageAudit - 1) * this.itemsPerPageAudit;
+                return this.filteredAuditLogs.slice(start, start + parseInt(this.itemsPerPageAudit));
             },
 
             get reportLoans() {
