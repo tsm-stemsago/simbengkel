@@ -8,6 +8,9 @@
     <!-- Favicon TSM -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23005AC1'/%3E%3Ctext x='50' y='62' font-size='45' text-anchor='middle' fill='%23ffffff' font-family='sans-serif' font-weight='bold'%3ETSM%3C/text%3E%3C/svg%3E">
 
+    <!-- Bootstrap 5 CSS CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
 
@@ -324,8 +327,8 @@
                                                 <td class="p-3 text-right">
                                                     <template x-if="userRole === 'admin'">
                                                         <div class="flex justify-end space-x-1.5">
-                                                            <button @click="approveLoan(loan.id)" :disabled="actionLoading" class="bg-emerald-700 hover:bg-emerald-800 text-white px-3 py-1.5 rounded-xl text-[10px] font-bold shadow-sm transition disabled:opacity-50">Setujui</button>
-                                                            <button @click="rejectLoan(loan.id)" :disabled="actionLoading" class="bg-red-100 hover:bg-red-200 text-red-700 px-2.5 py-1.5 rounded-xl text-[10px] font-semibold transition disabled:opacity-50">Tolak</button>
+                                                            <button @click="approveLoan(loan.id)" :disabled="actionLoading" class="btn btn-sm btn-success text-white py-1 px-2 text-[10px] fw-bold">Setujui</button>
+                                                            <button @click="rejectLoan(loan.id)" :disabled="actionLoading" class="btn btn-sm btn-outline-danger py-1 px-2 text-[10px]">Tolak</button>
                                                         </div>
                                                     </template>
                                                     <template x-if="userRole !== 'admin'">
@@ -367,10 +370,10 @@
                                                 <td class="p-3 text-slate-500" x-text="formatDateTime(loan.tanggalPinjam)"></td>
                                                 <td class="p-3 text-right">
                                                     <template x-if="userRole === 'admin'">
-                                                        <button @click="openReturnModal(loan)" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded-xl text-[10px] font-bold shadow-sm transition">Kembali</button>
+                                                        <button @click="openReturnModal(loan)" class="btn btn-sm btn-primary py-1 px-2 text-[10px]">Kembali</button>
                                                     </template>
                                                     <template x-if="userRole !== 'admin'">
-                                                        <span class="px-2 py-1 rounded-md bg-blue-50 text-blue-700 text-[10px] font-bold">Aktif</span>
+                                                        <span class="badge bg-primary">Aktif</span>
                                                     </template>
                                                 </td>
                                             </tr>
@@ -432,12 +435,12 @@
                         <h3 class="font-bold text-slate-900 text-base">Daftar Peminjaman & Pengembalian</h3>
                         <p class="text-xs text-md3-outline">Pantau seluruh riwayat dan status peminjaman alat praktik</p>
                     </div>
-                    <button @click="openModal('studentLoan')" class="bg-md3-primary hover:bg-blue-800 text-white font-bold px-5 py-2.5 rounded-md3-full text-xs shadow transition">+ Pinjam Mandiri</button>
+                    <button @click="openModal('studentLoan')" class="btn btn-primary btn-sm rounded-pill px-4 py-2">+ Pinjam Mandiri</button>
                 </div>
                 <div class="bg-white rounded-[24px] border border-md3-surfaceVariant shadow-sm overflow-hidden">
                     <div class="overflow-x-auto">
-                        <table class="w-full text-left text-xs">
-                            <thead class="bg-slate-900 text-white uppercase font-semibold">
+                        <table class="table table-hover align-middle mb-0 text-xs">
+                            <thead class="table-dark uppercase font-semibold">
                                 <tr>
                                     <th class="p-3.5">Kode TRX</th>
                                     <th class="p-3.5">Peminjam</th>
@@ -445,7 +448,7 @@
                                     <th class="p-3.5">Alat & Qty</th>
                                     <th class="p-3.5 text-center">Status</th>
                                     <th class="p-3.5 text-center">Kondisi Alat</th>
-                                    <th class="p-3.5 text-right">Aksi</th>
+                                    <th class="p-3.5 text-end">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-slate-100">
@@ -459,23 +462,23 @@
                                         <td class="p-3.5 text-slate-700" x-text="loan.kelas"></td>
                                         <td class="p-3.5 font-bold text-md3-primary" x-text="loan.namaAlat + ' (' + loan.jumlah + ' Unit)'"></td>
                                         <td class="p-3.5 text-center">
-                                            <span class="px-3 py-1 rounded-md3-full text-[10px] font-bold uppercase shadow-sm" :class="loan.status === 'Dipinjam' ? 'bg-blue-100 text-blue-800' : (loan.status === 'Dikembalikan' ? 'bg-emerald-100 text-emerald-800' : (loan.status === 'Ditolak' ? 'bg-red-100 text-red-800' : 'bg-amber-100 text-amber-800'))" x-text="loan.status"></span>
+                                            <span class="badge" :class="loan.status === 'Dipinjam' ? 'bg-primary' : (loan.status === 'Dikembalikan' ? 'bg-success' : (loan.status === 'Ditolak' ? 'bg-danger' : 'bg-warning text-dark'))" x-text="loan.status"></span>
                                         </td>
                                         <td class="p-3.5 text-center">
-                                            <span class="px-3 py-1 rounded-md3-full text-[10px] font-semibold shadow-sm" 
-                                                  :class="loan.kondisiKembali === 'Baik' || !loan.kondisiKembali ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : (loan.kondisiKembali === 'Perlu Servis' ? 'bg-amber-50 text-amber-700 border border-amber-200' : 'bg-red-50 text-red-700 border border-red-200')" 
+                                            <span class="badge" 
+                                                  :class="loan.kondisiKembali === 'Baik' || !loan.kondisiKembali ? 'bg-success-subtle text-success border border-success' : (loan.kondisiKembali === 'Perlu Servis' ? 'bg-warning-subtle text-warning border border-warning' : 'bg-danger-subtle text-danger border border-danger')" 
                                                   x-text="loan.kondisiKembali || (loan.status === 'Dikembalikan' ? 'Baik' : '-')"></span>
                                         </td>
-                                        <td class="p-3.5 text-right">
-                                            <div class="flex justify-end space-x-1.5 items-center">
-                                                <button @click="showLoanDetail(loan)" class="p-1.5 text-blue-600 hover:bg-blue-100 rounded-xl bg-blue-50 transition" title="Lihat Detail Kontak & Transaksi"><i class="fa-solid fa-circle-info"></i></button>
+                                        <td class="p-3.5 text-end">
+                                            <div class="d-flex justify-content-end gap-1 align-items-center">
+                                                <button @click="showLoanDetail(loan)" class="btn btn-sm btn-outline-primary py-1 px-2" title="Lihat Detail Kontak & Transaksi"><i class="fa-solid fa-circle-info"></i></button>
                                                 <template x-if="userRole === 'admin'">
-                                                    <div class="flex justify-end space-x-1.5 items-center">
-                                                        <template x-if="loan.status === 'Menunggu Persetujuan'"><button @click="approveLoan(loan.id)" :disabled="actionLoading" class="bg-emerald-700 hover:bg-emerald-800 text-white px-2.5 py-1.5 rounded-xl text-[10px] font-bold shadow-sm disabled:opacity-50">Setujui</button></template>
-                                                        <template x-if="loan.status === 'Dipinjam'"><button @click="openReturnModal(loan)" class="bg-indigo-600 hover:bg-indigo-700 text-white px-2.5 py-1.5 rounded-xl text-[10px] font-bold shadow-sm">Kembali</button></template>
-                                                        <button @click="editLoan(loan)" class="p-1.5 text-slate-600 hover:text-md3-primary rounded-xl bg-slate-100 hover:bg-slate-200 transition" title="Edit Peminjaman"><i class="fa-solid fa-pen-to-square"></i></button>
+                                                    <div class="d-flex justify-content-end gap-1 align-items-center">
+                                                        <template x-if="loan.status === 'Menunggu Persetujuan'"><button @click="approveLoan(loan.id)" :disabled="actionLoading" class="btn btn-sm btn-success py-1 px-2 text-[10px]">Setujui</button></template>
+                                                        <template x-if="loan.status === 'Dipinjam'"><button @click="openReturnModal(loan)" class="btn btn-sm btn-primary py-1 px-2 text-[10px]">Kembali</button></template>
+                                                        <button @click="editLoan(loan)" class="btn btn-sm btn-outline-secondary py-1 px-2" title="Edit Peminjaman"><i class="fa-solid fa-pen-to-square"></i></button>
                                                         <template x-if="loan.status !== 'Dipinjam'">
-                                                            <button @click="confirmDelete('loans', loan.id, loan.kodePinjam, loan.status)" class="p-1.5 text-red-600 hover:bg-red-100 rounded-xl bg-red-50 transition" title="Hapus / Batalkan"><i class="fa-solid fa-trash-can"></i></button>
+                                                            <button @click="confirmDelete('loans', loan.id, loan.kodePinjam, loan.status)" class="btn btn-sm btn-outline-danger py-1 px-2" title="Hapus / Batalkan"><i class="fa-solid fa-trash-can"></i></button>
                                                         </template>
                                                     </div>
                                                 </template>
@@ -495,16 +498,16 @@
             <!-- ================= TAB 3: INVENTARIS ALAT ================= -->
             <div x-show="activeTab === 'alat'" class="space-y-4" x-cloak>
                 <div class="bg-white p-5 rounded-[24px] border border-md3-surfaceVariant shadow-sm flex flex-col sm:flex-row justify-between items-center gap-4">
-                    <input type="text" x-model="searchAlat" @input="currentPageAlat = 1" placeholder="Cari kode, nama, atau merk..." class="p-3 border border-md3-surfaceVariant rounded-2xl text-xs w-full sm:w-80 focus:ring-2 focus:ring-md3-primary focus:outline-none bg-slate-50">
-                    <div class="flex space-x-2 w-full sm:w-auto justify-end">
-                        <button @click="exportAlatToExcel()" class="bg-emerald-700 hover:bg-emerald-800 text-white font-bold px-4 py-2.5 rounded-md3-full text-xs flex items-center space-x-1 shadow transition"><i class="fa-solid fa-file-excel"></i><span class="hidden sm:inline">Export</span></button>
-                        <template x-if="userRole === 'admin'"><button @click="openModal('alat')" class="bg-md3-primary hover:bg-blue-800 text-white font-bold px-5 py-2.5 rounded-md3-full text-xs shadow transition">+ Tambah Alat</button></template>
+                    <input type="text" x-model="searchAlat" @input="currentPageAlat = 1" placeholder="Cari kode, nama, atau merk..." class="form-control form-control-sm w-full sm:w-80">
+                    <div class="d-flex gap-2 w-full sm:w-auto justify-end">
+                        <button @click="exportAlatToExcel()" class="btn btn-success btn-sm d-flex align-items-center gap-1"><i class="fa-solid fa-file-excel"></i><span class="d-none d-sm-inline">Export</span></button>
+                        <template x-if="userRole === 'admin'"><button @click="openModal('alat')" class="btn btn-primary btn-sm">+ Tambah Alat</button></template>
                     </div>
                 </div>
                 <div class="bg-white rounded-[24px] border border-md3-surfaceVariant shadow-sm overflow-hidden">
                     <div class="overflow-x-auto">
-                        <table class="w-full text-left text-xs">
-                            <thead class="bg-slate-900 text-white uppercase font-semibold">
+                        <table class="table table-hover align-middle mb-0 text-xs">
+                            <thead class="table-dark uppercase font-semibold">
                                 <tr>
                                     <th class="p-3.5">Kode Alat</th>
                                     <th class="p-3.5">Nama Alat & Merk</th>
@@ -513,30 +516,30 @@
                                     <th class="p-3.5 text-center">Total Unit</th>
                                     <th class="p-3.5 text-center">Tersedia Saat Ini</th>
                                     <th class="p-3.5 text-center">Rincian Kondisi</th>
-                                    <template x-if="userRole === 'admin'"><th class="p-3.5 text-right">Aksi Admin</th></template>
+                                    <template x-if="userRole === 'admin'"><th class="p-3.5 text-end">Aksi Admin</th></template>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-slate-100">
                                 <template x-for="alat in paginatedAlat" :key="alat.id">
                                     <tr class="hover:bg-slate-50 transition">
                                         <td class="p-3.5 font-mono font-bold text-md3-primary" x-text="alat.kodeAlat"></td>
-                                        <td class="p-3.5"><p class="font-bold text-slate-900" x-text="alat.namaAlat"></p><p class="text-[10px] text-slate-400" x-text="alat.merk || '-'"></p></td>
-                                        <td class="p-3.5"><span class="px-2.5 py-1 rounded-md3-full bg-slate-100 text-slate-700 font-semibold" x-text="alat.kategori"></span></td>
+                                        <td class="p-3.5"><p class="font-bold text-slate-900 mb-0" x-text="alat.namaAlat"></p><p class="text-[10px] text-slate-400 mb-0" x-text="alat.merk || '-'"></p></td>
+                                        <td class="p-3.5"><span class="badge bg-secondary" x-text="alat.kategori"></span></td>
                                         <td class="p-3.5 font-mono text-slate-700 font-semibold" x-text="alat.lokasiRak || '-'"></td>
                                         <td class="p-3.5 text-center font-bold text-slate-900" x-text="alat.jumlahTotal"></td>
-                                        <td class="p-3.5 text-center"><span class="px-2.5 py-1 rounded-md3-full bg-emerald-100 text-emerald-800 font-bold shadow-sm" x-text="alat.jumlahTersedia + ' Unit'"></span></td>
+                                        <td class="p-3.5 text-center"><span class="badge bg-success" x-text="alat.jumlahTersedia + ' Unit'"></span></td>
                                         <td class="p-3.5 text-center">
-                                            <div class="flex justify-center gap-1.5">
-                                                <span class="px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded-xl font-bold text-[10px]" x-text="'B:' + (alat.kondisiBaik !== undefined ? alat.kondisiBaik : alat.jumlahTotal)"></span>
-                                                <span class="px-2 py-0.5 bg-amber-100 text-amber-800 rounded-xl font-bold text-[10px]" x-text="'S:' + (alat.kondisiServis || 0)"></span>
-                                                <span class="px-2 py-0.5 bg-red-100 text-red-800 rounded-xl font-bold text-[10px]" x-text="'R:' + (alat.kondisiRusak || 0)"></span>
+                                            <div class="d-flex justify-content-center gap-1">
+                                                <span class="badge bg-success-subtle text-success" x-text="'B:' + (alat.kondisiBaik !== undefined ? alat.kondisiBaik : alat.jumlahTotal)"></span>
+                                                <span class="badge bg-warning-subtle text-warning" x-text="'S:' + (alat.kondisiServis || 0)"></span>
+                                                <span class="badge bg-danger-subtle text-danger" x-text="'R:' + (alat.kondisiRusak || 0)"></span>
                                             </div>
                                         </td>
                                         <template x-if="userRole === 'admin'">
-                                            <td class="p-3.5 text-right">
-                                                <div class="flex justify-end space-x-1.5">
-                                                    <button @click="editAlat(alat)" class="p-1.5 text-slate-600 hover:text-md3-primary rounded-xl bg-slate-100 hover:bg-slate-200 transition" title="Edit"><i class="fa-solid fa-pen-to-square"></i></button>
-                                                    <button @click="confirmDelete('alat', alat.id, alat.namaAlat, 'Aman')" class="p-1.5 text-red-600 hover:bg-red-100 rounded-xl bg-red-50 transition" title="Hapus"><i class="fa-solid fa-trash-can"></i></button>
+                                            <td class="p-3.5 text-end">
+                                                <div class="d-flex justify-content-end gap-1">
+                                                    <button @click="editAlat(alat)" class="btn btn-sm btn-outline-secondary py-1 px-2" title="Edit"><i class="fa-solid fa-pen-to-square"></i></button>
+                                                    <button @click="confirmDelete('alat', alat.id, alat.namaAlat, 'Aman')" class="btn btn-sm btn-outline-danger py-1 px-2" title="Hapus"><i class="fa-solid fa-trash-can"></i></button>
                                                 </div>
                                             </td>
                                         </template>
@@ -549,10 +552,10 @@
                         </table>
                     </div>
                     <!-- Paginasi Inventaris Alat -->
-                    <div class="p-3 border-t bg-white flex justify-between items-center text-xs text-slate-600 pagination-controls">
-                        <div class="flex items-center space-x-2">
+                    <div class="p-3 border-t bg-white d-flex justify-content-between align-items-center text-xs text-slate-600 pagination-controls">
+                        <div class="d-flex align-items-center gap-2">
                             <span>Tampilkan</span>
-                            <select x-model="itemsPerPageAlat" @change="currentPageAlat = 1" class="border p-1 rounded">
+                            <select x-model="itemsPerPageAlat" @change="currentPageAlat = 1" class="form-select form-select-sm w-auto">
                                 <option value="10">10</option>
                                 <option value="25">25</option>
                                 <option value="50">50</option>
@@ -561,11 +564,11 @@
                             </select>
                             <span>data per halaman</span>
                         </div>
-                        <div class="flex items-center space-x-4">
+                        <div class="d-flex align-items-center gap-3">
                             <span x-text="'Halaman ' + currentPageAlat + ' dari ' + totalPagesAlat"></span>
-                            <div class="flex space-x-1">
-                                <button @click="if(currentPageAlat > 1) currentPageAlat--" :disabled="currentPageAlat === 1" class="px-2 py-1 border rounded disabled:opacity-50 hover:bg-slate-50"><i class="fa-solid fa-chevron-left"></i></button>
-                                <button @click="if(currentPageAlat < totalPagesAlat) currentPageAlat++" :disabled="currentPageAlat === totalPagesAlat || totalPagesAlat === 0" class="px-2 py-1 border rounded disabled:opacity-50 hover:bg-slate-50"><i class="fa-solid fa-chevron-right"></i></button>
+                            <div class="btn-group btn-group-sm">
+                                <button @click="if(currentPageAlat > 1) currentPageAlat--" :disabled="currentPageAlat === 1" class="btn btn-outline-secondary"><i class="fa-solid fa-chevron-left"></i></button>
+                                <button @click="if(currentPageAlat < totalPagesAlat) currentPageAlat++" :disabled="currentPageAlat === totalPagesAlat || totalPagesAlat === 0" class="btn btn-outline-secondary"><i class="fa-solid fa-chevron-right"></i></button>
                             </div>
                         </div>
                     </div>
@@ -575,16 +578,16 @@
             <!-- ================= TAB 4: STOK OPNAME BAHAN ================= -->
             <div x-show="activeTab === 'opname'" class="space-y-4" x-cloak>
                 <div class="bg-white p-5 rounded-[24px] border border-md3-surfaceVariant shadow-sm flex flex-col sm:flex-row justify-between items-center gap-4">
-                    <input type="text" x-model="searchBahan" @input="currentPageOpname = 1" placeholder="Cari bahan praktik..." class="p-3 border border-md3-surfaceVariant rounded-2xl text-xs w-full sm:w-80 focus:ring-2 focus:ring-md3-primary focus:outline-none bg-slate-50">
-                    <div class="flex space-x-2 w-full sm:w-auto justify-end">
-                        <button @click="exportBahanToExcel()" class="bg-emerald-700 hover:bg-emerald-800 text-white font-bold px-4 py-2.5 rounded-md3-full text-xs flex items-center space-x-1 shadow transition"><i class="fa-solid fa-file-excel"></i><span class="hidden sm:inline">Export</span></button>
-                        <template x-if="userRole === 'admin'"><button @click="openModal('bahan')" class="bg-md3-primary hover:bg-blue-800 text-white font-bold px-5 py-2.5 rounded-md3-full text-xs shadow transition">+ Tambah Bahan</button></template>
+                    <input type="text" x-model="searchBahan" @input="currentPageOpname = 1" placeholder="Cari bahan praktik..." class="form-control form-control-sm w-full sm:w-80">
+                    <div class="d-flex gap-2 w-full sm:w-auto justify-end">
+                        <button @click="exportBahanToExcel()" class="btn btn-success btn-sm d-flex align-items-center gap-1"><i class="fa-solid fa-file-excel"></i><span class="d-none d-sm-inline">Export</span></button>
+                        <template x-if="userRole === 'admin'"><button @click="openModal('bahan')" class="btn btn-primary btn-sm">+ Tambah Bahan</button></template>
                     </div>
                 </div>
                 <div class="bg-white rounded-[24px] border border-md3-surfaceVariant shadow-sm overflow-hidden">
                     <div class="overflow-x-auto">
-                        <table class="w-full text-left text-xs">
-                            <thead class="bg-slate-900 text-white uppercase font-semibold">
+                        <table class="table table-hover align-middle mb-0 text-xs">
+                            <thead class="table-dark uppercase font-semibold">
                                 <tr>
                                     <th class="p-3.5">Kode</th>
                                     <th class="p-3.5">Nama Bahan</th>
@@ -593,7 +596,7 @@
                                     <th class="p-3.5 text-center">Stok Sistem</th>
                                     <th class="p-3.5 text-center">Min Stok</th>
                                     <th class="p-3.5 text-center">Status</th>
-                                    <template x-if="userRole === 'admin'"><th class="p-3.5 text-right">Aksi Opname</th></template>
+                                    <template x-if="userRole === 'admin'"><th class="p-3.5 text-end">Aksi Opname</th></template>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-slate-100">
@@ -605,12 +608,12 @@
                                         <td class="p-3.5 text-center" x-text="bahan.satuan"></td>
                                         <td class="p-3.5 text-center font-bold text-sm text-slate-900" x-text="bahan.stokSistem"></td>
                                         <td class="p-3.5 text-center text-slate-500 font-semibold" x-text="bahan.minStok || 2"></td>
-                                        <td class="p-3.5 text-center"><span class="px-2.5 py-1 rounded-md3-full text-[10px] font-bold shadow-sm" :class="bahan.stokSistem <= (bahan.minStok || 2) ? 'bg-red-100 text-red-800' : 'bg-emerald-100 text-emerald-800'" x-text="bahan.stokSistem <= (bahan.minStok || 2) ? 'Kritis' : 'Cukup'"></span></td>
+                                        <td class="p-3.5 text-center"><span class="badge" :class="bahan.stokSistem <= (bahan.minStok || 2) ? 'bg-danger' : 'bg-success'" x-text="bahan.stokSistem <= (bahan.minStok || 2) ? 'Kritis' : 'Cukup'"></span></td>
                                         <template x-if="userRole === 'admin'">
-                                            <td class="p-3.5 text-right">
-                                                <div class="flex justify-end space-x-1.5">
-                                                    <button @click="openOpnameModal(bahan)" class="bg-slate-900 hover:bg-slate-800 text-white px-3 py-1.5 rounded-xl text-[10px] font-bold shadow-sm transition">Adjust</button>
-                                                    <button @click="confirmDelete('bahan', bahan.id, bahan.namaBahan, 'Aman')" class="p-1.5 text-slate-400 hover:text-red-600 rounded-xl hover:bg-red-50 transition"><i class="fa-solid fa-trash-can"></i></button>
+                                            <td class="p-3.5 text-end">
+                                                <div class="d-flex justify-content-end gap-1">
+                                                    <button @click="openOpnameModal(bahan)" class="btn btn-sm btn-dark py-1 px-2">Adjust</button>
+                                                    <button @click="confirmDelete('bahan', bahan.id, bahan.namaBahan, 'Aman')" class="btn btn-sm btn-outline-danger py-1 px-2"><i class="fa-solid fa-trash-can"></i></button>
                                                 </div>
                                             </td>
                                         </template>
@@ -623,10 +626,10 @@
                         </table>
                     </div>
                     <!-- Paginasi Stok Opname -->
-                    <div class="p-3 border-t bg-white flex justify-between items-center text-xs text-slate-600 pagination-controls">
-                        <div class="flex items-center space-x-2">
+                    <div class="p-3 border-t bg-white d-flex justify-content-between align-items-center text-xs text-slate-600 pagination-controls">
+                        <div class="d-flex align-items-center gap-2">
                             <span>Tampilkan</span>
-                            <select x-model="itemsPerPageOpname" @change="currentPageOpname = 1" class="border p-1 rounded">
+                            <select x-model="itemsPerPageOpname" @change="currentPageOpname = 1" class="form-select form-select-sm w-auto">
                                 <option value="10">10</option>
                                 <option value="25">25</option>
                                 <option value="50">50</option>
@@ -635,11 +638,11 @@
                             </select>
                             <span>data per halaman</span>
                         </div>
-                        <div class="flex items-center space-x-4">
+                        <div class="d-flex align-items-center gap-3">
                             <span x-text="'Halaman ' + currentPageOpname + ' dari ' + totalPagesOpname"></span>
-                            <div class="flex space-x-1">
-                                <button @click="if(currentPageOpname > 1) currentPageOpname--" :disabled="currentPageOpname === 1" class="px-2 py-1 border rounded disabled:opacity-50 hover:bg-slate-50"><i class="fa-solid fa-chevron-left"></i></button>
-                                <button @click="if(currentPageOpname < totalPagesOpname) currentPageOpname++" :disabled="currentPageOpname === totalPagesOpname || totalPagesOpname === 0" class="px-2 py-1 border rounded disabled:opacity-50 hover:bg-slate-50"><i class="fa-solid fa-chevron-right"></i></button>
+                            <div class="btn-group btn-group-sm">
+                                <button @click="if(currentPageOpname > 1) currentPageOpname--" :disabled="currentPageOpname === 1" class="btn btn-outline-secondary"><i class="fa-solid fa-chevron-left"></i></button>
+                                <button @click="if(currentPageOpname < totalPagesOpname) currentPageOpname++" :disabled="currentPageOpname === totalPagesOpname || totalPagesOpname === 0" class="btn btn-outline-secondary"><i class="fa-solid fa-chevron-right"></i></button>
                             </div>
                         </div>
                     </div>
@@ -653,27 +656,27 @@
                         <h3 class="font-bold text-slate-900 text-base">Catatan Pemakaian Bahan Praktik</h3>
                         <p class="text-xs text-md3-outline">Rekapitulasi bahan habis pakai yang digunakan dalam praktik</p>
                     </div>
-                    <template x-if="userRole === 'admin'"><button @click="openModal('usage')" class="bg-md3-primary hover:bg-blue-800 text-white font-bold px-5 py-2.5 rounded-md3-full text-xs shadow transition">+ Catat Penggunaan</button></template>
+                    <template x-if="userRole === 'admin'"><button @click="openModal('usage')" class="btn btn-primary btn-sm">+ Catat Penggunaan</button></template>
                 </div>
                 <div class="bg-white rounded-[24px] border border-md3-surfaceVariant shadow-sm overflow-hidden">
                     <div class="overflow-x-auto">
-                        <table class="w-full text-left text-xs">
-                            <thead class="bg-slate-900 text-white uppercase font-semibold">
-                                <tr><th class="p-3.5">Waktu</th><th class="p-3.5">Nama Bahan</th><th class="p-3.5 text-center">Jumlah Pakai</th><th class="p-3.5">Kelas / Topik</th><th class="p-3.5">Instruktur</th><th class="p-3.5 text-right">Aksi</th></tr>
+                        <table class="table table-hover align-middle mb-0 text-xs">
+                            <thead class="table-dark uppercase font-semibold">
+                                <tr><th class="p-3.5">Waktu</th><th class="p-3.5">Nama Bahan</th><th class="p-3.5 text-center">Jumlah Pakai</th><th class="p-3.5">Kelas / Topik</th><th class="p-3.5">Instruktur</th><th class="p-3.5 text-end">Aksi</th></tr>
                             </thead>
                             <tbody class="divide-y divide-slate-100">
                                 <template x-for="item in usageLogs" :key="item.id">
                                     <tr class="hover:bg-slate-50 transition">
                                         <td class="p-3.5 font-mono text-slate-500" x-text="formatDateTime(item.timestamp)"></td>
                                         <td class="p-3.5 font-bold text-slate-900" x-text="item.namaBahan"></td>
-                                        <td class="p-3.5 text-center font-bold text-red-600" x-text="'-' + item.jumlah + ' ' + (item.satuan || '')"></td>
+                                        <td class="p-3.5 text-center font-bold text-danger" x-text="'-' + item.jumlah + ' ' + (item.satuan || '')"></td>
                                         <td class="p-3.5 text-slate-700" x-text="item.kelas + ' - ' + item.topik"></td>
                                         <td class="p-3.5" x-text="item.instruktur"></td>
-                                        <td class="p-3.5 text-right">
-                                            <div class="flex justify-end space-x-1.5 items-center">
-                                                <button @click="showUsageDetail(item)" class="p-1.5 text-blue-600 hover:bg-blue-100 rounded-xl bg-blue-50 transition" title="Lihat Detail Kontak"><i class="fa-solid fa-circle-info"></i></button>
+                                        <td class="p-3.5 text-end">
+                                            <div class="d-flex justify-content-end gap-1 align-items-center">
+                                                <button @click="showUsageDetail(item)" class="btn btn-sm btn-outline-primary py-1 px-2" title="Lihat Detail Kontak"><i class="fa-solid fa-circle-info"></i></button>
                                                 <template x-if="userRole === 'admin'">
-                                                    <button @click="confirmDelete('usage', item.id, item.namaBahan, 'Aman')" class="p-1.5 text-slate-400 hover:text-red-600 rounded-xl hover:bg-red-50 transition" title="Hapus"><i class="fa-solid fa-trash-can"></i></button>
+                                                    <button @click="confirmDelete('usage', item.id, item.namaBahan, 'Aman')" class="btn btn-sm btn-outline-danger py-1 px-2" title="Hapus"><i class="fa-solid fa-trash-can"></i></button>
                                                 </template>
                                             </div>
                                         </td>
@@ -727,7 +730,7 @@
                         </div>
                         <div class="flex items-center space-x-2 bg-slate-50 border border-slate-200 px-3 py-2 rounded-2xl text-xs shadow-sm">
                             <i class="fa-solid fa-filter text-md3-primary"></i><span class="font-bold text-slate-700">Modul:</span>
-                            <select x-model="reportFilterType" class="bg-transparent font-bold focus:outline-none text-slate-800 cursor-pointer max-w-[150px]">
+                            <select x-model="reportFilterType" class="form-select form-select-sm bg-transparent font-bold border-0 shadow-none cursor-pointer">
                                 <option value="semua">Semua Laporan (Lengkap)</option>
                                 <option value="peminjaman">1. Peminjaman Alat</option>
                                 <option value="penggunaan">2. Penggunaan Bahan</option>
@@ -739,7 +742,7 @@
                             <i class="fa-solid fa-calendar-day text-emerald-700"></i><span class="font-bold text-slate-700">Tgl Cetak:</span>
                             <input type="date" x-model="reportPrintDate" class="bg-transparent font-bold focus:outline-none text-slate-800 cursor-pointer w-[110px]">
                         </div>
-                        <button type="button" @click="triggerPrint()" class="bg-slate-900 hover:bg-slate-800 text-amber-400 font-bold px-4 py-2.5 rounded-md3-full text-xs flex items-center space-x-2 transition shadow-md active:scale-95">
+                        <button type="button" @click="triggerPrint()" class="btn btn-dark text-amber-400 font-bold px-4 py-2.5 rounded-pill text-xs d-flex align-items-center gap-2 shadow-sm">
                             <i class="fa-solid fa-print text-sm"></i><span>Cetak PDF</span>
                         </button>
                     </div>
@@ -752,8 +755,8 @@
                         <span>1. Rekapitulasi Peminjaman Alat Praktik (Periode: <span x-text="selectedMonthName"></span>)</span>
                     </h4>
                     <div class="overflow-x-auto">
-                        <table class="w-full text-left text-xs">
-                            <thead class="bg-slate-900 text-white uppercase font-semibold">
+                        <table class="table table-bordered table-sm align-middle text-xs">
+                            <thead class="table-dark uppercase font-semibold">
                                 <tr>
                                     <th class="p-3">No</th>
                                     <th class="p-3">Kode TRX</th>
@@ -799,8 +802,8 @@
                         <span>2. Rekapitulasi Penggunaan Bahan Praktik (Periode: <span x-text="selectedMonthName"></span>)</span>
                     </h4>
                     <div class="overflow-x-auto">
-                        <table class="w-full text-left text-xs">
-                            <thead class="bg-slate-900 text-white uppercase font-semibold">
+                        <table class="table table-bordered table-sm align-middle text-xs">
+                            <thead class="table-dark uppercase font-semibold">
                                 <tr>
                                     <th class="p-3">No</th>
                                     <th class="p-3">Waktu</th>
@@ -840,9 +843,9 @@
                             <span class="w-2.5 h-2.5 rounded-md3-full bg-md3-primary"></span>
                             <span>3. Laporan Kondisi Inventaris Alat</span>
                         </h4>
-                        <div class="flex items-center space-x-2 text-xs text-slate-600 no-print">
+                        <div class="d-flex align-items-center gap-2 text-xs text-slate-600 no-print">
                             <span>Tampilkan:</span>
-                            <select x-model="itemsPerPageLaporanAlat" @change="currentPageLaporanAlat = 1" class="border p-1 rounded">
+                            <select x-model="itemsPerPageLaporanAlat" @change="currentPageLaporanAlat = 1" class="form-select form-select-sm w-auto">
                                 <option value="10">10</option>
                                 <option value="25">25</option>
                                 <option value="50">50</option>
@@ -851,8 +854,8 @@
                         </div>
                     </div>
                     <div class="overflow-x-auto">
-                        <table class="w-full text-left text-xs">
-                            <thead class="bg-slate-900 text-white uppercase font-semibold">
+                        <table class="table table-bordered table-sm align-middle text-xs">
+                            <thead class="table-dark uppercase font-semibold">
                                 <tr><th class="p-3">No</th><th class="p-3">Kode Alat</th><th class="p-3">Nama Alat & Merk</th><th class="p-3 text-center">Total Unit</th><th class="p-3 text-center">Tersedia</th><th class="p-3 text-center">Kondisi Baik</th><th class="p-3 text-center">Perlu Servis</th><th class="p-3 text-center">Rusak</th></tr>
                             </thead>
                             <tbody class="divide-y divide-slate-100">
@@ -860,7 +863,7 @@
                                     <tr>
                                         <td class="p-3" x-text="((currentPageLaporanAlat - 1) * (itemsPerPageLaporanAlat === 1000000 ? 0 : itemsPerPageLaporanAlat)) + index + 1"></td>
                                         <td class="p-3 font-mono font-bold text-md3-primary" x-text="alat.kodeAlat"></td>
-                                        <td class="p-3"><p class="font-bold text-slate-900" x-text="alat.namaAlat"></p><p class="text-[10px] text-slate-400" x-text="alat.merk || '-'"></p></td>
+                                        <td class="p-3"><p class="font-bold text-slate-900 mb-0" x-text="alat.namaAlat"></p><p class="text-[10px] text-slate-400 mb-0" x-text="alat.merk || '-'"></p></td>
                                         <td class="p-3 text-center font-bold text-slate-900" x-text="alat.jumlahTotal"></td>
                                         <td class="p-3 text-center font-bold text-emerald-700" x-text="alat.jumlahTersedia"></td>
                                         <td class="p-3 text-center font-semibold text-emerald-600" x-text="alat.kondisiBaik !== undefined ? alat.kondisiBaik : alat.jumlahTotal"></td>
@@ -871,11 +874,11 @@
                             </tbody>
                         </table>
                     </div>
-                    <div x-show="itemsPerPageLaporanAlat !== 1000000" class="flex justify-between items-center text-xs text-slate-600 pt-2 no-print">
+                    <div x-show="itemsPerPageLaporanAlat !== 1000000" class="d-flex justify-content-between align-items-center text-xs text-slate-600 pt-2 no-print">
                         <span x-text="'Halaman ' + currentPageLaporanAlat + ' dari ' + totalPagesLaporanAlat"></span>
-                        <div class="flex space-x-1">
-                            <button @click="if(currentPageLaporanAlat > 1) currentPageLaporanAlat--" :disabled="currentPageLaporanAlat === 1" class="px-2 py-1 border rounded hover:bg-slate-50 disabled:opacity-50"><i class="fa-solid fa-chevron-left"></i></button>
-                            <button @click="if(currentPageLaporanAlat < totalPagesLaporanAlat) currentPageLaporanAlat++" :disabled="currentPageLaporanAlat === totalPagesLaporanAlat || totalPagesLaporanAlat === 0" class="px-2 py-1 border rounded hover:bg-slate-50 disabled:opacity-50"><i class="fa-solid fa-chevron-right"></i></button>
+                        <div class="btn-group btn-group-sm">
+                            <button @click="if(currentPageLaporanAlat > 1) currentPageLaporanAlat--" :disabled="currentPageLaporanAlat === 1" class="btn btn-outline-secondary"><i class="fa-solid fa-chevron-left"></i></button>
+                            <button @click="if(currentPageLaporanAlat < totalPagesLaporanAlat) currentPageLaporanAlat++" :disabled="currentPageLaporanAlat === totalPagesLaporanAlat || totalPagesLaporanAlat === 0" class="btn btn-outline-secondary"><i class="fa-solid fa-chevron-right"></i></button>
                         </div>
                     </div>
                 </div>
@@ -887,9 +890,9 @@
                             <span class="w-2.5 h-2.5 rounded-md3-full bg-md3-primary"></span>
                             <span>4. Laporan Status Stok Opname Bahan Praktik</span>
                         </h4>
-                        <div class="flex items-center space-x-2 text-xs text-slate-600 no-print">
+                        <div class="d-flex align-items-center gap-2 text-xs text-slate-600 no-print">
                             <span>Tampilkan:</span>
-                            <select x-model="itemsPerPageLaporanBahan" @change="currentPageLaporanBahan = 1" class="border p-1 rounded">
+                            <select x-model="itemsPerPageLaporanBahan" @change="currentPageLaporanBahan = 1" class="form-select form-select-sm w-auto">
                                 <option value="10">10</option>
                                 <option value="25">25</option>
                                 <option value="50">50</option>
@@ -898,8 +901,8 @@
                         </div>
                     </div>
                     <div class="overflow-x-auto">
-                        <table class="w-full text-left text-xs">
-                            <thead class="bg-slate-900 text-white uppercase font-semibold">
+                        <table class="table table-bordered table-sm align-middle text-xs">
+                            <thead class="table-dark uppercase font-semibold">
                                 <tr><th class="p-3">No</th><th class="p-3">Kode Bahan</th><th class="p-3">Nama Bahan</th><th class="p-3">Spesifikasi</th><th class="p-3 text-center">Satuan</th><th class="p-3 text-center">Stok Sistem</th><th class="p-3 text-center">Min Stok</th><th class="p-3 text-center">Status Stok</th></tr>
                             </thead>
                             <tbody class="divide-y divide-slate-100">
@@ -913,8 +916,8 @@
                                         <td class="p-3 text-center font-bold text-sm text-slate-900" x-text="bahan.stokSistem"></td>
                                         <td class="p-3 text-center text-slate-500" x-text="bahan.minStok || 2"></td>
                                         <td class="p-3 text-center">
-                                            <span class="px-2.5 py-0.5 rounded-md3-full text-[10px] font-bold shadow-sm" 
-                                                  :class="bahan.stokSistem <= (bahan.minStok || 2) ? 'bg-red-100 text-red-800' : 'bg-emerald-100 text-emerald-800'" 
+                                            <span class="badge" 
+                                                  :class="bahan.stokSistem <= (bahan.minStok || 2) ? 'bg-danger' : 'bg-success'" 
                                                   x-text="bahan.stokSistem <= (bahan.minStok || 2) ? 'Kritis / Rendah' : 'Cukup / Aman'"></span>
                                         </td>
                                     </tr>
@@ -922,11 +925,11 @@
                             </tbody>
                         </table>
                     </div>
-                    <div x-show="itemsPerPageLaporanBahan !== 1000000" class="flex justify-between items-center text-xs text-slate-600 pt-2 no-print">
+                    <div x-show="itemsPerPageLaporanBahan !== 1000000" class="d-flex justify-content-between align-items-center text-xs text-slate-600 pt-2 no-print">
                         <span x-text="'Halaman ' + currentPageLaporanBahan + ' dari ' + totalPagesLaporanBahan"></span>
-                        <div class="flex space-x-1">
-                            <button @click="if(currentPageLaporanBahan > 1) currentPageLaporanBahan--" :disabled="currentPageLaporanBahan === 1" class="px-2 py-1 border rounded hover:bg-slate-50 disabled:opacity-50"><i class="fa-solid fa-chevron-left"></i></button>
-                            <button @click="if(currentPageLaporanBahan < totalPagesLaporanBahan) currentPageLaporanBahan++" :disabled="currentPageLaporanBahan === totalPagesLaporanBahan || totalPagesLaporanBahan === 0" class="px-2 py-1 border rounded hover:bg-slate-50 disabled:opacity-50"><i class="fa-solid fa-chevron-right"></i></button>
+                        <div class="btn-group btn-group-sm">
+                            <button @click="if(currentPageLaporanBahan > 1) currentPageLaporanBahan--" :disabled="currentPageLaporanBahan === 1" class="btn btn-outline-secondary"><i class="fa-solid fa-chevron-left"></i></button>
+                            <button @click="if(currentPageLaporanBahan < totalPagesLaporanBahan) currentPageLaporanBahan++" :disabled="currentPageLaporanBahan === totalPagesLaporanBahan || totalPagesLaporanBahan === 0" class="btn btn-outline-secondary"><i class="fa-solid fa-chevron-right"></i></button>
                         </div>
                     </div>
                 </div>
@@ -958,8 +961,8 @@
                     <h3 class="font-bold text-slate-900">Catatan Audit Sistem (Audit Logs)</h3>
                 </div>
                 <div class="bg-white rounded-[24px] border border-md3-surfaceVariant shadow-sm overflow-hidden">
-                    <table class="w-full text-left text-xs">
-                        <thead class="bg-slate-900 text-white uppercase font-semibold">
+                    <table class="table table-hover align-middle mb-0 text-xs">
+                        <thead class="table-dark uppercase font-semibold">
                             <tr><th class="p-3.5">Waktu</th><th class="p-3.5">Aksi</th><th class="p-3.5">User/Admin</th><th class="p-3.5">Rincian</th></tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100">
@@ -999,42 +1002,42 @@
                     <div class="bg-white p-3 rounded-2xl border space-y-2 shadow-sm">
                         <label class="font-bold block text-slate-700">1. Logo Kop Kiri</label>
                         <div class="h-10 flex items-center"><img :src="settings.logoKananUrl || defaultLogo" class="max-h-10 object-contain"></div>
-                        <input type="file" @change="uploadLogo($event, 'logoKananUrl')" class="w-full text-[10px] text-slate-500">
+                        <input type="file" @change="uploadLogo($event, 'logoKananUrl')" class="form-control form-control-sm">
                     </div>
                     <div class="bg-white p-3 rounded-2xl border space-y-2 shadow-sm">
                         <label class="font-bold block text-slate-700">2. Logo Kop Kanan</label>
                         <div class="h-10 flex items-center"><img :src="settings.logoTsmUrl || defaultLogo" class="max-h-10 object-contain"></div>
-                        <input type="file" @change="uploadLogo($event, 'logoTsmUrl')" class="w-full text-[10px] text-slate-500">
+                        <input type="file" @change="uploadLogo($event, 'logoTsmUrl')" class="form-control form-control-sm">
                     </div>
                     <div class="bg-white p-3 rounded-2xl border space-y-2 shadow-sm">
                         <label class="font-bold block text-slate-700">3. Logo Bengkel TSM</label>
                         <div class="h-10 flex items-center"><img :src="settings.logoTsmHeaderUrl || defaultLogo" class="max-h-10 object-contain"></div>
-                        <input type="file" @change="uploadLogo($event, 'logoTsmHeaderUrl')" class="w-full text-[10px] text-slate-500">
+                        <input type="file" @change="uploadLogo($event, 'logoTsmHeaderUrl')" class="form-control form-control-sm">
                     </div>
                 </div>
             </div>
             <div class="space-y-3 bg-slate-50 p-4 rounded-2xl border">
                 <h4 class="font-bold text-slate-900"><i class="fa-solid fa-school mr-1.5 text-md3-primary"></i> Identitas Sekolah & Kejuruan</h4>
-                <div><label class="font-bold block mb-1">Nama Aplikasi Header</label><input type="text" x-model="settings.namaAplikasi" class="w-full p-2.5 bg-white border rounded-xl focus:ring-2 focus:ring-md3-primary focus:outline-none"></div>
+                <div><label class="font-bold block mb-1">Nama Aplikasi Header</label><input type="text" x-model="settings.namaAplikasi" class="form-control form-control-sm"></div>
                 <div class="grid grid-cols-2 gap-3">
-                    <div><label class="font-bold block mb-1">Nama Sekolah</label><input type="text" x-model="settings.namaSekolah" class="w-full p-2.5 bg-white border rounded-xl focus:ring-2 focus:ring-md3-primary focus:outline-none"></div>
-                    <div><label class="font-bold block mb-1">Singkatan Bengkel</label><input type="text" x-model="settings.singkatanBengkel" class="w-full p-2.5 bg-white border rounded-xl focus:ring-2 focus:ring-md3-primary focus:outline-none"></div>
+                    <div><label class="font-bold block mb-1">Nama Sekolah</label><input type="text" x-model="settings.namaSekolah" class="form-control form-control-sm"></div>
+                    <div><label class="font-bold block mb-1">Singkatan Bengkel</label><input type="text" x-model="settings.singkatanBengkel" class="form-control form-control-sm"></div>
                 </div>
-                <div><label class="font-bold block mb-1">Nama Kejuruan / Bengkel</label><input type="text" x-model="settings.namaKejuruan" class="w-full p-2.5 bg-white border rounded-xl focus:ring-2 focus:ring-md3-primary focus:outline-none"></div>
+                <div><label class="font-bold block mb-1">Nama Kejuruan / Bengkel</label><input type="text" x-model="settings.namaKejuruan" class="form-control form-control-sm"></div>
             </div>
             <div class="space-y-3 bg-slate-50 p-4 rounded-2xl border">
                 <h4 class="font-bold text-slate-900"><i class="fa-solid fa-file-signature mr-1.5 text-md3-primary"></i> Pengesahan Laporan PDF</h4>
                 <div class="grid grid-cols-2 gap-3">
-                    <div><label class="font-bold block mb-1">Nama Kepala Bengkel</label><input type="text" x-model="settings.namaKepalaBengkel" class="w-full p-2.5 bg-white border rounded-xl focus:ring-2 focus:ring-md3-primary focus:outline-none"></div>
-                    <div><label class="font-bold block mb-1">NIP Kepala Bengkel</label><input type="text" x-model="settings.nipKepalaBengkel" class="w-full p-2.5 bg-white border rounded-xl focus:ring-2 focus:ring-md3-primary focus:outline-none"></div>
+                    <div><label class="font-bold block mb-1">Nama Kepala Bengkel</label><input type="text" x-model="settings.namaKepalaBengkel" class="form-control form-control-sm"></div>
+                    <div><label class="font-bold block mb-1">NIP Kepala Bengkel</label><input type="text" x-model="settings.nipKepalaBengkel" class="form-control form-control-sm"></div>
                 </div>
                 <div class="grid grid-cols-2 gap-3 pt-2">
-                    <div><label class="font-bold block mb-1">Nama Toolman / Pengelola</label><input type="text" x-model="settings.namaToolman" class="w-full p-2.5 bg-white border rounded-xl focus:ring-2 focus:ring-md3-primary focus:outline-none"></div>
-                    <div><label class="font-bold block mb-1">NIP / Jabatan Toolman</label><input type="text" x-model="settings.nipToolman" class="w-full p-2.5 bg-white border rounded-xl focus:ring-2 focus:ring-md3-primary focus:outline-none"></div>
+                    <div><label class="font-bold block mb-1">Nama Toolman / Pengelola</label><input type="text" x-model="settings.namaToolman" class="form-control form-control-sm"></div>
+                    <div><label class="font-bold block mb-1">NIP / Jabatan Toolman</label><input type="text" x-model="settings.nipToolman" class="form-control form-control-sm"></div>
                 </div>
             </div>
             <div class="flex justify-end space-x-2 pt-2">
-                <button type="submit" :disabled="actionLoading" class="px-5 py-2.5 bg-md3-primary hover:bg-blue-800 text-white font-bold rounded-md3-full shadow transition disabled:opacity-50"><i class="fa-solid fa-floppy-disk mr-1"></i> Simpan Pengaturan</button>
+                <button type="submit" :disabled="actionLoading" class="btn btn-primary rounded-pill px-4"><i class="fa-solid fa-floppy-disk me-1"></i> Simpan Pengaturan</button>
             </div>
         </form>
     </div>
@@ -1054,25 +1057,25 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-slate-50 p-3.5 rounded-2xl border">
                 <div>
                     <label class="font-bold block mb-1 text-slate-700">Nama Peminjam <span class="text-red-500">*</span></label>
-                    <input type="text" x-model="formStudentLoan.namaPeminjam" required placeholder="Nama Lengkap" class="w-full p-2.5 bg-white border rounded-xl focus:ring-2 focus:ring-md3-primary focus:outline-none">
+                    <input type="text" x-model="formStudentLoan.namaPeminjam" required placeholder="Nama Lengkap" class="form-control form-control-sm">
                 </div>
                 <div>
                     <label class="font-bold block mb-1 text-slate-700">Kelas / Bay Praktik <span class="text-red-500">*</span></label>
-                    <input type="text" x-model="formStudentLoan.kelas" required placeholder="XII TSM 1" class="w-full p-2.5 bg-white border rounded-xl focus:ring-2 focus:ring-md3-primary focus:outline-none">
+                    <input type="text" x-model="formStudentLoan.kelas" required placeholder="XII TSM 1" class="form-control form-control-sm">
                 </div>
                 <div>
                     <label class="font-bold block mb-1 text-slate-700">NIS Peminjam</label>
-                    <input type="text" x-model="formStudentLoan.nis" placeholder="Nomor Induk Siswa" class="w-full p-2.5 bg-white border rounded-xl focus:ring-2 focus:ring-md3-primary focus:outline-none">
+                    <input type="text" x-model="formStudentLoan.nis" placeholder="Nomor Induk Siswa" class="form-control form-control-sm">
                 </div>
                 <div>
                     <label class="font-bold block mb-1 text-slate-700">No. HP / WhatsApp <span class="text-red-500">*</span></label>
-                    <input type="text" x-model="formStudentLoan.noHp" required placeholder="0812xxxx" class="w-full p-2.5 bg-white border rounded-xl focus:ring-2 focus:ring-md3-primary focus:outline-none">
+                    <input type="text" x-model="formStudentLoan.noHp" required placeholder="0812xxxx" class="form-control form-control-sm">
                 </div>
             </div>
             <div class="space-y-3">
                 <div class="flex justify-between items-center">
                     <label class="font-bold text-slate-900"><i class="fa-solid fa-toolbox mr-1 text-md3-primary"></i> Daftar Alat yang Dipinjam</label>
-                    <button type="button" @click="addLoanItem()" class="bg-md3-primaryContainer text-md3-primary font-bold px-3 py-1.5 rounded-md3-full text-xs transition shadow-sm hover:bg-blue-200"><i class="fa-solid fa-plus mr-1"></i> + Tambah Alat Lain</button>
+                    <button type="button" @click="addLoanItem()" class="btn btn-outline-primary btn-sm rounded-pill">+ Tambah Alat Lain</button>
                 </div>
                 <template x-for="(item, index) in formStudentLoan.items" :key="index">
                     <div class="p-3 bg-slate-50 rounded-2xl border relative space-y-2" x-data="{ openDropdown: false }" @click.outside="openDropdown = false">
@@ -1082,7 +1085,7 @@
                         </div>
                         <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
                             <div class="sm:col-span-2 relative">
-                                <input type="text" x-model="item.searchAlatQuery" @focus="openDropdown = true" placeholder="Ketik nama alat untuk mencari..." class="w-full p-2.5 bg-white border rounded-xl text-xs focus:ring-2 focus:ring-md3-primary focus:outline-none font-medium">
+                                <input type="text" x-model="item.searchAlatQuery" @focus="openDropdown = true" placeholder="Ketik nama alat untuk mencari..." class="form-control form-control-sm font-medium">
                                 <div x-show="openDropdown" class="absolute z-30 left-0 right-0 mt-1 bg-white border border-slate-200 rounded-2xl shadow-xl max-h-48 overflow-y-auto custom-scrollbar" x-cloak>
                                     <template x-for="alat in alatList.filter(a => (a.namaAlat + ' ' + (a.kodeAlat || '')).toLowerCase().includes((item.searchAlatQuery || '').toLowerCase()))" :key="alat.id">
                                         <div @click="item.alatId = alat.id; item.searchAlatQuery = alat.namaAlat; openDropdown = false" class="p-2 hover:bg-blue-50 cursor-pointer text-xs border-b border-slate-50 flex justify-between items-center">
@@ -1094,16 +1097,16 @@
                                     </template>
                                 </div>
                             </div>
-                            <div><input type="number" x-model.number="item.jumlah" min="1" required placeholder="Qty" class="w-full p-2.5 bg-white border rounded-xl text-xs font-bold text-center focus:ring-2 focus:ring-md3-primary focus:outline-none"></div>
+                            <div><input type="number" x-model.number="item.jumlah" min="1" required placeholder="Qty" class="form-control form-control-sm text-center fw-bold"></div>
                         </div>
                     </div>
                 </template>
             </div>
             <div class="flex justify-end space-x-2 pt-3 border-t">
-                <button type="button" @click="$store.modals.studentLoan = false" class="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 font-bold rounded-md3-full transition">Batal</button>
-                <button type="submit" :disabled="actionLoading" class="px-5 py-2.5 bg-md3-primary hover:bg-blue-800 text-white font-bold rounded-md3-full shadow transition disabled:opacity-50">
+                <button type="button" @click="$store.modals.studentLoan = false" class="btn btn-light rounded-pill px-3">Batal</button>
+                <button type="submit" :disabled="actionLoading" class="btn btn-primary rounded-pill px-4">
                     <span x-show="!actionLoading">Kirim Pengajuan</span>
-                    <span x-show="actionLoading"><i class="fa-solid fa-circle-notch fa-spin mr-1"></i> Mengirim...</span>
+                    <span x-show="actionLoading"><i class="fa-solid fa-circle-notch fa-spin me-1"></i> Mengirim...</span>
                 </button>
             </div>
         </form>
@@ -1115,16 +1118,16 @@
     <div class="bg-white rounded-[28px] max-w-md w-full p-6 shadow-2xl space-y-4" @click.stop>
         <h3 class="font-bold text-slate-900 text-sm border-b pb-2">Edit Data Peminjam</h3>
         <form @submit.prevent="updateLoan()" class="space-y-3 text-xs" x-data>
-            <div><label class="font-bold block mb-1">Nama Peminjam</label><input type="text" x-model="formEditLoan.namaPeminjam" required class="w-full p-2.5 border rounded-xl focus:ring-2 focus:ring-md3-primary focus:outline-none"></div>
-            <div><label class="font-bold block mb-1">Kelas</label><input type="text" x-model="formEditLoan.kelas" required class="w-full p-2.5 border rounded-xl focus:ring-2 focus:ring-md3-primary focus:outline-none"></div>
-            <div><label class="font-bold block mb-1">No. HP / WhatsApp</label><input type="text" x-model="formEditLoan.noHp" class="w-full p-2.5 border rounded-xl focus:ring-2 focus:ring-md3-primary focus:outline-none"></div>
+            <div><label class="font-bold block mb-1">Nama Peminjam</label><input type="text" x-model="formEditLoan.namaPeminjam" required class="form-control form-control-sm"></div>
+            <div><label class="font-bold block mb-1">Kelas</label><input type="text" x-model="formEditLoan.kelas" required class="form-control form-control-sm"></div>
+            <div><label class="font-bold block mb-1">No. HP / WhatsApp</label><input type="text" x-model="formEditLoan.noHp" class="form-control form-control-sm"></div>
             <div>
                 <label class="font-bold block mb-1 text-slate-700">Jumlah Unit <span class="text-red-500 font-normal" x-show="formEditLoan.status !== 'Menunggu Persetujuan'">(Dikunci)</span></label>
-                <input type="number" x-model.number="formEditLoan.jumlah" min="1" required class="w-full p-2.5 border rounded-xl font-bold focus:ring-2 focus:ring-md3-primary focus:outline-none" :readonly="formEditLoan.status !== 'Menunggu Persetujuan'" :class="formEditLoan.status !== 'Menunggu Persetujuan' ? 'bg-slate-100 cursor-not-allowed' : 'bg-white'">
+                <input type="number" x-model.number="formEditLoan.jumlah" min="1" required class="form-control form-control-sm fw-bold" :readonly="formEditLoan.status !== 'Menunggu Persetujuan'" :class="formEditLoan.status !== 'Menunggu Persetujuan' ? 'bg-slate-100 cursor-not-allowed' : 'bg-white'">
             </div>
             <div class="flex justify-end space-x-2 pt-2 border-t">
-                <button type="button" @click="$store.modals.editLoan = false" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 font-bold rounded-md3-full transition">Batal</button>
-                <button type="submit" :disabled="actionLoading" class="px-4 py-2 bg-md3-primary hover:bg-blue-800 text-white font-bold rounded-md3-full transition shadow disabled:opacity-50">Simpan</button>
+                <button type="button" @click="$store.modals.editLoan = false" class="btn btn-light rounded-pill px-3">Batal</button>
+                <button type="submit" :disabled="actionLoading" class="btn btn-primary rounded-pill px-4">Simpan</button>
             </div>
         </form>
     </div>
@@ -1169,14 +1172,14 @@
                     <h4 class="font-bold text-md3-primary flex items-center mb-2"><i class="fa-solid fa-wrench mr-1.5"></i> Alat yang Dipinjam</h4>
                     <div class="flex justify-between items-center bg-white p-3 rounded-xl border border-slate-100 shadow-sm">
                         <span class="font-bold text-slate-900 text-sm" x-text="selectedLoanDetail.namaAlat"></span>
-                        <span class="px-3 py-1 bg-md3-primary text-white rounded-md3-full font-bold text-[11px]" x-text="selectedLoanDetail.jumlah + ' Unit'"></span>
+                        <span class="badge bg-primary" x-text="selectedLoanDetail.jumlah + ' Unit'"></span>
                     </div>
                 </div>
 
                 <div class="grid grid-cols-2 gap-3">
                     <div class="bg-white border rounded-2xl p-3 text-center">
                         <p class="text-[10px] text-slate-500 font-semibold mb-1">Status Saat Ini</p>
-                        <span class="px-2.5 py-1 rounded-md3-full text-[10px] font-bold uppercase" :class="selectedLoanDetail.status === 'Dipinjam' ? 'bg-blue-100 text-blue-800' : (selectedLoanDetail.status === 'Dikembalikan' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800')" x-text="selectedLoanDetail.status"></span>
+                        <span class="badge" :class="selectedLoanDetail.status === 'Dipinjam' ? 'bg-primary' : (selectedLoanDetail.status === 'Dikembalikan' ? 'bg-success' : 'bg-warning text-dark')" x-text="selectedLoanDetail.status"></span>
                     </div>
                     <div class="bg-white border rounded-2xl p-3 text-center">
                         <p class="text-[10px] text-slate-500 font-semibold mb-1">Kondisi Alat Kembali</p>
@@ -1197,7 +1200,7 @@
             </div>
         </template>
         <div class="mt-5">
-            <button @click="$store.modals.loanDetail = false" class="w-full py-3 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold rounded-md3-full transition">Tutup Detail</button>
+            <button @click="$store.modals.loanDetail = false" class="btn btn-light w-full rounded-pill py-2">Tutup Detail</button>
         </div>
     </div>
 </div>
@@ -1221,7 +1224,7 @@
                 <div class="bg-amber-50/50 p-4 rounded-2xl border border-amber-100 text-center">
                     <p class="text-[10px] text-slate-500 font-semibold mb-1 uppercase tracking-wide">Bahan yang Dipakai</p>
                     <h4 class="font-bold text-slate-900 text-lg mb-2" x-text="selectedUsageDetail.namaBahan"></h4>
-                    <span class="px-4 py-1.5 bg-red-100 text-red-700 rounded-md3-full font-black text-sm border border-red-200 shadow-sm" x-text="'- ' + selectedUsageDetail.jumlah + ' ' + (selectedUsageDetail.satuan || '')"></span>
+                    <span class="badge bg-danger-subtle text-danger border border-danger p-2" x-text="'- ' + selectedUsageDetail.jumlah + ' ' + (selectedUsageDetail.satuan || '')"></span>
                 </div>
 
                 <div class="bg-white border rounded-2xl p-4 space-y-3">
@@ -1237,7 +1240,7 @@
             </div>
         </template>
         <div class="mt-4">
-            <button @click="$store.modals.usageDetail = false" class="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold rounded-md3-full transition">Tutup Detail</button>
+            <button @click="$store.modals.usageDetail = false" class="btn btn-light w-full rounded-pill py-2">Tutup Detail</button>
         </div>
     </div>
 </div>
@@ -1259,35 +1262,35 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                     <label class="font-bold block mb-1 text-slate-700">Kode Alat <span class="text-red-500">*</span></label>
-                    <input type="text" x-model="formAlat.kodeAlat" required placeholder="ALT-TSM-004" class="w-full p-2.5 bg-slate-50 border rounded-xl font-mono focus:ring-2 focus:ring-md3-primary focus:outline-none">
+                    <input type="text" x-model="formAlat.kodeAlat" required placeholder="ALT-TSM-004" class="form-control form-control-sm font-mono">
                 </div>
                 <div>
                     <label class="font-bold block mb-1 text-slate-700">Kategori Alat <span class="text-red-500">*</span></label>
-                    <select x-model="formAlat.kategori" required class="w-full p-2.5 bg-slate-50 border rounded-xl focus:ring-2 focus:ring-md3-primary focus:outline-none">
+                    <select x-model="formAlat.kategori" required class="form-select form-select-sm">
                         <option value="Hand Tools">Hand Tools</option><option value="Special Service Tools">Special Service Tools</option><option value="Measuring Tools">Measuring Tools</option><option value="Diagnostic Tools">Diagnostic Tools</option><option value="Power Tools">Power Tools</option><option value="Engine & Chassis">Engine & Chassis</option><option value="Electric Tools">Electric Tools</option><option value="General Tools">General Tools</option>
                     </select>
                 </div>
             </div>
             <div>
                 <label class="font-bold block mb-1 text-slate-700">Nama Alat Praktik <span class="text-red-500">*</span></label>
-                <input type="text" x-model="formAlat.namaAlat" required placeholder="Contoh: Kunci Momen 1/2 Inch" class="w-full p-2.5 bg-slate-50 border rounded-xl focus:ring-2 focus:ring-md3-primary focus:outline-none">
+                <input type="text" x-model="formAlat.namaAlat" required placeholder="Contoh: Kunci Momen 1/2 Inch" class="form-control form-control-sm">
             </div>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div><label class="font-bold block mb-1 text-slate-700">Merk / Brand</label><input type="text" x-model="formAlat.merk" placeholder="Contoh: Tekiro" class="w-full p-2.5 bg-slate-50 border rounded-xl focus:ring-2 focus:ring-md3-primary focus:outline-none"></div>
-                <div><label class="font-bold block mb-1 text-slate-700">Lokasi Rak / Lemari <span class="text-red-500">*</span></label><input type="text" x-model="formAlat.lokasiRak" required placeholder="RAK-A1" class="w-full p-2.5 bg-slate-50 border rounded-xl focus:ring-2 focus:ring-md3-primary focus:outline-none"></div>
+                <div><label class="font-bold block mb-1 text-slate-700">Merk / Brand</label><input type="text" x-model="formAlat.merk" placeholder="Contoh: Tekiro" class="form-control form-control-sm"></div>
+                <div><label class="font-bold block mb-1 text-slate-700">Lokasi Rak / Lemari <span class="text-red-500">*</span></label><input type="text" x-model="formAlat.lokasiRak" required placeholder="RAK-A1" class="form-control form-control-sm"></div>
             </div>
             <div class="bg-slate-50 p-3.5 rounded-2xl border space-y-2 relative">
                 <label class="font-bold block text-slate-900">Rincian Jumlah & Kondisi Unit</label>
                 <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                    <div><label class="block text-[10px] text-slate-500 font-semibold mb-1">Total Qty</label><input type="number" x-bind:value="calculatedTotalQty" readonly class="w-full p-2 bg-slate-200 border rounded-xl font-bold text-center text-slate-700 cursor-not-allowed"></div>
-                    <div><label class="block text-[10px] text-emerald-700 font-semibold mb-1">Kondisi Baik</label><input type="number" x-model.number="formAlat.kondisiBaik" min="0" required class="w-full p-2 bg-emerald-50 border border-emerald-200 rounded-xl font-bold text-center text-emerald-800 focus:outline-none"></div>
-                    <div><label class="block text-[10px] text-amber-700 font-semibold mb-1">Perlu Servis</label><input type="number" x-model.number="formAlat.kondisiServis" min="0" required class="w-full p-2 bg-amber-50 border border-amber-200 rounded-xl font-bold text-center text-amber-800 focus:outline-none"></div>
-                    <div><label class="block text-[10px] text-red-700 font-semibold mb-1">Rusak</label><input type="number" x-model.number="formAlat.kondisiRusak" min="0" required class="w-full p-2 bg-red-50 border border-red-200 rounded-xl font-bold text-center text-red-800 focus:outline-none"></div>
+                    <div><label class="block text-[10px] text-slate-500 font-semibold mb-1">Total Qty</label><input type="number" x-bind:value="calculatedTotalQty" readonly class="form-control form-control-sm text-center fw-bold bg-secondary-subtle"></div>
+                    <div><label class="block text-[10px] text-emerald-700 font-semibold mb-1">Kondisi Baik</label><input type="number" x-model.number="formAlat.kondisiBaik" min="0" required class="form-control form-control-sm text-center fw-bold text-success bg-success-subtle"></div>
+                    <div><label class="block text-[10px] text-amber-700 font-semibold mb-1">Perlu Servis</label><input type="number" x-model.number="formAlat.kondisiServis" min="0" required class="form-control form-control-sm text-center fw-bold text-warning bg-warning-subtle"></div>
+                    <div><label class="block text-[10px] text-red-700 font-semibold mb-1">Rusak</label><input type="number" x-model.number="formAlat.kondisiRusak" min="0" required class="form-control form-control-sm text-center fw-bold text-danger bg-danger-subtle"></div>
                 </div>
             </div>
             <div class="flex justify-end space-x-2 pt-3 border-t">
-                <button type="button" @click="$store.modals.alat = false" class="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 font-bold rounded-md3-full transition">Batal</button>
-                <button type="submit" :disabled="actionLoading" class="px-5 py-2.5 bg-md3-primary hover:bg-blue-800 text-white font-bold rounded-md3-full shadow transition disabled:opacity-50">Simpan</button>
+                <button type="button" @click="$store.modals.alat = false" class="btn btn-light rounded-pill px-3">Batal</button>
+                <button type="submit" :disabled="actionLoading" class="btn btn-primary rounded-pill px-4">Simpan</button>
             </div>
         </form>
     </div>
@@ -1298,17 +1301,17 @@
     <div class="bg-white rounded-[28px] max-w-md w-full p-6 shadow-2xl space-y-4" @click.stop>
         <h3 class="font-bold text-slate-900 text-sm border-b pb-2">Tambah Bahan Praktik Baru</h3>
         <form @submit.prevent="saveBahan()" class="space-y-3 text-xs" x-data>
-            <div><label class="font-bold block mb-1">Kode Bahan</label><input type="text" x-model="formBahan.kodeBahan" required placeholder="BHN-TSM-03" class="w-full p-2.5 border rounded-xl font-mono focus:ring-2 focus:ring-md3-primary focus:outline-none"></div>
-            <div><label class="font-bold block mb-1">Nama Bahan</label><input type="text" x-model="formBahan.namaBahan" required placeholder="Contoh: Oli Mesin" class="w-full p-2.5 border rounded-xl focus:ring-2 focus:ring-md3-primary focus:outline-none"></div>
-            <div><label class="font-bold block mb-1">Spesifikasi</label><input type="text" x-model="formBahan.spesifikasi" placeholder="Contoh: SAE 10W-30" class="w-full p-2.5 border rounded-xl focus:ring-2 focus:ring-md3-primary focus:outline-none"></div>
+            <div><label class="font-bold block mb-1">Kode Bahan</label><input type="text" x-model="formBahan.kodeBahan" required placeholder="BHN-TSM-03" class="form-control form-control-sm font-mono"></div>
+            <div><label class="font-bold block mb-1">Nama Bahan</label><input type="text" x-model="formBahan.namaBahan" required placeholder="Contoh: Oli Mesin" class="form-control form-control-sm"></div>
+            <div><label class="font-bold block mb-1">Spesifikasi</label><input type="text" x-model="formBahan.spesifikasi" placeholder="Contoh: SAE 10W-30" class="form-control form-control-sm"></div>
             <div class="grid grid-cols-2 gap-2">
-                <div><label class="font-bold block mb-1">Satuan</label><input type="text" x-model="formBahan.satuan" required placeholder="Botol / Pcs" class="w-full p-2.5 border rounded-xl focus:ring-2 focus:ring-md3-primary focus:outline-none"></div>
-                <div><label class="font-bold block mb-1">Stok Awal</label><input type="number" x-model.number="formBahan.stokSistem" min="0" required class="w-full p-2.5 border rounded-xl font-bold focus:ring-2 focus:ring-md3-primary focus:outline-none"></div>
+                <div><label class="font-bold block mb-1">Satuan</label><input type="text" x-model="formBahan.satuan" required placeholder="Botol / Pcs" class="form-control form-control-sm"></div>
+                <div><label class="font-bold block mb-1">Stok Awal</label><input type="number" x-model.number="formBahan.stokSistem" min="0" required class="form-control form-control-sm fw-bold"></div>
             </div>
-            <div><label class="font-bold block mb-1">Batas Stok Kritis (Min Stok)</label><input type="number" x-model.number="formBahan.minStok" min="0" required class="w-full p-2.5 border rounded-xl font-bold focus:ring-2 focus:ring-md3-primary focus:outline-none" placeholder="2"></div>
+            <div><label class="font-bold block mb-1">Batas Stok Kritis (Min Stok)</label><input type="number" x-model.number="formBahan.minStok" min="0" required class="form-control form-control-sm fw-bold" placeholder="2"></div>
             <div class="flex justify-end space-x-2 pt-2 border-t">
-                <button type="button" @click="$store.modals.bahan = false" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 font-bold rounded-md3-full transition">Batal</button>
-                <button type="submit" :disabled="actionLoading" class="px-4 py-2 bg-md3-primary hover:bg-blue-800 text-white font-bold rounded-md3-full transition shadow disabled:opacity-50">Simpan</button>
+                <button type="button" @click="$store.modals.bahan = false" class="btn btn-light rounded-pill px-3">Batal</button>
+                <button type="submit" :disabled="actionLoading" class="btn btn-primary rounded-pill px-4">Simpan</button>
             </div>
         </form>
     </div>
@@ -1325,17 +1328,17 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-slate-50 p-3.5 rounded-2xl border">
                 <div class="sm:col-span-2">
                     <label class="font-bold block mb-1 text-slate-700">Nama Siswa / Perwakilan <span class="text-red-500">*</span></label>
-                    <input type="text" x-model="formUsageMeta.namaPencatat" required placeholder="Nama lengkap yang mengambil" class="w-full p-2.5 bg-white border rounded-xl focus:ring-2 focus:ring-md3-primary focus:outline-none">
+                    <input type="text" x-model="formUsageMeta.namaPencatat" required placeholder="Nama lengkap yang mengambil" class="form-control form-control-sm">
                 </div>
-                <div><label class="font-bold block mb-1 text-slate-700">Kelas <span class="text-red-500">*</span></label><input type="text" x-model="formUsageMeta.kelas" required placeholder="XI TSM 1" class="w-full p-2.5 bg-white border rounded-xl focus:ring-2 focus:ring-md3-primary focus:outline-none"></div>
-                <div><label class="font-bold block mb-1 text-slate-700">No. HP / WhatsApp <span class="text-red-500">*</span></label><input type="text" x-model="formUsageMeta.noHpPencatat" required placeholder="0812xxxx" class="w-full p-2.5 bg-white border rounded-xl focus:ring-2 focus:ring-md3-primary focus:outline-none"></div>
-                <div><label class="font-bold block mb-1 text-slate-700">Topik Praktik <span class="text-red-500">*</span></label><input type="text" x-model="formUsageMeta.topik" required placeholder="Tune Up" class="w-full p-2.5 bg-white border rounded-xl focus:ring-2 focus:ring-md3-primary focus:outline-none"></div>
-                <div><label class="font-bold block mb-1 text-slate-700">Instruktur <span class="text-red-500">*</span></label><input type="text" x-model="formUsageMeta.instruktur" required placeholder="Nama Guru" class="w-full p-2.5 bg-white border rounded-xl focus:ring-2 focus:ring-md3-primary focus:outline-none"></div>
+                <div><label class="font-bold block mb-1 text-slate-700">Kelas <span class="text-red-500">*</span></label><input type="text" x-model="formUsageMeta.kelas" required placeholder="XI TSM 1" class="form-control form-control-sm"></div>
+                <div><label class="font-bold block mb-1 text-slate-700">No. HP / WhatsApp <span class="text-red-500">*</span></label><input type="text" x-model="formUsageMeta.noHpPencatat" required placeholder="0812xxxx" class="form-control form-control-sm"></div>
+                <div><label class="font-bold block mb-1 text-slate-700">Topik Praktik <span class="text-red-500">*</span></label><input type="text" x-model="formUsageMeta.topik" required placeholder="Tune Up" class="form-control form-control-sm"></div>
+                <div><label class="font-bold block mb-1 text-slate-700">Instruktur <span class="text-red-500">*</span></label><input type="text" x-model="formUsageMeta.instruktur" required placeholder="Nama Guru" class="form-control form-control-sm"></div>
             </div>
             <div class="space-y-3">
                 <div class="flex justify-between items-center">
                     <label class="font-bold text-slate-900"><i class="fa-solid fa-oil-can mr-1 text-md3-primary"></i> Pilih Bahan yang Digunakan</label>
-                    <button type="button" @click="addUsageItem()" class="bg-md3-primaryContainer text-md3-primary font-bold px-3 py-1.5 rounded-md3-full text-xs transition shadow-sm hover:bg-blue-200"><i class="fa-solid fa-plus mr-1"></i> + Tambah Bahan Lain</button>
+                    <button type="button" @click="addUsageItem()" class="btn btn-outline-primary btn-sm rounded-pill">+ Tambah Bahan Lain</button>
                 </div>
                 <template x-for="(item, index) in formUsageMeta.items" :key="index">
                     <div class="p-3 bg-slate-50 rounded-2xl border relative space-y-2" x-data="{ openDropdown: false }" @click.outside="openDropdown = false">
@@ -1345,7 +1348,7 @@
                         </div>
                         <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
                             <div class="sm:col-span-2 relative">
-                                <input type="text" x-model="item.searchBahanQuery" @focus="openDropdown = true" placeholder="Ketik nama bahan untuk mencari..." class="w-full p-2.5 bg-white border rounded-xl text-xs focus:ring-2 focus:ring-md3-primary focus:outline-none font-medium">
+                                <input type="text" x-model="item.searchBahanQuery" @focus="openDropdown = true" placeholder="Ketik nama bahan untuk mencari..." class="form-control form-control-sm font-medium">
                                 <div x-show="openDropdown" class="absolute z-30 left-0 right-0 mt-1 bg-white border border-slate-200 rounded-2xl shadow-xl max-h-48 overflow-y-auto custom-scrollbar" x-cloak>
                                     <template x-for="b in bahanList.filter(x => (x.namaBahan + ' ' + (x.spesifikasi || '')).toLowerCase().includes((item.searchBahanQuery || '').toLowerCase()))" :key="b.id">
                                         <div @click="item.bahanId = b.id; item.searchBahanQuery = b.namaBahan + (b.spesifikasi ? ' (' + b.spesifikasi + ')' : ''); openDropdown = false" class="p-2 hover:bg-blue-50 cursor-pointer text-xs border-b border-slate-50 flex justify-between items-center">
@@ -1357,14 +1360,14 @@
                                     </template>
                                 </div>
                             </div>
-                            <div><input type="number" x-model.number="item.jumlah" min="1" required placeholder="Qty Pakai" class="w-full p-2.5 bg-white border rounded-xl text-xs font-bold text-center focus:ring-2 focus:ring-md3-primary focus:outline-none"></div>
+                            <div><input type="number" x-model.number="item.jumlah" min="1" required placeholder="Qty Pakai" class="form-control form-control-sm text-center fw-bold"></div>
                         </div>
                     </div>
                 </template>
             </div>
             <div class="flex justify-end space-x-2 pt-3 border-t">
-                <button type="button" @click="$store.modals.usage = false" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 font-bold rounded-md3-full transition">Batal</button>
-                <button type="submit" :disabled="actionLoading" class="px-5 py-2 bg-md3-primary hover:bg-blue-800 text-white font-bold rounded-md3-full shadow transition disabled:opacity-50">Simpan Penggunaan</button>
+                <button type="button" @click="$store.modals.usage = false" class="btn btn-light rounded-pill px-3">Batal</button>
+                <button type="submit" :disabled="actionLoading" class="btn btn-primary rounded-pill px-4">Simpan Penggunaan</button>
             </div>
         </form>
     </div>
@@ -1378,14 +1381,14 @@
             <button @click="$store.modals.opname = false" class="text-slate-400 hover:text-slate-600 p-1"><i class="fa-solid fa-xmark text-base"></i></button>
         </div>
         <form @submit.prevent="saveOpnameAdjustment()" class="space-y-3 text-xs" x-data>
-            <div><label class="font-bold block mb-1 text-slate-700">Nama Bahan</label><input type="text" x-model="formOpname.namaBahan" required class="w-full p-2.5 bg-slate-50 border rounded-xl font-semibold focus:outline-none"></div>
-            <div><label class="font-bold block mb-1 text-slate-700">Spesifikasi</label><input type="text" x-model="formOpname.spesifikasi" placeholder="Spesifikasi" class="w-full p-2.5 bg-slate-50 border rounded-xl focus:outline-none"></div>
-            <div><label class="font-bold block mb-1 text-slate-700">Satuan</label><input type="text" x-model="formOpname.satuan" placeholder="Botol/Pcs/dll" class="w-full p-2.5 bg-slate-50 border rounded-xl focus:outline-none"></div>
-            <div><label class="font-bold block mb-1 text-slate-700">Stok Fisik Baru</label><input type="number" x-model.number="formOpname.stokFisik" min="0" required class="w-full p-3 border-2 border-md3-primary rounded-xl font-black text-center text-lg bg-blue-50/50 focus:outline-none"></div>
-            <div><label class="font-bold block mb-1 text-slate-700">Batas Stok Kritis (Min Stok)</label><input type="number" x-model.number="formOpname.minStok" min="0" required class="w-full p-2.5 bg-slate-50 border rounded-xl font-bold focus:outline-none"></div>
+            <div><label class="font-bold block mb-1 text-slate-700">Nama Bahan</label><input type="text" x-model="formOpname.namaBahan" required class="form-control form-control-sm bg-light fw-semibold"></div>
+            <div><label class="font-bold block mb-1 text-slate-700">Spesifikasi</label><input type="text" x-model="formOpname.spesifikasi" placeholder="Spesifikasi" class="form-control form-control-sm bg-light"></div>
+            <div><label class="font-bold block mb-1 text-slate-700">Satuan</label><input type="text" x-model="formOpname.satuan" placeholder="Botol/Pcs/dll" class="form-control form-control-sm bg-light"></div>
+            <div><label class="font-bold block mb-1 text-slate-700">Stok Fisik Baru</label><input type="number" x-model.number="formOpname.stokFisik" min="0" required class="form-control form-control-lg text-center fw-black bg-blue-50/50"></div>
+            <div><label class="font-bold block mb-1 text-slate-700">Batas Stok Kritis (Min Stok)</label><input type="number" x-model.number="formOpname.minStok" min="0" required class="form-control form-control-sm bg-light fw-bold"></div>
             <div class="flex justify-end space-x-2 pt-2 border-t">
-                <button type="button" @click="$store.modals.opname = false" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 font-bold rounded-md3-full transition">Batal</button>
-                <button type="submit" :disabled="actionLoading" class="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-amber-400 font-bold rounded-md3-full transition shadow disabled:opacity-50">Simpan</button>
+                <button type="button" @click="$store.modals.opname = false" class="btn btn-light rounded-pill px-3">Batal</button>
+                <button type="submit" :disabled="actionLoading" class="btn btn-dark text-amber-400 fw-bold rounded-pill px-4">Simpan</button>
             </div>
         </form>
     </div>
@@ -1395,20 +1398,20 @@
 <div x-data x-show="$store.modals && $store.modals.return" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
     <div class="bg-white rounded-[28px] max-w-sm w-full p-6 shadow-2xl space-y-4" @click.stop>
         <h3 class="font-bold text-slate-900 text-sm border-b pb-2">Pengembalian Alat</h3>
-        <div class="bg-amber-50 text-amber-800 p-2.5 rounded-xl border border-amber-200 text-[10px] leading-tight">
-            <i class="fa-solid fa-triangle-exclamation mr-1"></i> Jika alat dikembalikan rusak/perlu servis, stok tidak akan masuk ke alat yang siap pakai.
+        <div class="alert alert-warning py-2 text-[10px] mb-0">
+            <i class="fa-solid fa-triangle-exclamation me-1"></i> Jika alat dikembalikan rusak/perlu servis, stok tidak akan masuk ke alat yang siap pakai.
         </div>
         <form @submit.prevent="processReturn()" class="space-y-3 text-xs" x-data>
             <div>
                 <label class="font-bold block mb-1">Kondisi Saat Kembali</label>
-                <select x-model="formReturn.kondisi" class="w-full p-2.5 border rounded-xl focus:ring-2 focus:ring-md3-primary focus:outline-none bg-slate-50">
+                <select x-model="formReturn.kondisi" class="form-select form-select-sm">
                     <option value="Baik">Baik</option><option value="Perlu Servis">Perlu Servis</option><option value="Rusak">Rusak</option>
                 </select>
             </div>
-            <div><label class="font-bold block mb-1">Catatan Pengembalian (Opsional)</label><input type="text" x-model="formReturn.catatan" placeholder="Keterangan kondisi..." class="w-full p-2.5 border rounded-xl focus:ring-2 focus:ring-md3-primary focus:outline-none"></div>
+            <div><label class="font-bold block mb-1">Catatan Pengembalian (Opsional)</label><input type="text" x-model="formReturn.catatan" placeholder="Keterangan kondisi..." class="form-control form-control-sm"></div>
             <div class="flex justify-end space-x-2 pt-3 border-t">
-                <button type="button" @click="$store.modals.return = false" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 font-bold rounded-md3-full transition">Batal</button>
-                <button type="submit" :disabled="actionLoading" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-md3-full transition shadow disabled:opacity-50">Proses</button>
+                <button type="button" @click="$store.modals.return = false" class="btn btn-light rounded-pill px-3">Batal</button>
+                <button type="submit" :disabled="actionLoading" class="btn btn-primary rounded-pill px-4">Proses</button>
             </div>
         </form>
     </div>
@@ -1421,8 +1424,8 @@
         <h3 class="font-bold text-slate-900 text-base">Hapus Data Ini?</h3>
         <p class="text-xs text-slate-500" x-text="'Hapus ' + $store.modals.confirmDelete.name + '?'"></p>
         <div class="flex space-x-2 pt-2">
-            <button type="button" @click="$store.modals.confirmDelete.show = false" class="w-1/2 py-2.5 bg-slate-100 hover:bg-slate-200 font-bold rounded-md3-full text-xs transition">Batal</button>
-            <button type="button" @click="executeDelete()" :disabled="actionLoading" class="w-1/2 py-2.5 bg-red-600 hover:bg-red-700 text-white font-bold rounded-md3-full text-xs transition shadow disabled:opacity-50">Hapus</button>
+            <button type="button" @click="$store.modals.confirmDelete.show = false" class="btn btn-light w-50 rounded-pill text-xs">Batal</button>
+            <button type="button" @click="executeDelete()" :disabled="actionLoading" class="btn btn-danger w-50 rounded-pill text-xs">Hapus</button>
         </div>
     </div>
 </div>
