@@ -8,11 +8,13 @@
     <!-- Favicon TSM -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23005AC1'/%3E%3Ctext x='50' y='62' font-size='45' text-anchor='middle' fill='%23ffffff' font-family='sans-serif' font-weight='bold'%3ETSM%3C/text%3E%3C/svg%3E">
 
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
     <!-- Bootstrap 5 CSS CDN -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
 
     <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.tailwindcss.com/3.4.17"></script>
 
     <!-- FontAwesome & Google Fonts -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -20,8 +22,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
 
-    <!-- SheetJS (xlsx) CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <!-- SheetJS (xlsx): dimuat lazy saat Export Excel diklik -->
 
     <!-- FIREBASE COMPAT SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
@@ -29,7 +30,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 
     <!-- Alpine.js -->
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js"></script>
 
     <script>
         tailwind.config = {
@@ -1212,12 +1213,12 @@
                             <div class="sm:col-span-2 relative">
                                 <input type="text" x-model="item.searchAlatQuery" @focus="openDropdown = true" placeholder="Ketik nama alat untuk mencari..." class="w-full p-2.5 bg-white border rounded-xl text-xs focus:ring-2 focus:ring-md3-primary focus:outline-none font-medium">
                                 <div x-show="openDropdown" class="absolute z-30 left-0 right-0 mt-1 bg-white border border-slate-200 rounded-2xl shadow-xl max-h-48 overflow-y-auto custom-scrollbar" x-cloak>
-                                    <template x-for="alat in alatList.filter(a => (a.namaAlat + ' ' + (a.kodeAlat || '')).toLowerCase().includes((item.searchAlatQuery || '').toLowerCase()))" :key="alat.id">
+                                    <template x-for="alat in filterAlatOptions(item.searchAlatQuery)" :key="alat.id">
                                         <div @click="item.alatId = alat.id; item.searchAlatQuery = alat.namaAlat; openDropdown = false" class="p-2 hover:bg-blue-50 cursor-pointer text-xs border-b border-slate-50 flex justify-between items-center">
                                             <span class="font-bold text-slate-900" x-text="alat.namaAlat"></span><span class="text-[10px] font-semibold px-2 py-0.5 rounded-md3-full bg-slate-100 text-slate-600" x-text="'Sisa: ' + alat.jumlahTersedia"></span>
                                         </div>
                                     </template>
-                                    <template x-if="alatList.filter(a => (a.namaAlat + ' ' + (a.kodeAlat || '')).toLowerCase().includes((item.searchAlatQuery || '').toLowerCase())).length === 0">
+                                    <template x-if="filterAlatOptions(item.searchAlatQuery).length === 0">
                                         <div class="p-2.5 text-center text-slate-400 text-xs">Alat tidak ditemukan</div>
                                     </template>
                                 </div>
@@ -1475,12 +1476,12 @@
                             <div class="sm:col-span-2 relative">
                                 <input type="text" x-model="item.searchBahanQuery" @focus="openDropdown = true" placeholder="Ketik nama bahan untuk mencari..." class="w-full p-2.5 bg-white border rounded-xl text-xs focus:ring-2 focus:ring-md3-primary focus:outline-none font-medium">
                                 <div x-show="openDropdown" class="absolute z-30 left-0 right-0 mt-1 bg-white border border-slate-200 rounded-2xl shadow-xl max-h-48 overflow-y-auto custom-scrollbar" x-cloak>
-                                    <template x-for="b in bahanList.filter(x => (x.namaBahan + ' ' + (x.spesifikasi || '')).toLowerCase().includes((item.searchBahanQuery || '').toLowerCase()))" :key="b.id">
+                                    <template x-for="b in filterBahanOptions(item.searchBahanQuery)" :key="b.id">
                                         <div @click="item.bahanId = b.id; item.searchBahanQuery = b.namaBahan + (b.spesifikasi ? ' (' + b.spesifikasi + ')' : ''); openDropdown = false" class="p-2 hover:bg-blue-50 cursor-pointer text-xs border-b border-slate-50 flex justify-between items-center">
                                             <span class="font-bold text-slate-900" x-text="b.namaBahan + (b.spesifikasi ? ' (' + b.spesifikasi + ')' : '')"></span><span class="text-[10px] font-semibold px-2 py-0.5 rounded-md3-full bg-slate-100 text-slate-600" x-text="'Sisa: ' + b.stokSistem + ' ' + b.satuan"></span>
                                         </div>
                                     </template>
-                                    <template x-if="bahanList.filter(x => (x.namaBahan + ' ' + (x.spesifikasi || '')).toLowerCase().includes((item.searchBahanQuery || '').toLowerCase())).length === 0">
+                                    <template x-if="filterBahanOptions(item.searchBahanQuery).length === 0">
                                         <div class="p-2.5 text-center text-slate-400 text-xs">Bahan tidak ditemukan</div>
                                     </template>
                                 </div>
@@ -1569,6 +1570,7 @@
     if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
     const auth = firebase.auth();
     const db = firebase.firestore();
+    db.enablePersistence({ synchronizeTabs: true }).catch(e => console.warn('Cache offline tidak aktif:', e.code));
 
     document.addEventListener('alpine:init', () => {
         Alpine.store('toast', { show: false, title: '', message: '', type: 'success' });
@@ -1597,6 +1599,14 @@
             setTimeout(() => { if(Alpine.store('toast')) Alpine.store('toast').show = false; }, 4000);
         }
     }
+
+    const _mc = {};
+    function memo(k, deps, fn) {
+        const c = _mc[k];
+        if (c && c.d.every((v, i) => v === deps[i])) return c.v;
+        const v = fn(); _mc[k] = { d: deps, v }; return v;
+    }
+    let _clockDay = '';
 
     function tsmApp() {
         return {
@@ -1664,13 +1674,14 @@
 
             async initApp() {
                 this.updateClock();
-                setInterval(() => this.updateClock(), 1000);
+                setInterval(() => { if (this.isAuthenticated && !document.hidden) this.updateClock(); }, 1000);
 
                 window.addEventListener('online', () => { if (this.isAuthenticated) this.setupFirestoreListeners(); });
                 window.addEventListener('offline', () => { this.cloudStatus = 'error'; });
 
                 const activityEvents = ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'];
-                activityEvents.forEach(evt => { window.addEventListener(evt, () => this.resetIdleTimer()); });
+                let lastAct = 0;
+                activityEvents.forEach(evt => window.addEventListener(evt, () => { const n = Date.now(); if (n - lastAct > 1000) { lastAct = n; this.resetIdleTimer(); } }, { passive: true }));
 
                 try {
                     const settingsSnap = await db.collection('settings').doc('general').get();
@@ -1970,6 +1981,8 @@
                 return Number(this.formAlat.kondisiBaik || 0) + Number(this.formAlat.kondisiServis || 0) + Number(this.formAlat.kondisiRusak || 0);
             },
 
+            filterAlatOptions(q) { q = (q || '').toLowerCase(); return this.alatList.filter(a => (a.namaAlat + ' ' + (a.kodeAlat || '')).toLowerCase().includes(q)); },
+            filterBahanOptions(q) { q = (q || '').toLowerCase(); return this.bahanList.filter(x => (x.namaBahan + ' ' + (x.spesifikasi || '')).toLowerCase().includes(q)); },
             addLoanItem() { this.formStudentLoan.items.push({ alatId: '', searchAlatQuery: '', jumlah: 1 }); },
             removeLoanItem(index) { this.formStudentLoan.items.splice(index, 1); },
             addUsageItem() { this.formUsageMeta.items.push({ bahanId: '', searchBahanQuery: '', jumlah: 1 }); },
@@ -2396,10 +2409,11 @@
                         }
                     });
 
+                    const kelasUsage = this.formUsageMeta.kelas;
                     Alpine.store('modals').usage = false;
                     this.formUsageMeta = { namaPencatat: '', noHpPencatat: '', kelas: '', topik: '', instruktur: '', items: [{ bahanId: '', searchBahanQuery: '', jumlah: 1 }] };
                     showToastGlobal('Sukses', 'Penggunaan bahan berhasil dicatat.');
-                    await createAuditLog('SAVE_USAGE', `Mencatat pemakaian multi-bahan untuk kelas ${this.formUsageMeta.kelas}`);
+                    await createAuditLog('SAVE_USAGE', `Mencatat pemakaian multi-bahan untuk kelas ${kelasUsage}`);
                 } catch (e) { 
                     showToastGlobal('Gagal Menyimpan', e.message, 'error'); 
                 } finally {
@@ -2411,14 +2425,6 @@
                 if (this.userRole !== 'admin') {
                     showToastGlobal('Akses Ditolak', 'Hanya admin yang dapat mengakses pengaturan.', 'error');
                     return;
-                }
-                try {
-                    const snap = await db.collection('settings').doc('general').get();
-                    if (snap.exists) {
-                        this.settings = { ...this.settings, ...snap.data() };
-                    }
-                } catch (e) {
-                    console.warn("Gagal memuat pengaturan terbaru:", e.message);
                 }
                 Alpine.store('modals').settingsModal = true;
             },
@@ -2510,7 +2516,12 @@
                 Alpine.store('modals')[type] = true;
             },
 
-            downloadExcel(data, prefix) {
+            async downloadExcel(data, prefix) {
+                if (!window.XLSX) {
+                    try {
+                        await new Promise((ok, no) => { const s = document.createElement('script'); s.src = 'https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js'; s.onload = ok; s.onerror = no; document.head.appendChild(s); });
+                    } catch (e) { showToastGlobal('Gagal Ekspor', 'Library Excel tidak dapat dimuat. Periksa koneksi internet.', 'error'); return; }
+                }
                 const ws = XLSX.utils.json_to_sheet(data);
                 const wb = XLSX.utils.book_new();
                 XLSX.utils.book_append_sheet(wb, ws, 'Data');
@@ -2519,50 +2530,55 @@
             exportAlatToExcel() { this.downloadExcel(this.alatList.map((a,i)=>({No:i+1, Kode:a.kodeAlat, Nama:a.namaAlat, Merk:a.merk, Kategori:a.kategori, Lokasi:a.lokasiRak, Total:a.jumlahTotal, Tersedia:a.jumlahTersedia})), 'Alat'); },
             exportBahanToExcel() { this.downloadExcel(this.bahanList.map((b,i)=>({No:i+1, Kode:b.kodeBahan, Nama:b.namaBahan, Spesifikasi:b.spesifikasi || '-', Stok:b.stokSistem, Satuan:b.satuan, MinStok:b.minStok || 2})), 'Bahan'); },
 
-            get pendingLoans() { return (this.loanList || []).filter(l => l.status === 'Menunggu Persetujuan'); },
+            get pendingLoans() { return memo('pl', [this.loanList], () => (this.loanList || []).filter(l => l.status === 'Menunggu Persetujuan')); },
             get pendingLoansCount() { return this.pendingLoans.length; },
-            get activeLoans() { return (this.loanList || []).filter(l => l.status === 'Dipinjam'); },
+            get activeLoans() { return memo('al', [this.loanList], () => (this.loanList || []).filter(l => l.status === 'Dipinjam')); },
             get activeLoansCount() { return this.activeLoans.length; },
             get totalToolItems() { return (this.alatList || []).length; },
-            get totalToolUnits() { return (this.alatList || []).reduce((acc, curr) => acc + Number(curr.jumlahTotal || 0), 0); },
-            get lowStockItems() { return (this.bahanList || []).filter(b => Number(b.stokSistem || 0) <= Number(b.minStok || 2)); },
+            get totalToolUnits() { return memo('tu', [this.alatList], () => (this.alatList || []).reduce((acc, curr) => acc + Number(curr.jumlahTotal || 0), 0)); },
+            get lowStockItems() { return memo('ls', [this.bahanList], () => (this.bahanList || []).filter(b => Number(b.stokSistem || 0) <= Number(b.minStok || 2))); },
             get lowStockCount() { return this.lowStockItems.length; },
             
-            get filteredLoanList() { return (this.loanList || []).filter(l => ((l.kodePinjam || '') + (l.namaPeminjam || '') + (l.kelas || '') + (l.namaAlat || '')).toLowerCase().includes(this.searchLoan.toLowerCase())); },
+            get filteredLoanList() { return memo('fl', [this.loanList, this.searchLoan], () => (this.loanList || []).filter(l => ((l.kodePinjam || '') + (l.namaPeminjam || '') + (l.kelas || '') + (l.namaAlat || '')).toLowerCase().includes(this.searchLoan.toLowerCase()))); },
             get totalPagesLoan() { return Math.ceil(this.filteredLoanList.length / this.itemsPerPageLoan) || 1; },
             get paginatedLoanList() {
+                if (this.activeTab !== 'peminjaman') return [];
                 if (this.itemsPerPageLoan == 1000000) return this.filteredLoanList;
                 const start = (this.currentPageLoan - 1) * this.itemsPerPageLoan;
                 return this.filteredLoanList.slice(start, start + parseInt(this.itemsPerPageLoan));
             },
 
-            get filteredAlat() { return (this.alatList || []).filter(a => ((a.kodeAlat || '') + (a.namaAlat || '') + (a.merk || '')).toLowerCase().includes(this.searchAlat.toLowerCase())); },
+            get filteredAlat() { return memo('fa', [this.alatList, this.searchAlat], () => (this.alatList || []).filter(a => ((a.kodeAlat || '') + (a.namaAlat || '') + (a.merk || '')).toLowerCase().includes(this.searchAlat.toLowerCase()))); },
             get totalPagesAlat() { return Math.ceil(this.filteredAlat.length / this.itemsPerPageAlat) || 1; },
             get paginatedAlat() {
+                if (this.activeTab !== 'alat') return [];
                 if (this.itemsPerPageAlat == 1000000) return this.filteredAlat;
                 const start = (this.currentPageAlat - 1) * this.itemsPerPageAlat;
                 return this.filteredAlat.slice(start, start + parseInt(this.itemsPerPageAlat));
             },
 
-            get filteredBahan() { return (this.bahanList || []).filter(b => ((b.kodeBahan || '') + (b.namaBahan || '') + (b.spesifikasi || '')).toLowerCase().includes(this.searchBahan.toLowerCase())); },
+            get filteredBahan() { return memo('fb', [this.bahanList, this.searchBahan], () => (this.bahanList || []).filter(b => ((b.kodeBahan || '') + (b.namaBahan || '') + (b.spesifikasi || '')).toLowerCase().includes(this.searchBahan.toLowerCase()))); },
             get totalPagesOpname() { return Math.ceil(this.filteredBahan.length / this.itemsPerPageOpname) || 1; },
             get paginatedBahan() {
+                if (this.activeTab !== 'opname') return [];
                 if (this.itemsPerPageOpname == 1000000) return this.filteredBahan;
                 const start = (this.currentPageOpname - 1) * this.itemsPerPageOpname;
                 return this.filteredBahan.slice(start, start + parseInt(this.itemsPerPageOpname));
             },
 
             get filteredUsageLogs() {
-                return (this.usageLogs || []).filter(u => ((u.namaBahan || '') + (u.kelas || '') + (u.topik || '') + (u.instruktur || '')).toLowerCase().includes((this.searchUsage || '').toLowerCase()));
+                return memo('fu', [this.usageLogs, this.searchUsage], () => (this.usageLogs || []).filter(u => ((u.namaBahan || '') + (u.kelas || '') + (u.topik || '') + (u.instruktur || '')).toLowerCase().includes((this.searchUsage || '').toLowerCase())));
             },
             get totalPagesUsage() { return Math.ceil(this.filteredUsageLogs.length / this.itemsPerPageUsage) || 1; },
             get paginatedUsageLogs() {
+                if (this.activeTab !== 'penggunaan') return [];
                 if (this.itemsPerPageUsage == 1000000) return this.filteredUsageLogs;
                 const start = (this.currentPageUsage - 1) * this.itemsPerPageUsage;
                 return this.filteredUsageLogs.slice(start, start + parseInt(this.itemsPerPageUsage));
             },
 
-            get filteredAuditLogs() {
+            get filteredAuditLogs() { if (this.activeTab !== 'audit') return []; return memo('fx', [this.auditLogs, this.searchAudit], () => this._auditRaw); },
+            get _auditRaw() {
                 try {
                     const q = (this.searchAudit || '').toLowerCase();
                     const list = (this.auditLogs || []).filter(l => {
@@ -2589,6 +2605,7 @@
                 return Math.ceil(this.alatList.length / this.itemsPerPageLaporanAlat) || 1; 
             },
             get paginatedLaporanAlat() {
+                if (this.activeTab !== 'laporan') return [];
                 if (this.itemsPerPageLaporanAlat == 1000000) return this.alatList;
                 const start = (this.currentPageLaporanAlat - 1) * this.itemsPerPageLaporanAlat;
                 return this.alatList.slice(start, start + parseInt(this.itemsPerPageLaporanAlat));
@@ -2599,12 +2616,14 @@
                 return Math.ceil(this.bahanList.length / this.itemsPerPageLaporanBahan) || 1; 
             },
             get paginatedLaporanBahan() {
+                if (this.activeTab !== 'laporan') return [];
                 if (this.itemsPerPageLaporanBahan == 1000000) return this.bahanList;
                 const start = (this.currentPageLaporanBahan - 1) * this.itemsPerPageLaporanBahan;
                 return this.bahanList.slice(start, start + parseInt(this.itemsPerPageLaporanBahan));
             },
 
-            get reportLoans() {
+            get reportLoans() { if (this.activeTab !== 'laporan') return []; return memo('rl', [this.loanList, this.reportMonth], () => this._reportLoansRaw); },
+            get _reportLoansRaw() {
                 try {
                     if (!this.reportMonth) return this.loanList || [];
                     return (this.loanList || []).filter(l => {
@@ -2616,7 +2635,8 @@
                     });
                 } catch (e) { return []; }
             },
-            get reportUsage() {
+            get reportUsage() { if (this.activeTab !== 'laporan') return []; return memo('ru', [this.usageLogs, this.reportMonth], () => this._reportUsageRaw); },
+            get _reportUsageRaw() {
                 try {
                     if (!this.reportMonth) return this.usageLogs || [];
                     return (this.usageLogs || []).filter(u => {
@@ -2656,7 +2676,8 @@
 
             updateClock() {
                 const now = new Date();
-                this.currentDate = now.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+                const dk = now.toDateString();
+                if (dk !== _clockDay) { _clockDay = dk; this.currentDate = now.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }); }
                 this.currentTime = now.toLocaleTimeString('id-ID') + ' WIB';
             },
             formatDateTime(iso) {
