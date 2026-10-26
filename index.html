@@ -998,9 +998,9 @@
                 </div>
             </div>
 
-            <!-- ================= TAB 7: AUDIT LOG ================= -->
+            <!-- ================= TAB 7: AUDIT LOG (OPTIMIZED WITH FIRESTORE CURSOR PAGINATION) ================= -->
             <div x-show="activeTab === 'audit' && userRole === 'admin'" class="space-y-4" x-cloak>
-                <!-- PANEL DIAGNOSTIK AUDIT LOG (BACKGROUND PUTIH SESUAI PERMINTAAN) -->
+                <!-- PANEL DIAGNOSTIK AUDIT LOG (WHITE BACKGROUND SESUAI PERMINTAAN) -->
                 <div class="bg-white text-slate-800 p-4 rounded-[20px] shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-3 text-xs max-w-5xl mx-auto border border-slate-200">
                     <div class="flex items-center space-x-3">
                         <div class="w-8 h-8 rounded-xl flex items-center justify-center font-bold"
@@ -1012,33 +1012,33 @@
                                 <span class="font-bold uppercase tracking-wide text-[10px] text-slate-500">Status Listener:</span>
                                 <span class="font-bold px-2 py-0.5 rounded text-[10px]"
                                       :class="auditStatus === 'connected' ? 'bg-emerald-600 text-white' : (auditStatus === 'error' ? 'bg-red-600 text-white' : 'bg-amber-500 text-white')"
-                                      x-text="auditStatus === 'connected' ? 'Aktif (Real-time)' : (auditStatus === 'error' ? 'Error / Gagal' : 'Menghubungkan...')"></span>
+                                      x-text="auditStatus === 'connected' ? 'Aktif (Real-time 50 Teratas)' : (auditStatus === 'error' ? 'Error / Gagal' : 'Menghubungkan...')"></span>
                             </div>
-                            <p class="text-[11px] text-slate-600 mt-0.5" x-text="auditStatusMessage || 'Menunggu sinkronisasi data audit dari Firestore...'"></p>
+                            <p class="text-[11px] text-slate-600 mt-0.5" x-text="auditStatusMessage || 'Memantau aktivitas terbaru secara efisien...'"></p>
                         </div>
                     </div>
                     <div class="flex flex-wrap items-center gap-3 text-[11px] font-mono border-t md:border-t-0 pt-2 md:pt-0 border-slate-100 w-full md:w-auto justify-end">
                         <div class="bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-200">
-                            <span class="text-slate-500">Total Dokumen:</span> <span class="font-bold text-md3-primary" x-text="auditLogs.length"></span>
+                            <span class="text-slate-500">Loaded:</span> <span class="font-bold text-md3-primary" x-text="auditLogs.length + ' item'"></span>
                         </div>
                         <div class="bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-200">
-                            <span class="text-slate-500">Waktu Dokumen Terbaru:</span> <span class="font-bold text-cyan-700" x-text="auditLatestDocTime || '-'"></span>
+                            <span class="text-slate-500">Log Terbaru:</span> <span class="font-bold text-cyan-700" x-text="auditLatestDocTime || '-'"></span>
                         </div>
                         <div class="bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-200">
-                            <span class="text-slate-500">Sinkron Terakhir:</span> <span class="font-bold text-emerald-700" x-text="auditLastSync || '-'"></span>
+                            <span class="text-slate-500">Sinkron:</span> <span class="font-bold text-emerald-700" x-text="auditLastSync || '-'"></span>
                         </div>
                     </div>
                 </div>
 
                 <div class="bg-white px-5 py-3 rounded-[24px] border border-md3-surfaceVariant shadow-sm flex flex-col sm:flex-row justify-between items-center gap-4 max-w-5xl mx-auto">
                     <div class="flex items-center space-x-2 w-full sm:w-80">
-                        <input type="text" x-model="searchAudit" @input="currentPageAudit = 1" placeholder="Cari aksi, user, rincian..." class="p-3 border border-md3-surfaceVariant rounded-2xl text-xs w-full focus:ring-2 focus:ring-md3-primary focus:outline-none bg-slate-50">
+                        <input type="text" x-model="searchAudit" placeholder="Cari aksi, user, rincian pada data aktif..." class="p-3 border border-md3-surfaceVariant rounded-2xl text-xs w-full focus:ring-2 focus:ring-md3-primary focus:outline-none bg-slate-50">
                     </div>
                     <div class="flex items-center space-x-2 w-full sm:w-auto justify-end">
                         <template x-if="searchAudit">
-                            <button @click="searchAudit = ''; currentPageAudit = 1;" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition">Reset Cari</button>
+                            <button @click="searchAudit = ''" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition">Reset Cari</button>
                         </template>
-                        <span class="text-xs text-slate-500" x-text="'Total: ' + filteredAuditLogs.length + ' catatan'"></span>
+                        <span class="text-xs text-slate-500" x-text="'Ditampilkan: ' + filteredAuditLogs.length + ' catatan'"></span>
                     </div>
                 </div>
 
@@ -1049,7 +1049,7 @@
                                 <tr><th class="p-3.5">Waktu</th><th class="p-3.5">Aksi</th><th class="p-3.5">User/Admin</th><th class="p-3.5">Rincian</th></tr>
                             </thead>
                             <tbody class="divide-y divide-slate-100">
-                                <template x-for="log in paginatedAuditLogs" :key="log.id">
+                                <template x-for="log in filteredAuditLogs" :key="log.id">
                                     <tr class="hover:bg-slate-50 transition">
                                         <td class="p-3.5 font-mono text-slate-500" x-text="formatDateTime(log.timestamp)"></td>
                                         <td class="p-3.5 font-bold text-md3-primary" x-text="log.action"></td>
@@ -1058,31 +1058,21 @@
                                     </tr>
                                 </template>
                                 <template x-if="filteredAuditLogs.length === 0">
-                                    <tr><td colspan="4" class="p-8 text-center text-slate-400 font-medium">Data catatan audit tidak ditemukan.</td></tr>
+                                    <tr><td colspan="4" class="p-8 text-center text-slate-400 font-medium">Belum ada data audit yang dimuat.</td></tr>
                                 </template>
                             </tbody>
                         </table>
                     </div>
-                    <!-- Paginasi Tabel Audit Log -->
-                    <div class="p-3 border-t bg-white flex justify-between items-center text-xs text-slate-600 pagination-controls">
-                        <div class="flex items-center space-x-2">
-                            <span>Tampilkan</span>
-                            <select x-model="itemsPerPageAudit" @change="currentPageAudit = 1" class="border p-1 rounded">
-                                <option value="10">10</option>
-                                <option value="25">25</option>
-                                <option value="50">50</option>
-                                <option value="100">100</option>
-                                <option value="1000000">Semua</option>
-                            </select>
-                            <span>data per halaman</span>
+                    <!-- FIRESTORE CURSOR PAGINATION / LOAD MORE BUTTON -->
+                    <div class="p-4 border-t bg-slate-50 flex flex-col sm:flex-row justify-between items-center gap-3 text-xs text-slate-700">
+                        <div>
+                            <p class="font-semibold">Optimasi Firestore Read: Memuat 50 data terbaru secara realtime.</p>
+                            <p class="text-[11px] text-slate-500">Klik tombol di samping untuk mengambil arsip riwayat audit sebelumnya tanpa membebani kuota.</p>
                         </div>
-                        <div class="flex items-center space-x-4">
-                            <span x-text="'Halaman ' + currentPageAudit + ' dari ' + totalPagesAudit"></span>
-                            <div class="flex space-x-1">
-                                <button @click="if(currentPageAudit > 1) currentPageAudit--" :disabled="currentPageAudit === 1" class="px-2 py-1 border rounded disabled:opacity-50 hover:bg-slate-50"><i class="fa-solid fa-chevron-left"></i></button>
-                                <button @click="if(currentPageAudit < totalPagesAudit) currentPageAudit++" :disabled="currentPageAudit === totalPagesAudit || totalPagesAudit === 0" class="px-2 py-1 border rounded disabled:opacity-50 hover:bg-slate-50"><i class="fa-solid fa-chevron-right"></i></button>
-                            </div>
-                        </div>
+                        <button @click="loadMoreAuditLogs()" :disabled="auditLoadingMore || !hasMoreAudit" class="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-amber-400 font-bold rounded-md3-full shadow transition disabled:opacity-50 whitespace-nowrap">
+                            <span x-show="!auditLoadingMore"><i class="fa-solid fa-cloud-arrow-down mr-1.5"></i> Muat Audit Sebelumnya (+50)</span>
+                            <span x-show="auditLoadingMore"><i class="fa-solid fa-circle-notch fa-spin mr-1.5"></i> Memuat Arsip...</span>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -1569,7 +1559,7 @@
                 userEmail: email,
                 timestamp: firebase.firestore.FieldValue.serverTimestamp()
             });
-            console.log(`[AuditLog] Berhasil mencatat aksi: ${action} oleh ${email}`);
+            console.log(`[AuditLog] Aksi tercatat: ${action}`);
         } catch(e) { 
             console.error("[AuditLog] Gagal mencatat log:", e); 
         }
@@ -1596,11 +1586,14 @@
             cloudStatus: 'connecting',
             activeUnsubscribers: [],
             
-            // Variabel Diagnostik Audit Log
+            // Variabel Diagnostik & Paginasi Audit Log (Optimized Firestore Reads)
             auditStatus: 'connecting',
             auditStatusMessage: 'Menghubungkan ke koleksi audit_logs...',
             auditLastSync: '-',
             auditLatestDocTime: '-',
+            lastVisibleAuditDoc: null,
+            hasMoreAudit: true,
+            auditLoadingMore: false,
 
             activeTab: 'dashboard',
             currentDate: '', currentTime: '',
@@ -1616,7 +1609,6 @@
             currentPageLaporanAlat: 1, itemsPerPageLaporanAlat: 10,
             currentPageLaporanBahan: 1, itemsPerPageLaporanBahan: 10,
             currentPageUsage: 1, itemsPerPageUsage: 10,
-            currentPageAudit: 1, itemsPerPageAudit: 10,
 
             alatList: [], bahanList: [], loanList: [], usageLogs: [], auditLogs: [],
             settings: {
@@ -1761,32 +1753,40 @@
                     let unsubAudit = null;
                     if (this.userRole === 'admin') {
                         this.auditStatus = 'connecting';
-                        this.auditStatusMessage = 'Menghubungkan ke koleksi audit_logs...';
+                        this.auditStatusMessage = 'Menghubungkan ke koleksi audit_logs (Limit 50 Teratas)...';
                         
+                        // OPTIMIZED FIRESTORE READ: Limit 50 realtime listener + cursor pagination
                         unsubAudit = db.collection('audit_logs')
                             .orderBy('timestamp', 'desc')
+                            .limit(50)
                             .onSnapshot(snap => {
                                 const docs = snap.docs.map(d => ({ ...d.data(), id: d.id }));
-                                this.auditLogs = docs;
-                                this.currentPageAudit = 1; // Reset ke halaman pertama agar dokumen baru langsung terlihat
-                                this.auditStatus = 'connected';
-                                this.auditStatusMessage = `Berhasil menyinkronkan ${docs.length} dokumen audit secara real-time.`;
-                                this.auditLastSync = new Date().toLocaleTimeString('id-ID');
+                                if (snap.docs.length > 0) {
+                                    this.lastVisibleAuditDoc = snap.docs[snap.docs.length - 1];
+                                }
                                 
-                                // Ambil dokumen pertama dari filteredAuditLogs (yang sudah di-sort dengan benar) agar sinkron 100% dengan baris tabel teratas
-                                const sortedDocs = [...docs].sort((a, b) => {
+                                // Merge realtime updates without duplicate IDs
+                                const existingMap = new Map();
+                                this.auditLogs.forEach(item => existingMap.set(item.id, item));
+                                docs.forEach(doc => existingMap.set(doc.id, doc));
+                                
+                                const merged = Array.from(existingMap.values()).sort((a, b) => {
                                     const timeA = a.timestamp && typeof a.timestamp.toDate === 'function' ? a.timestamp.toDate().getTime() : (a.timestamp ? new Date(a.timestamp).getTime() : 0);
                                     const timeB = b.timestamp && typeof b.timestamp.toDate === 'function' ? b.timestamp.toDate().getTime() : (b.timestamp ? new Date(b.timestamp).getTime() : 0);
                                     return timeB - timeA;
                                 });
 
-                                if (sortedDocs.length > 0 && sortedDocs[0].timestamp) {
-                                    let dt = (typeof sortedDocs[0].timestamp.toDate === 'function') ? sortedDocs[0].timestamp.toDate() : new Date(sortedDocs[0].timestamp);
+                                this.auditLogs = merged;
+                                this.auditStatus = 'connected';
+                                this.auditStatusMessage = `Berhasil menyinkronkan ${docs.length} dokumen terbaru secara real-time.`;
+                                this.auditLastSync = new Date().toLocaleTimeString('id-ID');
+                                
+                                if (merged.length > 0 && merged[0].timestamp) {
+                                    let dt = (typeof merged[0].timestamp.toDate === 'function') ? merged[0].timestamp.toDate() : new Date(merged[0].timestamp);
                                     this.auditLatestDocTime = !isNaN(dt.getTime()) ? dt.toLocaleTimeString('id-ID') + ' ' + dt.toLocaleDateString('id-ID') : '-';
                                 } else {
                                     this.auditLatestDocTime = '-';
                                 }
-                                console.log("[AuditLog Real-time] Snapshot diterima:", docs.length, "dokumen. Waktu teratas:", this.auditLatestDocTime);
                             }, err => {
                                 console.error("[AuditLog Real-time] Gagal memuat snapshot:", err);
                                 this.auditStatus = 'error';
@@ -1807,6 +1807,42 @@
                 } catch (e) {
                     console.error("Gagal menginisialisasi listener:", e);
                     this.cloudStatus = 'error';
+                }
+            },
+
+            async loadMoreAuditLogs() {
+                if (!this.lastVisibleAuditDoc || this.auditLoadingMore || !this.hasMoreAudit) return;
+                this.auditLoadingMore = true;
+                try {
+                    const nextSnap = await db.collection('audit_logs')
+                        .orderBy('timestamp', 'desc')
+                        .startAfter(this.lastVisibleAuditDoc)
+                        .limit(50)
+                        .get();
+
+                    if (nextSnap.empty) {
+                        this.hasMoreAudit = false;
+                        showToastGlobal('Arsip Selesai', 'Seluruh riwayat audit lama telah dimuat.');
+                    } else {
+                        this.lastVisibleAuditDoc = nextSnap.docs[nextSnap.docs.length - 1];
+                        const moreDocs = nextSnap.docs.map(d => ({ ...d.data(), id: d.id }));
+                        
+                        const existingMap = new Map();
+                        this.auditLogs.forEach(item => existingMap.set(item.id, item));
+                        moreDocs.forEach(doc => existingMap.set(doc.id, doc));
+
+                        this.auditLogs = Array.from(existingMap.values()).sort((a, b) => {
+                            const timeA = a.timestamp && typeof a.timestamp.toDate === 'function' ? a.timestamp.toDate().getTime() : (a.timestamp ? new Date(a.timestamp).getTime() : 0);
+                            const timeB = b.timestamp && typeof b.timestamp.toDate === 'function' ? b.timestamp.toDate().getTime() : (b.timestamp ? new Date(b.timestamp).getTime() : 0);
+                            return timeB - timeA;
+                        });
+                        showToastGlobal('Arsip Dimuat', `Berhasil mengambil ${moreDocs.length} riwayat audit tambahan.`);
+                    }
+                } catch (e) {
+                    console.error("Gagal memuat arsip audit:", e);
+                    showToastGlobal('Gagal Memuat Arsip', e.message, 'error');
+                } finally {
+                    this.auditLoadingMore = false;
                 }
             },
 
@@ -2490,7 +2526,7 @@
                 return this.filteredUsageLogs.slice(start, start + parseInt(this.itemsPerPageUsage));
             },
 
-            // COMPUTED AUDIT LOG DENGAN AMAN TERHADAP TIMESTAMP KOSONG DAN PENCARIAN
+            // COMPUTED AUDIT LOG DENGAN FILTER PENCARIAN DI DATA YANG SUDAH DIMUAT
             get filteredAuditLogs() {
                 return (this.auditLogs || []).filter(l => 
                     ((l.action || '') + (l.userEmail || '') + (l.details || '')).toLowerCase().includes(this.searchAudit.toLowerCase())
@@ -2499,12 +2535,6 @@
                     const timeB = b.timestamp && typeof b.timestamp.toDate === 'function' ? b.timestamp.toDate().getTime() : (b.timestamp ? new Date(b.timestamp).getTime() : 0);
                     return timeB - timeA;
                 });
-            },
-            get totalPagesAudit() { return Math.ceil(this.filteredAuditLogs.length / this.itemsPerPageAudit) || 1; },
-            get paginatedAuditLogs() {
-                if (this.itemsPerPageAudit == 1000000) return this.filteredAuditLogs;
-                const start = (this.currentPageAudit - 1) * this.itemsPerPageAudit;
-                return this.filteredAuditLogs.slice(start, start + parseInt(this.itemsPerPageAudit));
             },
 
             get reportLoans() {
