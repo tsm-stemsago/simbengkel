@@ -667,12 +667,11 @@
             <!-- ================= TAB 5: PENGGUNAAN BAHAN ================= -->
             <div x-show="activeTab === 'penggunaan'" class="space-y-4" x-cloak>
                 <div class="bg-white px-5 py-3 rounded-[24px] border border-md3-surfaceVariant shadow-sm flex flex-col sm:flex-row justify-between items-center gap-4 max-w-5xl mx-auto">
-                    <div>
-                        <h3 class="font-bold text-slate-900 text-base">Catatan Pemakaian Bahan Praktik</h3>
-                        <p class="text-xs text-md3-outline">Rekapitulasi bahan habis pakai yang digunakan dalam praktik</p>
-                    </div>
-                    <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3 w-full sm:w-auto">
-                        <input type="text" x-model="searchUsage" @input="currentPageUsage = 1" placeholder="Cari bahan, kelas, topik..." class="p-2.5 border border-md3-surfaceVariant rounded-xl text-xs w-full sm:w-64 focus:ring-2 focus:ring-md3-primary focus:outline-none bg-slate-50">
+                    <input type="text" x-model="searchUsage" @input="currentPageUsage = 1" placeholder="Cari bahan, kelas, topik..." class="p-3 border border-md3-surfaceVariant rounded-2xl text-xs w-full sm:w-80 focus:ring-2 focus:ring-md3-primary focus:outline-none bg-slate-50">
+                    <div class="flex items-center space-x-2 w-full sm:w-auto justify-end">
+                        <template x-if="searchUsage">
+                            <button @click="searchUsage = ''; currentPageUsage = 1;" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition">Reset Cari</button>
+                        </template>
                         <template x-if="userRole === 'admin'">
                             <button @click="openModal('usage')" class="bg-md3-primary hover:bg-blue-800 text-white font-bold px-5 py-2.5 rounded-md3-full text-xs shadow transition whitespace-nowrap">+ Catat Penggunaan</button>
                         </template>
@@ -708,7 +707,7 @@
                             </tbody>
                         </table>
                     </div>
-                    <!-- Paginasi Tabel Penggunaan Bahan -->
+                    <!-- Paginasi Penggunaan Bahan -->
                     <div class="p-3 border-t bg-white flex justify-between items-center text-xs text-slate-600 pagination-controls">
                         <div class="flex items-center space-x-2">
                             <span>Tampilkan</span>
@@ -998,29 +997,66 @@
 
             <!-- ================= TAB 7: AUDIT LOG ================= -->
             <div x-show="activeTab === 'audit' && userRole === 'admin'" class="space-y-4" x-cloak>
-                <div class="bg-white px-5 py-3 rounded-[24px] border border-md3-surfaceVariant shadow-sm flex flex-col sm:flex-row justify-between items-center gap-4 max-w-5xl mx-auto">
-                    <h3 class="font-bold text-slate-900">Catatan Audit Sistem (Audit Logs)</h3>
-                    <input type="text" x-model="searchAudit" @input="currentPageAudit = 1" placeholder="Cari aksi, user, rincian..." class="p-2.5 border border-md3-surfaceVariant rounded-xl text-xs w-full sm:w-64 focus:ring-2 focus:ring-md3-primary focus:outline-none bg-slate-50">
+                <!-- PANEL DIAGNOSTIK AUDIT LOG (KHUSUS ADMIN) -->
+                <div class="bg-slate-900 text-slate-100 p-4 rounded-[20px] shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-3 text-xs max-w-5xl mx-auto border border-slate-800">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-8 h-8 rounded-xl flex items-center justify-center font-bold"
+                             :class="auditStatus === 'connected' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : (auditStatus === 'error' ? 'bg-red-500/20 text-red-400 border border-red-500/30' : 'bg-amber-500/20 text-amber-400 border border-amber-500/30')">
+                            <i class="fa-solid fa-satellite-dish"></i>
+                        </div>
+                        <div>
+                            <div class="flex items-center space-x-2">
+                                <span class="font-bold uppercase tracking-wide text-[10px] text-slate-400">Status Listener:</span>
+                                <span class="font-bold px-2 py-0.5 rounded text-[10px]"
+                                      :class="auditStatus === 'connected' ? 'bg-emerald-500 text-white' : (auditStatus === 'error' ? 'bg-red-500 text-white' : 'bg-amber-500 text-white')"
+                                      x-text="auditStatus === 'connected' ? 'Aktif (Real-time)' : (auditStatus === 'error' ? 'Error / Gagal' : 'Menghubungkan...')"></span>
+                            </div>
+                            <p class="text-[11px] text-slate-300 mt-0.5" x-text="auditStatusMessage || 'Menunggu sinkronisasi data audit dari Firestore...'"></p>
+                        </div>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-3 text-[11px] font-mono border-t md:border-t-0 pt-2 md:pt-0 border-slate-800 w-full md:w-auto justify-end">
+                        <div class="bg-slate-800 px-3 py-1.5 rounded-xl border border-slate-700">
+                            <span class="text-slate-400">Total Log:</span> <span class="font-bold text-amber-400" x-text="auditLogs.length"></span>
+                        </div>
+                        <div class="bg-slate-800 px-3 py-1.5 rounded-xl border border-slate-700">
+                            <span class="text-slate-400">Update Terakhir:</span> <span class="font-bold text-emerald-400" x-text="auditLastSync || '-'"></span>
+                        </div>
+                    </div>
                 </div>
+
+                <div class="bg-white px-5 py-3 rounded-[24px] border border-md3-surfaceVariant shadow-sm flex flex-col sm:flex-row justify-between items-center gap-4 max-w-5xl mx-auto">
+                    <div class="flex items-center space-x-2 w-full sm:w-80">
+                        <input type="text" x-model="searchAudit" @input="currentPageAudit = 1" placeholder="Cari aksi, user, rincian..." class="p-3 border border-md3-surfaceVariant rounded-2xl text-xs w-full focus:ring-2 focus:ring-md3-primary focus:outline-none bg-slate-50">
+                    </div>
+                    <div class="flex items-center space-x-2 w-full sm:w-auto justify-end">
+                        <template x-if="searchAudit">
+                            <button @click="searchAudit = ''; currentPageAudit = 1;" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition">Reset Cari</button>
+                        </template>
+                        <span class="text-xs text-slate-500" x-text="'Total: ' + filteredAuditLogs.length + ' catatan'"></span>
+                    </div>
+                </div>
+
                 <div class="bg-white rounded-[24px] border border-md3-surfaceVariant shadow-sm overflow-hidden max-w-5xl mx-auto">
-                    <table class="w-full text-left text-xs">
-                        <thead class="bg-slate-900 text-white uppercase font-semibold">
-                            <tr><th class="p-3.5">Waktu</th><th class="p-3.5">Aksi</th><th class="p-3.5">User/Admin</th><th class="p-3.5">Rincian</th></tr>
-                        </thead>
-                        <tbody class="divide-y divide-slate-100">
-                            <template x-for="log in paginatedAuditLogs" :key="log.id">
-                                <tr class="hover:bg-slate-50 transition">
-                                    <td class="p-3.5 font-mono text-slate-500" x-text="formatDateTime(log.timestamp)"></td>
-                                    <td class="p-3.5 font-bold text-md3-primary" x-text="log.action"></td>
-                                    <td class="p-3.5 font-mono" x-text="log.userEmail"></td>
-                                    <td class="p-3.5 text-slate-700" x-text="log.details"></td>
-                                </tr>
-                            </template>
-                            <template x-if="filteredAuditLogs.length === 0">
-                                <tr><td colspan="4" class="p-8 text-center text-slate-400 font-medium">Data catatan audit tidak ditemukan.</td></tr>
-                            </template>
-                        </tbody>
-                    </table>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs">
+                            <thead class="bg-slate-900 text-white uppercase font-semibold">
+                                <tr><th class="p-3.5">Waktu</th><th class="p-3.5">Aksi</th><th class="p-3.5">User/Admin</th><th class="p-3.5">Rincian</th></tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100">
+                                <template x-for="log in paginatedAuditLogs" :key="log.id">
+                                    <tr class="hover:bg-slate-50 transition">
+                                        <td class="p-3.5 font-mono text-slate-500" x-text="formatDateTime(log.timestamp)"></td>
+                                        <td class="p-3.5 font-bold text-md3-primary" x-text="log.action"></td>
+                                        <td class="p-3.5 font-mono" x-text="log.userEmail"></td>
+                                        <td class="p-3.5 text-slate-700" x-text="log.details"></td>
+                                    </tr>
+                                </template>
+                                <template x-if="filteredAuditLogs.length === 0">
+                                    <tr><td colspan="4" class="p-8 text-center text-slate-400 font-medium">Data catatan audit tidak ditemukan.</td></tr>
+                                </template>
+                            </tbody>
+                        </table>
+                    </div>
                     <!-- Paginasi Tabel Audit Log -->
                     <div class="p-3 border-t bg-white flex justify-between items-center text-xs text-slate-600 pagination-controls">
                         <div class="flex items-center space-x-2">
@@ -1447,18 +1483,11 @@
             <div><label class="font-bold block mb-1 text-slate-700">Nama Bahan</label><input type="text" x-model="formOpname.namaBahan" required class="w-full p-2.5 bg-slate-50 border rounded-xl font-semibold focus:outline-none"></div>
             <div><label class="font-bold block mb-1 text-slate-700">Spesifikasi</label><input type="text" x-model="formOpname.spesifikasi" placeholder="Spesifikasi" class="w-full p-2.5 bg-slate-50 border rounded-xl focus:outline-none"></div>
             <div><label class="font-bold block mb-1 text-slate-700">Satuan</label><input type="text" x-model="formOpname.satuan" placeholder="Botol/Pcs/dll" class="w-full p-2.5 bg-slate-50 border rounded-xl focus:outline-none"></div>
-            
-            <div class="grid grid-cols-2 gap-2">
-                <div><label class="font-bold block mb-1 text-slate-700">Stok Sistem Saat Ini</label><input type="number" :value="selectedBahanOpname ? selectedBahanOpname.stokSistem : 0" readonly class="w-full p-3 border border-slate-200 rounded-xl font-bold text-center bg-slate-100 focus:outline-none text-slate-500"></div>
-                <div><label class="font-bold block mb-1 text-slate-700">Stok Fisik (Hitung Baru)</label><input type="number" x-model.number="formOpname.stokFisik" min="0" required class="w-full p-3 border-2 border-md3-primary rounded-xl font-black text-center text-lg bg-blue-50/50 focus:outline-none"></div>
-            </div>
-            
-            <div><label class="font-bold block mb-1 text-slate-700">Alasan Penyesuaian <span class="text-red-500">*</span></label><input type="text" x-model="formOpname.alasan" required placeholder="Contoh: Salah hitung minggu lalu" class="w-full p-2.5 border rounded-xl focus:ring-2 focus:ring-md3-primary focus:outline-none"></div>
+            <div><label class="font-bold block mb-1 text-slate-700">Stok Fisik Baru</label><input type="number" x-model.number="formOpname.stokFisik" min="0" required class="w-full p-3 border-2 border-md3-primary rounded-xl font-black text-center text-lg bg-blue-50/50 focus:outline-none"></div>
             <div><label class="font-bold block mb-1 text-slate-700">Batas Stok Kritis (Min Stok)</label><input type="number" x-model.number="formOpname.minStok" min="0" required class="w-full p-2.5 bg-slate-50 border rounded-xl font-bold focus:outline-none"></div>
-            
             <div class="flex justify-end space-x-2 pt-2 border-t">
                 <button type="button" @click="$store.modals.opname = false" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 font-bold rounded-md3-full transition">Batal</button>
-                <button type="submit" :disabled="actionLoading" class="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-amber-400 font-bold rounded-md3-full transition shadow disabled:opacity-50">Simpan Opname</button>
+                <button type="submit" :disabled="actionLoading" class="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-amber-400 font-bold rounded-md3-full transition shadow disabled:opacity-50">Simpan</button>
             </div>
         </form>
     </div>
@@ -1516,7 +1545,7 @@
     const db = firebase.firestore();
 
     document.addEventListener('alpine:init', () => {
-        Alpine.store('toast', { show: false, title: '', message: '', type: 'success' });
+        Alpine.store('toast', { show: false, title: '', message: '', type: 'error' });
         Alpine.store('modals', {
             studentLoan: false, editLoan: false, loanDetail: false, usageDetail: false,
             settingsModal: false, alat: false, bahan: false, usage: false, opname: false,
@@ -1524,17 +1553,20 @@
         });
     });
 
-    // Helper Fungsi Audit Log Transaksional
-    function attachAuditLog(transaction, action, details, userEmail) {
-        const logId = crypto.randomUUID();
-        const logRef = db.collection('audit_logs').doc(logId);
-        transaction.set(logRef, {
-            id: logId, 
-            action, 
-            details,
-            userEmail: userEmail || 'System',
-            timestamp: firebase.firestore.FieldValue.serverTimestamp()
-        });
+    async function createAuditLog(action, details) {
+        try {
+            const logId = crypto.randomUUID();
+            const user = auth.currentUser;
+            const email = user ? user.email : 'System';
+            await db.collection('audit_logs').doc(logId).set({
+                id: logId, action, details,
+                userEmail: email,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            console.log(`[AuditLog] Berhasil mencatat aksi: ${action} oleh ${email}`);
+        } catch(e) { 
+            console.error("[AuditLog] Gagal mencatat log:", e); 
+        }
     }
 
     function showToastGlobal(title, message, type = 'success') {
@@ -1558,10 +1590,15 @@
             cloudStatus: 'connecting',
             activeUnsubscribers: [],
             
+            // Variabel Diagnostik Audit Log
+            auditStatus: 'connecting',
+            auditStatusMessage: 'Menghubungkan ke koleksi audit_logs...',
+            auditLastSync: '-',
+
             activeTab: 'dashboard',
             currentDate: '', currentTime: '',
             searchAlat: '', searchBahan: '', searchLoan: '',
-            searchUsage: '', searchAudit: '', // Tambahan state pencarian
+            searchUsage: '', searchAudit: '',
             reportMonth: new Date().toISOString().slice(0, 7),
             reportPrintDate: new Date().toISOString().slice(0, 10),
             reportFilterType: 'semua',
@@ -1571,8 +1608,8 @@
             currentPageOpname: 1, itemsPerPageOpname: 10,
             currentPageLaporanAlat: 1, itemsPerPageLaporanAlat: 10,
             currentPageLaporanBahan: 1, itemsPerPageLaporanBahan: 10,
-            currentPageUsage: 1, itemsPerPageUsage: 10, // Tambahan state paginasi penggunaan
-            currentPageAudit: 1, itemsPerPageAudit: 10, // Tambahan state paginasi audit
+            currentPageUsage: 1, itemsPerPageUsage: 10,
+            currentPageAudit: 1, itemsPerPageAudit: 10,
 
             alatList: [], bahanList: [], loanList: [], usageLogs: [], auditLogs: [],
             settings: {
@@ -1594,7 +1631,7 @@
             formAlat: { id: null, kodeAlat: '', namaAlat: '', kategori: 'Hand Tools', merk: '', lokasiRak: '', jumlahTotal: 1, kondisiBaik: 1, kondisiServis: 0, kondisiRusak: 0 },
             formBahan: { kodeBahan: '', namaBahan: '', spesifikasi: '', satuan: 'Botol', stokSistem: 10, minStok: 2 },
             formUsageMeta: { namaPencatat: '', noHpPencatat: '', kelas: '', topik: '', instruktur: '', items: [{ bahanId: '', searchBahanQuery: '', jumlah: 1 }] },
-            selectedBahanOpname: null, formOpname: { namaBahan: '', spesifikasi: '', satuan: '', stokFisik: 0, minStok: 2, alasan: '' },
+            selectedBahanOpname: null, formOpname: { namaBahan: '', spesifikasi: '', satuan: '', stokFisik: 0, minStok: 2 },
             selectedLoanReturn: null, formReturn: { kondisi: 'Baik', catatan: '' },
 
             idleTimer: null,
@@ -1632,10 +1669,9 @@
                     clearTimeout(safetyTimeout);
                     this.cleanupListeners();
                     if (user) {
-                        // VALIDASI DOMAIN FRONTEND (Backend validation ada di Firestore Rules)
                         if (!user.email.endsWith('@smkn1gombong.sch.id')) {
                             await auth.signOut();
-                            showToastGlobal('Akses Ditolak', 'Hanya akun @smkn1gombong.sch.id yang diizinkan masuk.', 'error');
+                            showToastGlobal('Akses Ditolak', 'Hanya akun @smkn1gombong.sch.id yang diizinkan.', 'error');
                             this.authCheckComplete = true;
                             return;
                         }
@@ -1714,16 +1750,28 @@
                         console.error("Listener Usage Error:", err);
                         this.cloudStatus = 'error';
                     });
-                    
-                    let unsubAudit;
-                    if(this.userRole === 'admin') {
-                        // Batasan (limit) telah dihapus dari pemanggilan audit logs
-                        unsubAudit = db.collection('audit_logs').orderBy('timestamp', 'desc').onSnapshot(snap => { 
-                            this.auditLogs = snap.docs.map(d => ({ ...d.data(), id: d.id })); 
-                            this.cloudStatus = 'connected';
-                        }, err => { 
-                            console.error("Listener Audit Error:", err);
-                        });
+
+                    let unsubAudit = null;
+                    if (this.userRole === 'admin') {
+                        this.auditStatus = 'connecting';
+                        this.auditStatusMessage = 'Menghubungkan ke koleksi audit_logs...';
+                        
+                        unsubAudit = db.collection('audit_logs')
+                            .orderBy('timestamp', 'desc')
+                            .onSnapshot(snap => {
+                                const docs = snap.docs.map(d => ({ ...d.data(), id: d.id }));
+                                this.auditLogs = docs;
+                                this.currentPageAudit = 1; // Reset halaman ke 1 agar catatan terbaru langsung tampil
+                                this.auditStatus = 'connected';
+                                this.auditStatusMessage = `Berhasil menyinkronkan ${docs.length} dokumen audit secara real-time.`;
+                                this.auditLastSync = new Date().toLocaleTimeString('id-ID');
+                                console.log("[AuditLog Real-time] Snapshot diterima:", docs.length, "dokumen.");
+                            }, err => {
+                                console.error("[AuditLog Real-time] Gagal memuat snapshot:", err);
+                                this.auditStatus = 'error';
+                                this.auditStatusMessage = `Error: ${err.message}`;
+                                showToastGlobal('Gagal Sinkron Log', 'Gagal memuat Audit Log: ' + err.message, 'error');
+                            });
                     }
 
                     const unsubSettings = db.collection('settings').doc('general').onSnapshot(snap => { 
@@ -1734,7 +1782,7 @@
                     });
 
                     this.activeUnsubscribers.push(unsubAlat, unsubBahan, unsubLoans, unsubUsage, unsubSettings);
-                    if(unsubAudit) this.activeUnsubscribers.push(unsubAudit);
+                    if (unsubAudit) this.activeUnsubscribers.push(unsubAudit);
                 } catch (e) {
                     console.error("Gagal menginisialisasi listener:", e);
                     this.cloudStatus = 'error';
@@ -1754,12 +1802,8 @@
                         await auth.signOut();
                         throw new Error("Domain email tidak diizinkan mengakses aplikasi ini. Gunakan akun @smkn1gombong.sch.id");
                     }
-                    
-                    const logId = crypto.randomUUID();
-                    await db.collection('audit_logs').doc(logId).set({
-                        id: logId, action: 'LOGIN', details: 'User masuk via SSO Google', userEmail: email, timestamp: firebase.firestore.FieldValue.serverTimestamp()
-                    });
 
+                    await createAuditLog('LOGIN', 'User masuk via SSO Google');
                 } catch (err) { 
                     showToastGlobal('Login Gagal', err.message, 'error'); 
                 } finally {
@@ -1780,13 +1824,8 @@
 
             async logout() {
                 clearTimeout(this.idleTimer);
+                try { await createAuditLog('LOGOUT', 'User keluar sistem'); } catch(e) {}
                 this.cleanupListeners();
-                try { 
-                    const logId = crypto.randomUUID();
-                    await db.collection('audit_logs').doc(logId).set({
-                        id: logId, action: 'LOGOUT', details: 'User keluar sistem', userEmail: this.currentUser?.email || 'Unknown', timestamp: firebase.firestore.FieldValue.serverTimestamp()
-                    });
-                } catch(e) {}
                 await auth.signOut();
                 this.activeTab = 'dashboard';
                 showToastGlobal('Logout Berhasil', 'Anda telah keluar dari sistem.');
@@ -1847,9 +1886,6 @@
                                 tanggalPinjam: new Date().toISOString(), status: 'Menunggu Persetujuan', kondisiKembali: '',
                                 emailPengaju: this.currentUser?.email || ''
                             });
-                            
-                            attachAuditLog(t, 'AJUKAN_PINJAM', `Mengajukan pinjam alat ${alat ? alat.namaAlat : ''}`, this.currentUser?.email);
-
                             nextTrxNum++;
                         }
                         t.set(counterRef, { current: nextTrxNum - 1 }, { merge: true });
@@ -1858,6 +1894,7 @@
                     Alpine.store('modals').studentLoan = false;
                     this.formStudentLoan = { namaPeminjam: '', kelas: '', nis: '', noHp: '', items: [{ alatId: '', searchAlatQuery: '', jumlah: 1 }] };
                     showToastGlobal('Terkirim', 'Pengajuan berhasil dikirim!');
+                    await createAuditLog('AJUKAN_PINJAM', `Siswa ${this.formStudentLoan.namaPeminjam} mengajukan pinjaman alat.`);
                 } catch(e) { 
                     showToastGlobal('Gagal', e.message, 'error'); 
                 } finally {
@@ -1907,12 +1944,11 @@
                             noHp: this.formEditLoan.noHp || '',
                             jumlah: Number(this.formEditLoan.jumlah)
                         });
-
-                        attachAuditLog(t, 'EDIT_LOAN', `Mengubah biodata peminjam transaksi #${this.formEditLoan.id}`, this.currentUser?.email);
                     });
 
                     Alpine.store('modals').editLoan = false;
                     showToastGlobal('Berhasil', 'Data biodata peminjam diperbarui');
+                    await createAuditLog('EDIT_LOAN', `Mengubah biodata transaksi #${this.formEditLoan.id}`);
                 } catch(e) { 
                     showToastGlobal('Gagal Menyimpan', e.message, 'error'); 
                 } finally {
@@ -1927,11 +1963,13 @@
                 }
                 this.actionLoading = true;
                 try {
+                    let loanCode = '';
                     await db.runTransaction(async (t) => {
                         const loanRef = db.collection('loans').doc(loanId);
                         const loanSnap = await t.get(loanRef);
                         if (!loanSnap.exists) throw new Error(`Data pinjam tidak ditemukan.`);
                         const loanData = loanSnap.data();
+                        loanCode = loanData.kodePinjam || loanId;
                         if (loanData.status !== 'Menunggu Persetujuan') throw new Error(`Transaksi sudah diproses sebelumnya.`);
 
                         const jumlahPinjam = Number(loanData.jumlah || 0);
@@ -1942,13 +1980,11 @@
                         const tersedia = Number(alat.jumlahTersedia || 0);
 
                         if (jumlahPinjam > tersedia) throw new Error(`Stok fisik "${alat.namaAlat}" tidak mencukupi untuk peminjaman ini.`);
-                        
                         t.update(alatRef, { jumlahTersedia: tersedia - jumlahPinjam, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
                         t.update(loanRef, { status: 'Dipinjam', tanggalDisetujui: firebase.firestore.FieldValue.serverTimestamp(), disetujuiOleh: auth.currentUser?.email });
-                        
-                        attachAuditLog(t, 'APPROVE_LOAN', `Menyetujui peminjaman ${loanData.kodePinjam}`, this.currentUser?.email);
                     });
                     showToastGlobal('Disetujui', 'Peminjaman disetujui.');
+                    await createAuditLog('APPROVE_LOAN', `Menyetujui peminjaman ${loanCode}`);
                 } catch (e) { 
                     showToastGlobal('Gagal', e.message, 'error'); 
                 } finally {
@@ -1963,16 +1999,17 @@
                 }
                 this.actionLoading = true;
                 try {
+                    let loanCode = '';
                     await db.runTransaction(async (t) => {
                         const loanRef = db.collection('loans').doc(loanId);
                         const loanSnap = await t.get(loanRef);
                         if (!loanSnap.exists) throw new Error("Data transaksi pinjam tidak ditemukan.");
+                        loanCode = loanSnap.data().kodePinjam || loanId;
                         if (loanSnap.data().status !== 'Menunggu Persetujuan') throw new Error("Hanya pengajuan baru (Menunggu) yang bisa ditolak.");
-                        
                         t.update(loanRef, { status: 'Ditolak' });
-                        attachAuditLog(t, 'REJECT_LOAN', `Menolak peminjaman ${loanSnap.data().kodePinjam}`, this.currentUser?.email);
                     });
                     showToastGlobal('Ditolak', 'Peminjaman telah ditolak');
+                    await createAuditLog('REJECT_LOAN', `Menolak peminjaman ${loanCode}`);
                 } catch (e) { 
                     showToastGlobal('Gagal Penolakan', e.message, 'error'); 
                 } finally {
@@ -2039,13 +2076,12 @@
                             kondisiKembali: kondisi, 
                             catatanKembali: catatan 
                         });
-
-                        attachAuditLog(t, 'RETURN_LOAN', `Proses kembalikan alat transaksi ${loan.kodePinjam} (${kondisi})`, this.currentUser?.email);
                     });
 
                     Alpine.store('modals').return = false;
                     this.formReturn = { kondisi: 'Baik', catatan: '' };
                     showToastGlobal('Sukses', 'Alat berhasil dikembalikan dan stok diperbarui.');
+                    await createAuditLog('RETURN_LOAN', `Pengembalian alat transaksi #${loan.kodePinjam} (${kondisi})`);
                 } catch (e) { 
                     showToastGlobal('Gagal Proses', e.message, 'error'); 
                 } finally {
@@ -2077,10 +2113,9 @@
 
                 this.actionLoading = true;
                 try {
-                    await db.runTransaction(async (t) => {
-                        const alatRef = db.collection('alat').doc(id);
-                        
-                        if (this.formAlat.id) {
+                    if (this.formAlat.id) {
+                        await db.runTransaction(async (t) => {
+                            const alatRef = db.collection('alat').doc(this.formAlat.id);
                             const alatSnap = await t.get(alatRef);
                             if (!alatSnap.exists) throw new Error("Data Alat tidak ditemukan di database.");
                             
@@ -2104,16 +2139,15 @@
                                 jumlahTersedia: newTersedia,
                                 updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                             });
-                        } else {
-                            t.set(alatRef, {
-                                ...this.formAlat, id, jumlahTotal: total, jumlahTersedia: baik, kondisiBaik: baik, kondisiServis: servis, kondisiRusak: rusak, createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                            });
-                        }
-                        attachAuditLog(t, 'SAVE_ALAT', `Menyimpan data alat ${this.formAlat.namaAlat}`, this.currentUser?.email);
-                    });
-                    
+                        });
+                    } else {
+                        await db.collection('alat').doc(id).set({
+                            ...this.formAlat, id, jumlahTotal: total, jumlahTersedia: baik, kondisiBaik: baik, kondisiServis: servis, kondisiRusak: rusak, createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                        });
+                    }
                     Alpine.store('modals').alat = false;
                     showToastGlobal('Berhasil', 'Inventaris Alat berhasil disimpan.');
+                    await createAuditLog('SAVE_ALAT', `Menyimpan data alat ${this.formAlat.namaAlat}`);
                 } catch(e) { 
                     showToastGlobal('Gagal Menyimpan', e.message, 'error'); 
                 } finally {
@@ -2129,20 +2163,10 @@
                 this.actionLoading = true;
                 try {
                     const id = crypto.randomUUID();
-                    await db.runTransaction(async (t) => {
-                        const bahanRef = db.collection('bahan').doc(id);
-                        t.set(bahanRef, { 
-                            ...this.formBahan, 
-                            id, 
-                            stokSistem: Number(this.formBahan.stokSistem), 
-                            minStok: Number(this.formBahan.minStok || 2), 
-                            stokFisik: Number(this.formBahan.stokSistem) 
-                        });
-                        attachAuditLog(t, 'SAVE_BAHAN', `Simpan bahan baru ${this.formBahan.namaBahan}`, this.currentUser?.email);
-                    });
-
+                    await db.collection('bahan').doc(id).set({ ...this.formBahan, id, stokSistem: Number(this.formBahan.stokSistem), minStok: Number(this.formBahan.minStok || 2), stokFisik: Number(this.formBahan.stokSistem) });
                     Alpine.store('modals').bahan = false;
                     showToastGlobal('Berhasil', 'Bahan ditambahkan');
+                    await createAuditLog('SAVE_BAHAN', `Menambah bahan praktik ${this.formBahan.namaBahan}`);
                 } catch (e) {
                     showToastGlobal('Gagal Menyimpan', e.message, 'error');
                 } finally {
@@ -2156,17 +2180,9 @@
                     return;
                 }
                 this.selectedBahanOpname = bahan;
-                this.formOpname = { 
-                    namaBahan: bahan.namaBahan || '', 
-                    spesifikasi: bahan.spesifikasi || '', 
-                    satuan: bahan.satuan || '', 
-                    stokFisik: bahan.stokSistem !== undefined ? bahan.stokSistem : 0, 
-                    minStok: bahan.minStok !== undefined ? bahan.minStok : 2,
-                    alasan: ''
-                };
+                this.formOpname = { namaBahan: bahan.namaBahan || '', spesifikasi: bahan.spesifikasi || '', satuan: bahan.satuan || '', stokFisik: bahan.stokSistem !== undefined ? bahan.stokSistem : 0, minStok: bahan.minStok !== undefined ? bahan.minStok : 2 };
                 Alpine.store('modals').opname = true;
             },
-            
             async saveOpnameAdjustment() {
                 if (!this.selectedBahanOpname || this.userRole !== 'admin') {
                     showToastGlobal('Akses Ditolak', 'Tindakan tidak diizinkan.', 'error');
@@ -2175,31 +2191,10 @@
                 const b = this.selectedBahanOpname;
                 this.actionLoading = true;
                 try {
-                    await db.runTransaction(async (t) => {
-                        const bahanRef = db.collection('bahan').doc(b.id);
-                        const bahanSnap = await t.get(bahanRef);
-                        
-                        if(!bahanSnap.exists) throw new Error("Data bahan tidak ditemukan.");
-                        
-                        const oldStock = Number(bahanSnap.data().stokSistem);
-                        const newStock = Number(this.formOpname.stokFisik);
-                        const diff = newStock - oldStock;
-
-                        t.update(bahanRef, { 
-                            namaBahan: this.formOpname.namaBahan, 
-                            spesifikasi: this.formOpname.spesifikasi, 
-                            satuan: this.formOpname.satuan, 
-                            stokSistem: newStock, 
-                            stokFisik: newStock, 
-                            minStok: Number(this.formOpname.minStok || 2), 
-                            updatedAt: firebase.firestore.FieldValue.serverTimestamp() 
-                        });
-
-                        attachAuditLog(t, 'OPNAME', `Stok ${this.formOpname.namaBahan} diubah dari ${oldStock} ke ${newStock} (Selisih: ${diff}). Alasan: ${this.formOpname.alasan}`, this.currentUser?.email);
-                    });
-
+                    await db.collection('bahan').doc(b.id).update({ namaBahan: this.formOpname.namaBahan, spesifikasi: this.formOpname.spesifikasi, satuan: this.formOpname.satuan, stokSistem: Number(this.formOpname.stokFisik), stokFisik: Number(this.formOpname.stokFisik), minStok: Number(this.formOpname.minStok || 2), updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
                     Alpine.store('modals').opname = false;
-                    showToastGlobal('Berhasil', 'Stok opname & satuan diperbarui secara atomik');
+                    showToastGlobal('Berhasil', 'Stok opname & satuan diperbarui');
+                    await createAuditLog('OPNAME', `Stok opname bahan ${this.formOpname.namaBahan} disesuaikan ke ${this.formOpname.stokFisik}`);
                 } catch (e) { 
                     showToastGlobal('Gagal Penyesuaian', e.message, 'error'); 
                 } finally {
@@ -2238,7 +2233,6 @@
                 try {
                     await db.runTransaction(async (t) => {
                         const updatesToApply = [];
-                        let detailAudit = [];
 
                         for (let [bahanId, totalQtyToUse] of mergedItemsMap.entries()) {
                             const ref = db.collection('bahan').doc(bahanId);
@@ -2254,8 +2248,6 @@
                             if (totalQtyToUse > currentStock) {
                                 throw new Error(`Stok bahan "${bahanData.namaBahan}" tidak mencukupi! Diminta: ${totalQtyToUse}, Sisa: ${currentStock} ${bahanData.satuan}.`);
                             }
-                            
-                            detailAudit.push(`${bahanData.namaBahan} (${totalQtyToUse})`);
 
                             updatesToApply.push({
                                 ref,
@@ -2287,13 +2279,12 @@
                             const usageRef = db.collection('usage').doc(usageId);
                             t.set(usageRef, item.logData);
                         }
-                        
-                        attachAuditLog(t, 'SAVE_USAGE', `Mencatat pemakaian bahan kelas ${this.formUsageMeta.kelas}: ${detailAudit.join(', ')}`, this.currentUser?.email);
                     });
 
                     Alpine.store('modals').usage = false;
                     this.formUsageMeta = { namaPencatat: '', noHpPencatat: '', kelas: '', topik: '', instruktur: '', items: [{ bahanId: '', searchBahanQuery: '', jumlah: 1 }] };
                     showToastGlobal('Sukses', 'Penggunaan bahan berhasil dicatat.');
+                    await createAuditLog('SAVE_USAGE', `Mencatat pemakaian bahan praktik kelas ${this.formUsageMeta.kelas || '-'}`);
                 } catch (e) { 
                     showToastGlobal('Gagal Menyimpan', e.message, 'error'); 
                 } finally {
@@ -2324,14 +2315,10 @@
                 }
                 this.actionLoading = true;
                 try {
-                    await db.runTransaction(async (t) => {
-                        const settingsRef = db.collection('settings').doc('general');
-                        t.set(settingsRef, this.settings, { merge: true });
-                        attachAuditLog(t, 'SETTINGS', 'Update pengaturan sistem', this.currentUser?.email);
-                    });
-
+                    await db.collection('settings').doc('general').set(this.settings, { merge: true });
                     Alpine.store('modals').settingsModal = false;
                     showToastGlobal('Disimpan', 'Pengaturan diperbarui');
+                    await createAuditLog('SETTINGS', 'Memperbarui pengaturan umum sistem');
                 } catch (e) {
                     showToastGlobal('Gagal Menyimpan', e.message, 'error');
                 } finally {
@@ -2359,15 +2346,10 @@
                     if (type === 'loans' && status === 'Dipinjam') {
                         throw new Error("Peminjaman aktif tidak boleh dihapus secara langsung.");
                     }
-                    
-                    await db.runTransaction(async (t) => {
-                        const ref = db.collection(type).doc(id);
-                        t.delete(ref);
-                        attachAuditLog(t, 'DELETE', `Hapus dokumen ${type} (${name})`, this.currentUser?.email);
-                    });
-
+                    await db.collection(type).doc(id).delete();
                     Alpine.store('modals').confirmDelete.show = false;
                     showToastGlobal('Terhapus', `${name} berhasil dihapus.`);
+                    await createAuditLog('DELETE', `Menghapus data ${type} (${name})`);
                 } catch(e) {
                     showToastGlobal('Gagal Menghapus', e.message, 'error');
                 } finally {
@@ -2474,12 +2456,11 @@
                 const start = (this.currentPageLaporanBahan - 1) * this.itemsPerPageLaporanBahan;
                 return this.bahanList.slice(start, start + parseInt(this.itemsPerPageLaporanBahan));
             },
-            
-            // Computed & Paginasi untuk Penggunaan Bahan (BARU)
-            get filteredUsageLogs() {
+
+            get filteredUsageLogs() { 
                 return (this.usageLogs || []).filter(u => 
                     ((u.namaBahan || '') + (u.kelas || '') + (u.topik || '') + (u.instruktur || '')).toLowerCase().includes(this.searchUsage.toLowerCase())
-                );
+                ); 
             },
             get totalPagesUsage() { return Math.ceil(this.filteredUsageLogs.length / this.itemsPerPageUsage) || 1; },
             get paginatedUsageLogs() {
@@ -2488,11 +2469,15 @@
                 return this.filteredUsageLogs.slice(start, start + parseInt(this.itemsPerPageUsage));
             },
 
-            // Computed & Paginasi untuk Audit Logs (BARU)
+            // COMPUTED AUDIT LOG DENGAN AMAN TERHADAP TIMESTAMP KOSONG DAN PENCARIAN
             get filteredAuditLogs() {
                 return (this.auditLogs || []).filter(l => 
                     ((l.action || '') + (l.userEmail || '') + (l.details || '')).toLowerCase().includes(this.searchAudit.toLowerCase())
-                );
+                ).sort((a, b) => {
+                    const timeA = a.timestamp && typeof a.timestamp.toDate === 'function' ? a.timestamp.toDate().getTime() : (a.timestamp ? new Date(a.timestamp).getTime() : 0);
+                    const timeB = b.timestamp && typeof b.timestamp.toDate === 'function' ? b.timestamp.toDate().getTime() : (b.timestamp ? new Date(b.timestamp).getTime() : 0);
+                    return timeB - timeA;
+                });
             },
             get totalPagesAudit() { return Math.ceil(this.filteredAuditLogs.length / this.itemsPerPageAudit) || 1; },
             get paginatedAuditLogs() {
