@@ -256,6 +256,11 @@
 
             <!-- ================= TAB 1: DASHBOARD ================= -->
             <div x-show="activeTab === 'dashboard'" class="space-y-6" x-cloak>
+                <div x-show="overdueLoans.length > 0" class="bg-red-50 border border-red-200 rounded-2xl p-4 text-xs text-red-900">
+                    <p class="font-bold mb-1"><i class="fa-solid fa-triangle-exclamation mr-1"></i><span x-text="overdueLoans.length"></span> peminjaman melewati batas tanggal kembali</p>
+                    <template x-for="l in overdueLoans.slice(0, 5)" :key="l.id"><p x-text="l.kodePinjam + ' • ' + l.namaPeminjam + ' (' + l.kelas + ') • ' + l.namaAlat + ' x' + l.jumlah + ' • jatuh tempo ' + l.jatuhTempo"></p></template>
+                    <button @click="activeTab = 'peminjaman'" class="mt-2 font-bold underline">Lihat semua di menu Peminjaman</button>
+                </div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                     <div class="bg-white rounded-[24px] p-5 border border-md3-surfaceVariant shadow-sm hover:shadow-md transition">
                         <div class="flex justify-between items-start">
@@ -324,7 +329,7 @@
                                                 <td class="p-3 font-semibold text-slate-900"><p x-text="loan.namaPeminjam"></p><p class="text-[10px] text-slate-400" x-text="'NIS: ' + (loan.nis || '-')"></p></td>
                                                 <td class="p-3 text-slate-700 font-medium" x-text="loan.kelas"></td>
                                                 <td class="p-3 font-bold text-md3-primary" x-text="loan.namaAlat + ' (' + loan.jumlah + ' Unit)'"></td>
-                                                <td class="p-3 text-slate-500" x-text="formatDateTime(loan.tanggalPinjam)"></td>
+                                                <td class="p-3 text-slate-500"><span x-text="formatDateTime(loan.tanggalPinjam)"></span><template x-if="loan.jatuhTempo"><div class="text-[10px] font-bold" :class="isOverdue(loan) ? 'text-red-600' : 'text-slate-400'" x-text="(isOverdue(loan) ? 'TERLAMBAT • ' : 'Kembali: ') + loan.jatuhTempo"></div></template></td>
                                                 <td class="p-3 text-right">
                                                     <template x-if="userRole === 'admin'">
                                                         <div class="flex justify-end space-x-1.5">
@@ -368,7 +373,7 @@
                                                 <td class="p-3 font-semibold text-slate-900" x-text="loan.namaPeminjam"></td>
                                                 <td class="p-3 text-slate-700" x-text="loan.kelas"></td>
                                                 <td class="p-3 font-medium text-slate-800" x-text="loan.namaAlat + ' (' + loan.jumlah + ' Unit)'"></td>
-                                                <td class="p-3 text-slate-500" x-text="formatDateTime(loan.tanggalPinjam)"></td>
+                                                <td class="p-3 text-slate-500"><span x-text="formatDateTime(loan.tanggalPinjam)"></span><template x-if="loan.jatuhTempo"><div class="text-[10px] font-bold" :class="isOverdue(loan) ? 'text-red-600' : 'text-slate-400'" x-text="(isOverdue(loan) ? 'TERLAMBAT • ' : 'Kembali: ') + loan.jatuhTempo"></div></template></td>
                                                 <td class="p-3 text-right">
                                                     <template x-if="userRole === 'admin'">
                                                         <button @click="openReturnModal(loan)" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded-xl text-[10px] font-bold shadow-sm transition">Kembali</button>
@@ -520,6 +525,7 @@
                     <input type="text" x-model="searchAlat" @input="currentPageAlat = 1" placeholder="Cari kode, nama, atau merk..." class="p-3 border border-md3-surfaceVariant rounded-2xl text-xs w-full sm:w-80 focus:ring-2 focus:ring-md3-primary focus:outline-none bg-slate-50">
                     <div class="flex space-x-2 w-full sm:w-auto justify-end">
                         <button @click="exportAlatToExcel()" class="bg-emerald-700 hover:bg-emerald-800 text-white font-bold px-4 py-2.5 rounded-md3-full text-xs flex items-center space-x-1 shadow transition"><i class="fa-solid fa-file-excel"></i><span class="hidden sm:inline">Export</span></button>
+                        <template x-if="userRole === 'admin'"><div class="flex space-x-2"><button @click="downloadTemplate('alat')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-4 py-2.5 rounded-md3-full text-xs transition">Template</button><label class="bg-amber-600 hover:bg-amber-700 text-white font-bold px-4 py-2.5 rounded-md3-full text-xs cursor-pointer transition">Impor Excel<input type="file" accept=".xlsx,.xls,.csv" class="hidden" @change="importExcel('alat', $event)"></label></div></template>
                         <template x-if="userRole === 'admin'"><button @click="openModal('alat')" class="bg-md3-primary hover:bg-blue-800 text-white font-bold px-5 py-2.5 rounded-md3-full text-xs shadow transition">+ Tambah Alat</button></template>
                     </div>
                 </div>
@@ -557,6 +563,7 @@
                                         <template x-if="userRole === 'admin'">
                                             <td class="p-3.5 text-right">
                                                 <div class="flex justify-end space-x-1.5">
+                                                    <template x-if="(alat.kondisiServis || 0) + (alat.kondisiRusak || 0) > 0"><button @click="openServis(alat)" class="p-1.5 text-amber-700 hover:bg-amber-100 rounded-xl bg-amber-50 transition" title="Servis / Perbaikan"><i class="fa-solid fa-screwdriver-wrench"></i></button></template>
                                                     <button @click="editAlat(alat)" class="p-1.5 text-slate-600 hover:text-md3-primary rounded-xl bg-slate-100 hover:bg-slate-200 transition" title="Edit"><i class="fa-solid fa-pen-to-square"></i></button>
                                                     <button @click="confirmDelete('alat', alat.id, alat.namaAlat, 'Aman')" class="p-1.5 text-red-600 hover:bg-red-100 rounded-xl bg-red-50 transition" title="Hapus"><i class="fa-solid fa-trash-can"></i></button>
                                                 </div>
@@ -600,6 +607,7 @@
                     <input type="text" x-model="searchBahan" @input="currentPageOpname = 1" placeholder="Cari bahan praktik..." class="p-3 border border-md3-surfaceVariant rounded-2xl text-xs w-full sm:w-80 focus:ring-2 focus:ring-md3-primary focus:outline-none bg-slate-50">
                     <div class="flex space-x-2 w-full sm:w-auto justify-end">
                         <button @click="exportBahanToExcel()" class="bg-emerald-700 hover:bg-emerald-800 text-white font-bold px-4 py-2.5 rounded-md3-full text-xs flex items-center space-x-1 shadow transition"><i class="fa-solid fa-file-excel"></i><span class="hidden sm:inline">Export</span></button>
+                        <template x-if="userRole === 'admin'"><div class="flex space-x-2"><button @click="downloadTemplate('bahan')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-4 py-2.5 rounded-md3-full text-xs transition">Template</button><label class="bg-amber-600 hover:bg-amber-700 text-white font-bold px-4 py-2.5 rounded-md3-full text-xs cursor-pointer transition">Impor Excel<input type="file" accept=".xlsx,.xls,.csv" class="hidden" @change="importExcel('bahan', $event)"></label></div></template>
                         <template x-if="userRole === 'admin'"><button @click="openModal('bahan')" class="bg-md3-primary hover:bg-blue-800 text-white font-bold px-5 py-2.5 rounded-md3-full text-xs shadow transition">+ Tambah Bahan</button></template>
                     </div>
                 </div>
@@ -631,6 +639,7 @@
                                         <template x-if="userRole === 'admin'">
                                             <td class="p-3.5 text-right">
                                                 <div class="flex justify-end space-x-1.5">
+                                                    <button @click="openMutasi(bahan)" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1.5 rounded-xl text-[10px] font-bold mr-1 transition">Kartu Stok</button>
                                                     <button @click="openOpnameModal(bahan)" class="bg-slate-900 hover:bg-slate-800 text-white px-3 py-1.5 rounded-xl text-[10px] font-bold shadow-sm transition">Adjust</button>
                                                     <button @click="confirmDelete('bahan', bahan.id, bahan.namaBahan, 'Aman')" class="p-1.5 text-slate-400 hover:text-red-600 rounded-xl hover:bg-red-50 transition"><i class="fa-solid fa-trash-can"></i></button>
                                                 </div>
@@ -823,7 +832,7 @@
                                         <td class="p-3 text-slate-700" x-text="loan.kelas"></td>
                                         <td class="p-3 font-semibold text-md3-primary" x-text="loan.namaAlat"></td>
                                         <td class="p-3 text-center font-bold" x-text="loan.jumlah"></td>
-                                        <td class="p-3 text-slate-500" x-text="formatDateTime(loan.tanggalPinjam)"></td>
+                                        <td class="p-3 text-slate-500"><span x-text="formatDateTime(loan.tanggalPinjam)"></span><template x-if="loan.jatuhTempo"><div class="text-[10px] font-bold" :class="isOverdue(loan) ? 'text-red-600' : 'text-slate-400'" x-text="(isOverdue(loan) ? 'TERLAMBAT • ' : 'Kembali: ') + loan.jatuhTempo"></div></template></td>
                                         <td class="p-3 text-slate-500" x-text="formatDateTime(loan.tanggalKembali)"></td>
                                         <td class="p-3 font-bold" x-text="loan.status"></td>
                                         <td class="p-3 font-semibold" x-text="loan.kondisiKembali || (loan.status === 'Dikembalikan' ? 'Baik' : '-')"></td>
@@ -1189,6 +1198,8 @@
                     <label class="font-bold block mb-1 text-slate-700">Kelas / Bay Praktik <span class="text-red-500">*</span></label>
                     <input type="text" x-model="formStudentLoan.kelas" required placeholder="XII TSM 1" class="w-full p-2.5 bg-white border rounded-xl focus:ring-2 focus:ring-md3-primary focus:outline-none">
                 </div>
+                <div><label class="font-bold block mb-1 text-slate-700 text-xs">Rencana Tanggal Kembali</label><input type="date" x-model="formStudentLoan.jatuhTempo" required class="w-full p-2.5 bg-slate-50 border rounded-xl"></div>
+                <div><label class="font-bold block mb-1 text-slate-700 text-xs">Keperluan</label><input type="text" x-model="formStudentLoan.keperluan" placeholder="Contoh: Praktik overhaul mesin" class="w-full p-2.5 bg-slate-50 border rounded-xl"></div>
                 <div>
                     <label class="font-bold block mb-1 text-slate-700">NIS Peminjam</label>
                     <input type="text" x-model="formStudentLoan.nis" placeholder="Nomor Induk Siswa" class="w-full p-2.5 bg-white border rounded-xl focus:ring-2 focus:ring-md3-primary focus:outline-none">
@@ -1392,6 +1403,9 @@
                 </div>
                 <div>
                     <label class="font-bold block mb-1 text-slate-700">Kategori Alat <span class="text-red-500">*</span></label>
+                    <label class="font-bold block mb-1 text-slate-700 text-xs">Jenis Aset</label>
+                    <select x-model="formAlat.jenis" class="w-full p-2.5 bg-slate-50 border rounded-xl mb-2"><option value="Alat">Alat</option><option value="Media">Media Praktik</option><option value="Alat Ukur">Alat Ukur</option></select>
+                    <div class="grid grid-cols-3 gap-2 mb-2"><input type="number" x-model="formAlat.tahunPerolehan" placeholder="Tahun" class="p-2.5 bg-slate-50 border rounded-xl"><input type="number" x-model="formAlat.hargaPerolehan" placeholder="Harga (Rp)" class="p-2.5 bg-slate-50 border rounded-xl"><input type="text" x-model="formAlat.sumberDana" placeholder="Sumber dana" class="p-2.5 bg-slate-50 border rounded-xl"></div>
                     <select x-model="formAlat.kategori" required class="w-full p-2.5 bg-slate-50 border rounded-xl focus:ring-2 focus:ring-md3-primary focus:outline-none">
                         <option value="Hand Tools">Hand Tools</option><option value="Special Service Tools">Special Service Tools</option><option value="Measuring Tools">Measuring Tools</option><option value="Diagnostic Tools">Diagnostic Tools</option><option value="Power Tools">Power Tools</option><option value="Engine & Chassis">Engine & Chassis</option><option value="Electric Tools">Electric Tools</option><option value="General Tools">General Tools</option>
                     </select>
@@ -1510,7 +1524,9 @@
             <div><label class="font-bold block mb-1 text-slate-700">Nama Bahan</label><input type="text" x-model="formOpname.namaBahan" required class="w-full p-2.5 bg-slate-50 border rounded-xl font-semibold focus:outline-none"></div>
             <div><label class="font-bold block mb-1 text-slate-700">Spesifikasi</label><input type="text" x-model="formOpname.spesifikasi" placeholder="Spesifikasi" class="w-full p-2.5 bg-slate-50 border rounded-xl focus:outline-none"></div>
             <div><label class="font-bold block mb-1 text-slate-700">Satuan</label><input type="text" x-model="formOpname.satuan" placeholder="Botol/Pcs/dll" class="w-full p-2.5 bg-slate-50 border rounded-xl focus:outline-none"></div>
-            <div><label class="font-bold block mb-1 text-slate-700">Stok Fisik Baru</label><input type="number" x-model.number="formOpname.stokFisik" min="0" required class="w-full p-3 border-2 border-md3-primary rounded-xl font-black text-center text-lg bg-blue-50/50 focus:outline-none"></div>
+            <div><label class="font-bold block mb-1 text-slate-700">Jenis Penyesuaian</label><select x-model="formOpname.mode" @change="formOpname.stokFisik = formOpname.mode === 'masuk' ? 0 : selectedBahanOpname.stokSistem" class="w-full p-2.5 bg-slate-50 border rounded-xl font-bold"><option value="opname">Opname (koreksi stok fisik)</option><option value="masuk">Stok Masuk (tambah stok)</option></select></div>
+            <div><label class="font-bold block mb-1 text-slate-700" x-text="formOpname.mode === 'masuk' ? 'Jumlah Stok Masuk' : 'Stok Fisik Hasil Hitung'"></label><input type="number" x-model.number="formOpname.stokFisik" min="0" required class="w-full p-3 border-2 border-md3-primary rounded-xl font-black text-center text-lg bg-blue-50/50 focus:outline-none"></div>
+            <div><label class="font-bold block mb-1 text-slate-700">Catatan / Alasan</label><input type="text" x-model="formOpname.catatan" placeholder="Contoh: pembelian, selisih hitung, rusak" class="w-full p-2.5 bg-slate-50 border rounded-xl"></div>
             <div><label class="font-bold block mb-1 text-slate-700">Batas Stok Kritis (Min Stok)</label><input type="number" x-model.number="formOpname.minStok" min="0" required class="w-full p-2.5 bg-slate-50 border rounded-xl font-bold focus:outline-none"></div>
             <div class="flex justify-end space-x-2 pt-2 border-t">
                 <button type="button" @click="$store.modals.opname = false" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 font-bold rounded-md3-full transition">Batal</button>
@@ -1531,9 +1547,10 @@
             <div>
                 <label class="font-bold block mb-1">Kondisi Saat Kembali</label>
                 <select x-model="formReturn.kondisi" class="w-full p-2.5 border rounded-xl focus:ring-2 focus:ring-md3-primary focus:outline-none bg-slate-50">
-                    <option value="Baik">Baik</option><option value="Perlu Servis">Perlu Servis</option><option value="Rusak">Rusak</option>
+                    <option value="Baik">Baik</option><option value="Perlu Servis">Perlu Servis</option><option value="Rusak">Rusak</option><option value="Hilang">Hilang</option>
                 </select>
             </div>
+            <div><label class="font-bold block mb-1">Jumlah Dikembalikan (maks <span x-text="selectedLoanReturn?.jumlah"></span>)</label><input type="number" min="1" :max="selectedLoanReturn?.jumlah" x-model.number="formReturn.jumlahKembali" required class="w-full p-2.5 border rounded-xl font-bold"></div>
             <div><label class="font-bold block mb-1">Catatan Pengembalian (Opsional)</label><input type="text" x-model="formReturn.catatan" placeholder="Keterangan kondisi..." class="w-full p-2.5 border rounded-xl focus:ring-2 focus:ring-md3-primary focus:outline-none"></div>
             <div class="flex justify-end space-x-2 pt-3 border-t">
                 <button type="button" @click="$store.modals.return = false" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 font-bold rounded-md3-full transition">Batal</button>
@@ -1557,6 +1574,53 @@
 </div>
 
 <!-- SCRIPT FIREBASE & ALPINE APP -->
+<div x-data x-show="$store.modals && $store.modals.mutasi" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4 no-print">
+    <div class="bg-white rounded-2xl p-5 w-full max-w-3xl max-h-[85vh] overflow-hidden flex flex-col">
+        <div class="flex justify-between items-center border-b pb-2 mb-3">
+            <h3 class="font-bold text-slate-900 text-sm">Kartu Stok: <span x-text="mutasiBahan?.namaBahan"></span> <span class="text-slate-400 font-normal" x-text="mutasiBahan?.spesifikasi || ''"></span></h3>
+            <button @click="$store.modals.mutasi = false" class="text-slate-400 hover:text-slate-600 p-1"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="overflow-auto custom-scrollbar text-xs">
+            <p x-show="mutasiLoading" class="p-4 text-slate-500">Memuat...</p>
+            <p x-show="!mutasiLoading && mutasiList.length === 0" class="p-4 text-slate-500">Belum ada riwayat mutasi untuk bahan ini.</p>
+            <table x-show="mutasiList.length > 0" class="w-full text-left">
+                <thead class="bg-slate-50 text-slate-500 uppercase"><tr><th class="p-2">Waktu</th><th class="p-2">Jenis</th><th class="p-2 text-right">Sebelum</th><th class="p-2 text-right">Jumlah</th><th class="p-2 text-right">Sesudah</th><th class="p-2">Catatan</th><th class="p-2">Oleh</th></tr></thead>
+                <tbody class="divide-y"><template x-for="m in mutasiList" :key="m.id"><tr>
+                    <td class="p-2 text-slate-500" x-text="formatDateTime(m.timestamp)"></td>
+                    <td class="p-2 font-bold" :class="m.jenis === 'keluar' ? 'text-red-600' : (m.jenis === 'opname' ? 'text-amber-600' : 'text-emerald-700')" x-text="m.jenis"></td>
+                    <td class="p-2 text-right" x-text="m.stokSebelum"></td>
+                    <td class="p-2 text-right font-bold" x-text="(m.jenis === 'opname' ? (m.selisih > 0 ? '+' : '') + m.selisih : (m.jenis === 'keluar' ? '-' : '+') + m.jumlah)"></td>
+                    <td class="p-2 text-right" x-text="m.stokSesudah"></td>
+                    <td class="p-2" x-text="m.catatan"></td><td class="p-2 text-slate-400" x-text="m.oleh"></td>
+                </tr></template></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div x-data x-show="$store.modals && $store.modals.servis" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4 no-print">
+    <div class="bg-white rounded-2xl p-5 w-full max-w-lg max-h-[88vh] overflow-auto custom-scrollbar text-xs">
+        <div class="flex justify-between items-center border-b pb-2 mb-3">
+            <h3 class="font-bold text-slate-900 text-sm">Servis / Perbaikan: <span x-text="servisAlat?.namaAlat"></span></h3>
+            <button @click="$store.modals.servis = false" class="text-slate-400 hover:text-slate-600 p-1"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <p class="mb-3 text-slate-500">Perlu Servis: <b x-text="servisAlat?.kondisiServis || 0"></b> • Rusak: <b x-text="servisAlat?.kondisiRusak || 0"></b></p>
+        <form @submit.prevent="saveServis()" class="space-y-3">
+            <div class="grid grid-cols-2 gap-2">
+                <div><label class="font-bold block mb-1">Kondisi Asal</label><select x-model="formServis.asal" class="w-full p-2.5 bg-slate-50 border rounded-xl"><option value="servis">Perlu Servis</option><option value="rusak">Rusak</option></select></div>
+                <div><label class="font-bold block mb-1">Jumlah Unit</label><input type="number" min="1" x-model.number="formServis.jumlah" required class="w-full p-2.5 bg-slate-50 border rounded-xl"></div>
+            </div>
+            <div><label class="font-bold block mb-1">Hasil</label><select x-model="formServis.hasil" class="w-full p-2.5 bg-slate-50 border rounded-xl"><option value="baik">Sudah diperbaiki (jadi Baik)</option><option value="rusak">Tidak bisa diperbaiki (jadi Rusak)</option><option value="hapus">Dihapus dari inventaris</option></select></div>
+            <div class="grid grid-cols-2 gap-2"><input type="text" x-model="formServis.catatan" placeholder="Catatan / bengkel" class="w-full p-2.5 bg-slate-50 border rounded-xl"><input type="number" min="0" x-model="formServis.biaya" placeholder="Biaya (Rp)" class="w-full p-2.5 bg-slate-50 border rounded-xl"></div>
+            <div class="flex justify-end space-x-2"><button type="button" @click="$store.modals.servis = false" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 font-bold rounded-md">Batal</button><button type="submit" :disabled="actionLoading" class="px-4 py-2 bg-md3-primary text-white font-bold rounded-md disabled:opacity-50">Simpan</button></div>
+        </form>
+        <div class="mt-4 border-t pt-3"><p class="font-bold mb-1">Riwayat Servis</p>
+            <p x-show="servisList.length === 0" class="text-slate-400">Belum ada riwayat.</p>
+            <template x-for="l in servisList" :key="l.id"><p class="py-1 border-b text-slate-600" x-text="formatDateTime(l.timestamp) + ' • ' + l.jumlah + ' unit ' + l.asal + ' → ' + l.hasil + (l.biaya ? ' • Rp ' + Number(l.biaya).toLocaleString('id-ID') : '') + (l.catatan ? ' • ' + l.catatan : '')"></p></template>
+        </div>
+    </div>
+</div>
+
 <script>
     const firebaseConfig = {
         apiKey: "AIzaSyDMt9Y9xy6J5470BYH9GjqjdnVBYMt3kfc",
@@ -1576,7 +1640,7 @@
         Alpine.store('toast', { show: false, title: '', message: '', type: 'success' });
         Alpine.store('modals', {
             studentLoan: false, editLoan: false, loanDetail: false, usageDetail: false,
-            settingsModal: false, alat: false, bahan: false, usage: false, opname: false,
+            settingsModal: false, mutasi: false, servis: false, alat: false, bahan: false, usage: false, opname: false,
             return: false, confirmDelete: { show: false, type: '', id: '', name: '', status: '' }
         });
     });
@@ -1660,15 +1724,17 @@
                 logoKananUrl: '', logoTsmUrl: '', logoTsmHeaderUrl: ''
             },
 
-            formStudentLoan: { namaPeminjam: '', kelas: '', nis: '', noHp: '', items: [{ alatId: '', searchAlatQuery: '', jumlah: 1 }] },
+            formStudentLoan: { namaPeminjam: '', kelas: '', nis: '', noHp: '', jatuhTempo: '', keperluan: '', items: [{ alatId: '', searchAlatQuery: '', jumlah: 1 }] },
             formEditLoan: { id: '', namaPeminjam: '', kelas: '', noHp: '', jumlah: 1, status: '' },
             selectedLoanDetail: null, selectedUsageDetail: null,
-            formAlat: { id: null, kodeAlat: '', namaAlat: '', kategori: 'Hand Tools', merk: '', lokasiRak: '', jumlahTotal: 1, kondisiBaik: 1, kondisiServis: 0, kondisiRusak: 0 },
+            formAlat: { id: null, kodeAlat: '', namaAlat: '', jenis: 'Alat', tahunPerolehan: '', hargaPerolehan: '', sumberDana: '', kategori: 'Hand Tools', merk: '', lokasiRak: '', jumlahTotal: 1, kondisiBaik: 1, kondisiServis: 0, kondisiRusak: 0 },
             formBahan: { kodeBahan: '', namaBahan: '', spesifikasi: '', satuan: 'Botol', stokSistem: 10, minStok: 2 },
             formUsageMeta: { namaPencatat: '', noHpPencatat: '', kelas: '', topik: '', instruktur: '', items: [{ bahanId: '', searchBahanQuery: '', jumlah: 1 }] },
-            selectedBahanOpname: null, formOpname: { namaBahan: '', spesifikasi: '', satuan: '', stokFisik: 0, minStok: 2 },
-            selectedLoanReturn: null, formReturn: { kondisi: 'Baik', catatan: '' },
+            selectedBahanOpname: null, formOpname: { namaBahan: '', spesifikasi: '', satuan: '', stokFisik: 0, minStok: 2, mode: 'opname', catatan: '' },
+            selectedLoanReturn: null, formReturn: { kondisi: 'Baik', catatan: '', jumlahKembali: 1 },
 
+            servisAlat: null, servisList: [], formServis: { asal: 'servis', jumlah: 1, hasil: 'baik', catatan: '', biaya: '' },
+            mutasiList: [], mutasiBahan: null, mutasiLoading: false,
             idleTimer: null,
             idleLimitMinutes: 15,
 
@@ -1771,7 +1837,7 @@
                         this.cloudStatus = 'error';
                     });
 
-                    const unsubLoans = db.collection('loans').orderBy('tanggalPinjam', 'desc').onSnapshot(snap => { 
+                    const unsubLoans = db.collection('loans').where('tanggalPinjam','>=',new Date(Date.now()-365*864e5).toISOString()).orderBy('tanggalPinjam', 'desc').onSnapshot(snap => { 
                         this.loanList = snap.docs.map(d => ({ ...d.data(), id: d.id })); 
                         this.cloudStatus = 'connected';
                     }, err => { 
@@ -1779,7 +1845,7 @@
                         this.cloudStatus = 'error';
                     });
 
-                    const unsubUsage = db.collection('usage').orderBy('timestamp', 'desc').onSnapshot(snap => { 
+                    const unsubUsage = db.collection('usage').where('timestamp','>=',new Date(Date.now()-365*864e5)).orderBy('timestamp', 'desc').onSnapshot(snap => { 
                         this.usageLogs = snap.docs.map(d => ({ ...d.data(), id: d.id })); 
                         this.cloudStatus = 'connected';
                     }, err => { 
@@ -1994,6 +2060,12 @@
                 const selectedIds = this.formStudentLoan.items.map(item => item.alatId);
                 const isDuplicate = selectedIds.some((id, idx) => selectedIds.indexOf(id) !== idx);
                 if (isDuplicate) { showToastGlobal('Validasi Gagal', 'Anda tidak boleh memilih alat yang sama lebih dari satu kali dalam satu pengajuan.', 'error'); return; }
+                for (const it of this.formStudentLoan.items) {
+                    const a = this.alatList.find(x => x.id === it.alatId); const q = Number(it.jumlah);
+                    if (!a || !(q > 0)) { showToastGlobal('Validasi Gagal', 'Pilih alat dan isi jumlah > 0.', 'error'); return; }
+                    if (q > Number(a.jumlahTersedia || 0)) { showToastGlobal('Stok Kurang', `"${a.namaAlat}" tersedia hanya ${a.jumlahTersedia || 0} unit.`, 'error'); return; }
+                }
+                if (!this.formStudentLoan.jatuhTempo) { showToastGlobal('Validasi Gagal', 'Isi rencana tanggal kembali.', 'error'); return; }
 
                 this.actionLoading = true;
                 try {
@@ -2005,27 +2077,27 @@
                             nextTrxNum = Number(counterSnap.data().current || 0) + 1;
                         }
 
+                        const trxCode = 'TRX-' + String(nextTrxNum).padStart(4, '0');
                         for (let itm of this.formStudentLoan.items) {
                             if (!itm.alatId) throw new Error("Ada alat yang belum dipilih dari daftar dropdown.");
                             const alat = this.alatList.find(a => a.id === itm.alatId);
                             const id = crypto.randomUUID();
-                            const formattedTrx = 'TRX-' + String(nextTrxNum).padStart(4, '0');
+                            const formattedTrx = trxCode;
                             
                             const loanRef = db.collection('loans').doc(id);
                             t.set(loanRef, {
                                 id, kodePinjam: formattedTrx, namaPeminjam: this.formStudentLoan.namaPeminjam,
                                 kelas: this.formStudentLoan.kelas, nis: this.formStudentLoan.nis || '', noHp: this.formStudentLoan.noHp || '',
                                 alatId: itm.alatId, namaAlat: alat ? alat.namaAlat : '', jumlah: Number(itm.jumlah),
-                                tanggalPinjam: new Date().toISOString(), status: 'Menunggu Persetujuan', kondisiKembali: '',
+                                tanggalPinjam: new Date().toISOString(), status: 'Menunggu Persetujuan', kondisiKembali: '', jatuhTempo: this.formStudentLoan.jatuhTempo, keperluan: this.formStudentLoan.keperluan || '',
                                 emailPengaju: this.currentUser?.email || ''
                             });
-                            nextTrxNum++;
-                        }
-                        t.set(counterRef, { current: nextTrxNum - 1 }, { merge: true });
+                            }
+                        t.set(counterRef, { current: nextTrxNum }, { merge: true });
                     });
 
                     Alpine.store('modals').studentLoan = false;
-                    this.formStudentLoan = { namaPeminjam: '', kelas: '', nis: '', noHp: '', items: [{ alatId: '', searchAlatQuery: '', jumlah: 1 }] };
+                    this.formStudentLoan = { namaPeminjam: '', kelas: '', nis: '', noHp: '', jatuhTempo: '', keperluan: '', items: [{ alatId: '', searchAlatQuery: '', jumlah: 1 }] };
                     showToastGlobal('Terkirim', 'Pengajuan berhasil dikirim!');
                 } catch(e) { 
                     showToastGlobal('Gagal', e.message, 'error'); 
@@ -2174,7 +2246,8 @@
                         let kondisiBaik = Number(alat.kondisiBaik !== undefined ? alat.kondisiBaik : alat.jumlahTotal);
                         let kondisiServis = Number(alat.kondisiServis || 0);
                         let kondisiRusak = Number(alat.kondisiRusak || 0);
-                        const jumlah = Number(loan.jumlah || 0);
+                        const jumlah = Number(this.formReturn.jumlahKembali);
+                        if (!(jumlah > 0) || jumlah > Number(loanData.jumlah)) throw new Error('Jumlah dikembalikan harus 1 sampai ' + loanData.jumlah + '.');
 
                         if (kondisi === 'Baik') { 
                             jumlahTersedia += jumlah; 
@@ -2186,20 +2259,24 @@
                             kondisiRusak += jumlah; 
                         }
 
+                        let jumlahTotal = Number(alat.jumlahTotal || 0);
+                        if (kondisi === 'Hilang') { kondisiBaik -= jumlah; jumlahTotal = Math.max(0, jumlahTotal - jumlah); }
                         if (kondisiBaik < 0) {
                             throw new Error('Gagal: Jumlah Kondisi Baik menjadi negatif. Periksa kembali total unit alat inventaris.');
                         }
 
                         t.update(alatRef, { 
-                            jumlahTersedia, 
-                            kondisiBaik, 
+                            jumlahTersedia, jumlahTotal, kondisiBaik, 
                             kondisiServis, 
                             kondisiRusak,
                             updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                         });
                         
-                        t.update(loanRef, { 
-                            status: 'Dikembalikan', 
+                        if (jumlah < Number(loanData.jumlah)) {
+                            t.update(loanRef, { jumlah: Number(loanData.jumlah) - jumlah });
+                            const rid = crypto.randomUUID();
+                            t.set(db.collection('loans').doc(rid), { ...loanData, id: rid, jumlah, status: 'Dikembalikan', tanggalKembali: firebase.firestore.FieldValue.serverTimestamp(), kondisiKembali: kondisi, catatanKembali: catatan });
+                        } else t.update(loanRef, { status: 'Dikembalikan', 
                             tanggalKembali: firebase.firestore.FieldValue.serverTimestamp(), 
                             kondisiKembali: kondisi, 
                             catatanKembali: catatan 
@@ -2207,7 +2284,7 @@
                     });
 
                     Alpine.store('modals').return = false;
-                    this.formReturn = { kondisi: 'Baik', catatan: '' };
+                    this.formReturn = { kondisi: 'Baik', catatan: '', jumlahKembali: 1 };
                     showToastGlobal('Sukses', 'Alat berhasil dikembalikan dan stok diperbarui.');
                     await createAuditLog('RETURN_LOAN', `Proses kembalikan alat transaksi #${loan.kodePinjam} (${kondisi})`);
                 } catch (e) { 
@@ -2222,7 +2299,7 @@
                     showToastGlobal('Akses Ditolak', 'Hanya admin yang dapat mengedit inventaris alat.', 'error');
                     return;
                 }
-                this.formAlat = JSON.parse(JSON.stringify(alat)); 
+                this.formAlat = { jenis: 'Alat', tahunPerolehan: '', hargaPerolehan: '', sumberDana: '', ...JSON.parse(JSON.stringify(alat)) }; 
                 Alpine.store('modals').alat = true; 
             },
             
@@ -2293,6 +2370,7 @@
                     const id = crypto.randomUUID();
                     await db.collection('bahan').doc(id).set({ ...this.formBahan, id, stokSistem: Number(this.formBahan.stokSistem), minStok: Number(this.formBahan.minStok || 2), stokFisik: Number(this.formBahan.stokSistem) });
                     Alpine.store('modals').bahan = false;
+                    await db.collection('stok_mutasi').doc(crypto.randomUUID()).set({ id: id, bahanId: id, namaBahan: this.formBahan.namaBahan, satuan: this.formBahan.satuan, jenis: 'awal', stokSebelum: 0, jumlah: Number(this.formBahan.stokSistem), stokSesudah: Number(this.formBahan.stokSistem), selisih: 0, catatan: 'Stok awal', oleh: this.currentUser?.email || '', timestamp: firebase.firestore.FieldValue.serverTimestamp() }).catch(() => {});
                     showToastGlobal('Berhasil', 'Bahan ditambahkan');
                     await createAuditLog('SAVE_BAHAN', `Simpan bahan ${this.formBahan.namaBahan}`);
                 } catch (e) {
@@ -2302,13 +2380,59 @@
                 }
             },
 
+            async openServis(alat) {
+                if (this.userRole !== 'admin') { showToastGlobal('Akses Ditolak', 'Hanya admin.', 'error'); return; }
+                this.servisAlat = alat; this.servisList = [];
+                this.formServis = { asal: Number(alat.kondisiServis || 0) > 0 ? 'servis' : 'rusak', jumlah: 1, hasil: 'baik', catatan: '', biaya: '' };
+                Alpine.store('modals').servis = true;
+                try {
+                    const snap = await db.collection('servis_log').where('alatId', '==', alat.id).get();
+                    this.servisList = snap.docs.map(d => d.data()).sort((a, b) => (b.timestamp?.toMillis?.() || Date.now()) - (a.timestamp?.toMillis?.() || Date.now()));
+                } catch (e) { console.warn('Riwayat servis:', e.message); }
+            },
+            async saveServis() {
+                if (this.userRole !== 'admin' || !this.servisAlat) { showToastGlobal('Akses Ditolak', 'Hanya admin.', 'error'); return; }
+                const f = this.formServis, n = Number(f.jumlah), a0 = this.servisAlat;
+                if (!(n > 0)) { showToastGlobal('Validasi Gagal', 'Jumlah harus lebih dari 0.', 'error'); return; }
+                if (f.asal === 'rusak' && f.hasil === 'rusak') { showToastGlobal('Validasi Gagal', 'Hasil tidak boleh sama dengan kondisi asal.', 'error'); return; }
+                this.actionLoading = true;
+                try {
+                    await db.runTransaction(async (t) => {
+                        const ref = db.collection('alat').doc(a0.id); const snap = await t.get(ref);
+                        if (!snap.exists) throw new Error('Alat tidak ditemukan.');
+                        const a = snap.data();
+                        let baik = Number(a.kondisiBaik || 0), servis = Number(a.kondisiServis || 0), rusak = Number(a.kondisiRusak || 0), tersedia = Number(a.jumlahTersedia || 0), total = Number(a.jumlahTotal || 0);
+                        if (f.asal === 'servis') { if (n > servis) throw new Error('Unit Perlu Servis hanya ' + servis + '.'); servis -= n; }
+                        else { if (n > rusak) throw new Error('Unit Rusak hanya ' + rusak + '.'); rusak -= n; }
+                        if (f.hasil === 'baik') { baik += n; tersedia += n; }
+                        else if (f.hasil === 'rusak') { rusak += n; }
+                        else if (f.hasil === 'hapus') { total -= n; }
+                        t.update(ref, { kondisiBaik: baik, kondisiServis: servis, kondisiRusak: rusak, jumlahTersedia: tersedia, jumlahTotal: total, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
+                        const lid = crypto.randomUUID();
+                        t.set(db.collection('servis_log').doc(lid), { id: lid, alatId: a0.id, namaAlat: a.namaAlat, asal: f.asal, hasil: f.hasil, jumlah: n, catatan: f.catatan || '', biaya: Number(f.biaya || 0), oleh: this.currentUser?.email || '', timestamp: firebase.firestore.FieldValue.serverTimestamp() });
+                    });
+                    Alpine.store('modals').servis = false;
+                    showToastGlobal('Berhasil', 'Hasil servis dicatat dan stok alat diperbarui.');
+                    await createAuditLog('SERVIS_ALAT', 'Servis ' + a0.namaAlat + ': ' + n + ' unit dari ' + f.asal + ' menjadi ' + f.hasil);
+                } catch (e) { showToastGlobal('Gagal', e.message, 'error'); }
+                finally { this.actionLoading = false; }
+            },
+            async openMutasi(bahan) {
+                if (this.userRole !== 'admin') { showToastGlobal('Akses Ditolak', 'Hanya admin.', 'error'); return; }
+                this.mutasiBahan = bahan; this.mutasiList = []; this.mutasiLoading = true; Alpine.store('modals').mutasi = true;
+                try {
+                    const snap = await db.collection('stok_mutasi').where('bahanId', '==', bahan.id).get();
+                    this.mutasiList = snap.docs.map(d => d.data()).sort((a, b) => (b.timestamp?.toMillis?.() || Date.now()) - (a.timestamp?.toMillis?.() || Date.now()));
+                } catch (e) { showToastGlobal('Gagal', e.message, 'error'); }
+                this.mutasiLoading = false;
+            },
             openOpnameModal(bahan) {
                 if (this.userRole !== 'admin') {
                     showToastGlobal('Akses Ditolak', 'Hanya admin yang dapat melakukan opname stok.', 'error');
                     return;
                 }
                 this.selectedBahanOpname = bahan;
-                this.formOpname = { namaBahan: bahan.namaBahan || '', spesifikasi: bahan.spesifikasi || '', satuan: bahan.satuan || '', stokFisik: bahan.stokSistem !== undefined ? bahan.stokSistem : 0, minStok: bahan.minStok !== undefined ? bahan.minStok : 2 };
+                this.formOpname = { namaBahan: bahan.namaBahan || '', spesifikasi: bahan.spesifikasi || '', satuan: bahan.satuan || '', stokFisik: bahan.stokSistem !== undefined ? bahan.stokSistem : 0, minStok: bahan.minStok !== undefined ? bahan.minStok : 2, mode: 'opname', catatan: '' };
                 Alpine.store('modals').opname = true;
             },
             async saveOpnameAdjustment() {
@@ -2319,7 +2443,19 @@
                 const b = this.selectedBahanOpname;
                 this.actionLoading = true;
                 try {
-                    await db.collection('bahan').doc(b.id).update({ namaBahan: this.formOpname.namaBahan, spesifikasi: this.formOpname.spesifikasi, satuan: this.formOpname.satuan, stokSistem: Number(this.formOpname.stokFisik), stokFisik: Number(this.formOpname.stokFisik), minStok: Number(this.formOpname.minStok || 2), updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
+                    await db.runTransaction(async (t) => {
+                        const ref = db.collection('bahan').doc(b.id);
+                        const snap = await t.get(ref);
+                        if (!snap.exists) throw new Error('Bahan tidak ditemukan.');
+                        const before = Number(snap.data().stokSistem || 0);
+                        const input = Number(this.formOpname.stokFisik);
+                        const masuk = this.formOpname.mode === 'masuk';
+                        if (isNaN(input) || input < 0 || (masuk && input <= 0)) throw new Error('Angka stok tidak valid.');
+                        const after = masuk ? before + input : input;
+                        t.update(ref, { namaBahan: this.formOpname.namaBahan, spesifikasi: this.formOpname.spesifikasi, satuan: this.formOpname.satuan, stokSistem: after, stokFisik: after, minStok: Number(this.formOpname.minStok || 2), updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
+                        const mid = crypto.randomUUID();
+                        t.set(db.collection('stok_mutasi').doc(mid), { id: mid, bahanId: b.id, namaBahan: this.formOpname.namaBahan, satuan: this.formOpname.satuan, jenis: masuk ? 'masuk' : 'opname', stokSebelum: before, jumlah: masuk ? input : after - before, stokSesudah: after, selisih: masuk ? 0 : after - before, catatan: this.formOpname.catatan || '', oleh: this.currentUser?.email || '', timestamp: firebase.firestore.FieldValue.serverTimestamp() });
+                    });
                     Alpine.store('modals').opname = false;
                     showToastGlobal('Berhasil', 'Stok opname & satuan diperbarui');
                     await createAuditLog('OPNAME', `Adjust bahan ${this.formOpname.namaBahan}`);
@@ -2406,6 +2542,8 @@
                             const usageId = crypto.randomUUID();
                             const usageRef = db.collection('usage').doc(usageId);
                             t.set(usageRef, item.logData);
+                            const mid = crypto.randomUUID();
+                            t.set(db.collection('stok_mutasi').doc(mid), { id: mid, bahanId: item.logData.bahanId, namaBahan: item.logData.namaBahan, satuan: item.logData.satuan, jenis: 'keluar', stokSebelum: item.newStock + item.logData.jumlah, jumlah: item.logData.jumlah, stokSesudah: item.newStock, selisih: 0, catatan: 'Pemakaian: ' + (item.logData.topik || '') + ' / ' + (item.logData.kelas || ''), oleh: this.currentUser?.email || '', timestamp: firebase.firestore.FieldValue.serverTimestamp() });
                         }
                     });
 
@@ -2467,7 +2605,23 @@
                     if (type === 'loans' && status === 'Dipinjam') {
                         throw new Error("Peminjaman aktif tidak boleh dihapus secara langsung.");
                     }
-                    await db.collection(type).doc(id).delete();
+                    if (type === 'alat' && this.loanList.some(l => l.alatId === id && (l.status === 'Dipinjam' || l.status === 'Menunggu Persetujuan'))) throw new Error('Alat masih punya peminjaman aktif/menunggu. Selesaikan dulu.');
+                    if (type === 'usage') {
+                        await db.runTransaction(async (t) => {
+                            const uref = db.collection('usage').doc(id); const us = await t.get(uref);
+                            if (!us.exists) return;
+                            const u = us.data(); const bref = db.collection('bahan').doc(u.bahanId); const bs = await t.get(bref);
+                            if (bs.exists) {
+                                const before = Number(bs.data().stokSistem || 0); const after = before + Number(u.jumlah || 0);
+                                t.update(bref, { stokSistem: after, stokFisik: after, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
+                                const mid = crypto.randomUUID();
+                                t.set(db.collection('stok_mutasi').doc(mid), { id: mid, bahanId: u.bahanId, namaBahan: u.namaBahan, satuan: u.satuan, jenis: 'koreksi', stokSebelum: before, jumlah: Number(u.jumlah || 0), stokSesudah: after, selisih: 0, catatan: 'Pembatalan catatan pemakaian', oleh: this.currentUser?.email || '', timestamp: firebase.firestore.FieldValue.serverTimestamp() });
+                            }
+                            t.delete(uref);
+                        });
+                    } else {
+                        await db.collection(type).doc(id).delete();
+                    }
                     Alpine.store('modals').confirmDelete.show = false;
                     showToastGlobal('Terhapus', `${name} berhasil dihapus.`);
                     await createAuditLog('DELETE', `Hapus dokumen ${type} (${name})`);
@@ -2484,7 +2638,8 @@
                     return;
                 }
                 this.selectedLoanReturn = loan;
-                this.formReturn = { kondisi: 'Baik', catatan: '' };
+                this.formReturn = { kondisi: 'Baik', catatan: '', jumlahKembali: 1 };
+                this.formReturn.jumlahKembali = Number(loan.jumlah || 1);
                 Alpine.store('modals').return = true;
             },
 
@@ -2495,7 +2650,7 @@
                         return;
                     }
                 }
-                if (type === 'studentLoan') { this.formStudentLoan = { namaPeminjam: '', kelas: '', nis: '', noHp: '', items: [{ alatId: '', searchAlatQuery: '', jumlah: 1 }] }; }
+                if (type === 'studentLoan') { this.formStudentLoan = { namaPeminjam: '', kelas: '', nis: '', noHp: '', jatuhTempo: '', keperluan: '', items: [{ alatId: '', searchAlatQuery: '', jumlah: 1 }] }; }
                 if (type === 'usage') { this.formUsageMeta = { namaPencatat: '', noHpPencatat: '', kelas: '', topik: '', instruktur: '', items: [{ bahanId: '', searchBahanQuery: '', jumlah: 1 }] }; }
                 if (type === 'alat') {
                     let nextAlatNum = 1;
@@ -2503,7 +2658,7 @@
                         const nums = this.alatList.map(a => { const parts = (a.kodeAlat || '').split('-'); const lastPart = parseInt(parts[parts.length - 1], 10); return isNaN(lastPart) ? 0 : lastPart; });
                         nextAlatNum = Math.max(...nums) + 1;
                     }
-                    this.formAlat = { id: null, kodeAlat: 'ALT-TSM-' + String(nextAlatNum).padStart(3, '0'), namaAlat: '', kategori: 'Hand Tools', merk: '', lokasiRak: 'RAK-A1', jumlahTotal: 1, kondisiBaik: 1, kondisiServis: 0, kondisiRusak: 0 };
+                    this.formAlat = { id: null, kodeAlat: 'ALT-TSM-' + String(nextAlatNum).padStart(3, '0'), namaAlat: '', jenis: 'Alat', tahunPerolehan: '', hargaPerolehan: '', sumberDana: '', kategori: 'Hand Tools', merk: '', lokasiRak: 'RAK-A1', jumlahTotal: 1, kondisiBaik: 1, kondisiServis: 0, kondisiRusak: 0 };
                 }
                 if (type === 'bahan') {
                     let nextNum = 1;
@@ -2516,6 +2671,94 @@
                 Alpine.store('modals')[type] = true;
             },
 
+
+            async _loadXLSX() {
+                if (window.XLSX) return;
+                await new Promise((ok, no) => { const sc = document.createElement('script'); sc.src = 'https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js'; sc.onload = ok; sc.onerror = () => no(new Error('Library Excel tidak dapat dimuat. Periksa koneksi internet.')); document.head.appendChild(sc); });
+            },
+            downloadTemplate(type) {
+                const t = type === 'alat'
+                    ? { Kode: '', Nama: 'Kunci Ring 10', Jenis: 'Alat', Kategori: 'Hand Tools', Merk: 'Tekiro', Lokasi: 'RAK-A1', Baik: 5, Servis: 0, Rusak: 0, Tahun: 2024, Harga: 35000, 'Sumber Dana': 'BOS' }
+                    : { Kode: '', Nama: 'Oli Mesin', Spesifikasi: 'SAE 10W-40', Satuan: 'Botol', Stok: 10, 'Min Stok': 2 };
+                this.downloadExcel([t], 'Template_Impor_' + type);
+            },
+            parseImportRows(type, rows) {
+                const norm = k => String(k).toLowerCase().replace(/[^a-z0-9]/g, '');
+                const A = type === 'alat'
+                    ? { kode: ['kode', 'kodealat'], nama: ['nama', 'namaalat'], jenis: ['jenis', 'jenisaset'], kategori: ['kategori'], merk: ['merk', 'merek'], lokasi: ['lokasi', 'lokasirak', 'rak'], baik: ['baik', 'kondisibaik', 'jumlah', 'total', 'qty'], servis: ['servis', 'kondisiservis', 'perluservis'], rusak: ['rusak', 'kondisirusak'], tahun: ['tahun', 'tahunperolehan'], harga: ['harga', 'hargaperolehan'], dana: ['sumberdana', 'dana'] }
+                    : { kode: ['kode', 'kodebahan'], nama: ['nama', 'namabahan'], spek: ['spesifikasi', 'spek'], satuan: ['satuan'], stok: ['stok', 'stoksistem', 'jumlah'], min: ['minstok', 'min', 'stokminimum'] };
+                const get = (r, keys) => { for (const k of Object.keys(r)) if (keys.includes(norm(k))) return r[k]; return ''; };
+                const str = v => String(v ?? '').trim();
+                const existing = type === 'alat' ? this.alatList : this.bahanList;
+                const codeField = type === 'alat' ? 'kodeAlat' : 'kodeBahan';
+                const prefix = type === 'alat' ? 'ALT-TSM-' : 'BHN-TSM-';
+                const pad = n => type === 'alat' ? String(n).padStart(3, '0') : String(n);
+                const codes = new Set(existing.map(x => str(x[codeField]).toLowerCase()));
+                const keyOf = (nama, b) => (nama + '|' + b).toLowerCase();
+                const seen = new Set(existing.map(x => keyOf(str(x.namaAlat || x.namaBahan), str(type === 'alat' ? x.merk : x.spesifikasi))));
+                let next = Math.max(0, ...existing.map(x => parseInt(str(x[codeField]).split('-').pop(), 10) || 0)) + 1;
+                const ok = [], skip = [];
+                rows.forEach((r, i) => {
+                    const line = 'Baris ' + (i + 2);
+                    const nama = str(get(r, A.nama));
+                    if (!nama) { skip.push(line + ': nama kosong'); return; }
+                    const num = v => { const t = str(v).replace(',', '.'); return t === '' ? 0 : Number(t); };
+                    const bedaKey = str(type === 'alat' ? get(r, A.merk) : get(r, A.spek));
+                    if (seen.has(keyOf(nama, bedaKey))) { skip.push(line + ': "' + nama + '" sudah ada/ganda'); return; }
+                    let kode = str(get(r, A.kode));
+                    if (kode && codes.has(kode.toLowerCase())) { skip.push(line + ': kode ' + kode + ' sudah dipakai'); return; }
+                    let item;
+                    if (type === 'alat') {
+                        const baik = num(get(r, A.baik) || 0), servis = num(get(r, A.servis) || 0), rusak = num(get(r, A.rusak) || 0);
+                        if ([baik, servis, rusak].some(x => isNaN(x) || x < 0)) { skip.push(line + ': jumlah tidak valid'); return; }
+                        if (baik + servis + rusak <= 0) { skip.push(line + ': jumlah 0'); return; }
+                        const j = str(get(r, A.jenis)).toLowerCase();
+                        item = { namaAlat: nama, merk: bedaKey, jenis: j.startsWith('media') ? 'Media' : (j.includes('ukur') ? 'Alat Ukur' : 'Alat'), kategori: str(get(r, A.kategori)) || 'Hand Tools', lokasiRak: str(get(r, A.lokasi)), tahunPerolehan: str(get(r, A.tahun)), hargaPerolehan: str(get(r, A.harga)), sumberDana: str(get(r, A.dana)), kondisiBaik: baik, kondisiServis: servis, kondisiRusak: rusak, jumlahTotal: baik + servis + rusak, jumlahTersedia: baik };
+                    } else {
+                        const stok = num(get(r, A.stok) || 0), min = get(r, A.min) === '' ? 2 : num(get(r, A.min));
+                        if (isNaN(stok) || stok < 0 || isNaN(min) || min < 0) { skip.push(line + ': stok/min tidak valid'); return; }
+                        item = { namaBahan: nama, spesifikasi: bedaKey, satuan: str(get(r, A.satuan)) || 'Pcs', stokSistem: stok, stokFisik: stok, minStok: min };
+                    }
+                    if (!kode) { while (codes.has((prefix + pad(next)).toLowerCase())) next++; kode = prefix + pad(next); }
+                    codes.add(kode.toLowerCase()); seen.add(keyOf(nama, bedaKey));
+                    item[codeField] = kode; ok.push(item);
+                });
+                return { ok, skip };
+            },
+            async commitImport(type, items) {
+                for (let i = 0; i < items.length; i += 150) {
+                    const batch = db.batch();
+                    items.slice(i, i + 150).forEach(it => {
+                        const id = crypto.randomUUID();
+                        batch.set(db.collection(type).doc(id), { ...it, id, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+                        if (type === 'bahan') {
+                            const mid = crypto.randomUUID();
+                            batch.set(db.collection('stok_mutasi').doc(mid), { id: mid, bahanId: id, namaBahan: it.namaBahan, satuan: it.satuan, jenis: 'awal', stokSebelum: 0, jumlah: it.stokSistem, stokSesudah: it.stokSistem, selisih: 0, catatan: 'Impor Excel', oleh: this.currentUser?.email || '', timestamp: firebase.firestore.FieldValue.serverTimestamp() });
+                        }
+                    });
+                    await batch.commit();
+                }
+            },
+            async importExcel(type, ev) {
+                const file = ev.target.files[0]; ev.target.value = '';
+                if (!file) return;
+                if (this.userRole !== 'admin') { showToastGlobal('Akses Ditolak', 'Hanya admin yang dapat impor data.', 'error'); return; }
+                if (file.size > 2 * 1024 * 1024) { showToastGlobal('Gagal', 'Ukuran file maksimal 2 MB.', 'error'); return; }
+                this.actionLoading = true;
+                try {
+                    await this._loadXLSX();
+                    const wb = XLSX.read(await file.arrayBuffer());
+                    const rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { defval: '' });
+                    if (rows.length === 0 || rows.length > 1000) throw new Error('File kosong atau lebih dari 1000 baris.');
+                    const { ok, skip } = this.parseImportRows(type, rows);
+                    if (ok.length === 0) throw new Error('Tidak ada baris valid. ' + skip.slice(0, 3).join('; '));
+                    if (!confirm(ok.length + ' baris siap diimpor, ' + skip.length + ' dilewati.' + (skip.length ? '\n\n' + skip.slice(0, 8).join('\n') : '') + '\n\nLanjutkan impor?')) return;
+                    await this.commitImport(type, ok);
+                    showToastGlobal('Impor Berhasil', ok.length + ' data ditambahkan, ' + skip.length + ' dilewati.');
+                    await createAuditLog('IMPORT_' + type.toUpperCase(), 'Impor Excel: ' + ok.length + ' ditambah, ' + skip.length + ' dilewati');
+                } catch (e) { showToastGlobal('Gagal Impor', e.message, 'error'); }
+                finally { this.actionLoading = false; }
+            },
             async downloadExcel(data, prefix) {
                 if (!window.XLSX) {
                     try {
@@ -2666,6 +2909,8 @@
                     return 'Kebumen, ' + this.reportPrintDate;
                 }
             },
+            get overdueLoans() { return (this.loanList || []).filter(l => this.isOverdue(l)); },
+            isOverdue(l) { return l.status === 'Dipinjam' && l.jatuhTempo && l.jatuhTempo < new Date().toISOString().slice(0, 10); },
             getReportTitle(type) {
                 if (type === 'peminjaman') return 'Rekapitulasi Peminjaman Alat';
                 if (type === 'penggunaan') return 'Rekapitulasi Penggunaan Bahan';
