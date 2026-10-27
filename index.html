@@ -1195,14 +1195,15 @@
                     <input type="text" x-model="formStudentLoan.namaPeminjam" required placeholder="Nama Lengkap" class="w-full p-2.5 bg-white border rounded-xl focus:ring-2 focus:ring-md3-primary focus:outline-none">
                 </div>
                 <div>
-                    <label class="font-bold block mb-1 text-slate-700">Kelas / Bay Praktik <span class="text-red-500">*</span></label>
-                    <input type="text" x-model="formStudentLoan.kelas" required placeholder="XII TSM 1" class="w-full p-2.5 bg-white border rounded-xl focus:ring-2 focus:ring-md3-primary focus:outline-none">
+                    <label class="font-bold block mb-1 text-slate-700">Kelas <span class="text-red-500">*</span></label>
+                    <input type="text" x-model="formStudentLoan.kelas" required placeholder="XII TSM A" class="w-full p-2.5 bg-white border rounded-xl focus:ring-2 focus:ring-md3-primary focus:outline-none">
                 </div>
                 <div><label class="font-bold block mb-1 text-slate-700 text-xs">Rencana Tanggal Kembali</label><input type="date" x-model="formStudentLoan.jatuhTempo" required class="w-full p-2.5 bg-slate-50 border rounded-xl"></div>
+                <input type="text" x-model="formStudentLoan.kelas" required placeholder="Tanggal Kembali" class="w-full p-2.5 bg-white border rounded-xl focus:ring-2 focus:ring-md3-primary focus:outline-none">
                 <div><label class="font-bold block mb-1 text-slate-700 text-xs">Keperluan</label><input type="text" x-model="formStudentLoan.keperluan" placeholder="Contoh: Praktik overhaul mesin" class="w-full p-2.5 bg-slate-50 border rounded-xl"></div>
                 <div>
-                    <label class="font-bold block mb-1 text-slate-700">NIS Peminjam</label>
-                    <input type="text" x-model="formStudentLoan.nis" placeholder="Nomor Induk Siswa" class="w-full p-2.5 bg-white border rounded-xl focus:ring-2 focus:ring-md3-primary focus:outline-none">
+                    <label class="font-bold block mb-1 text-slate-700">NIS</label>
+                    <input type="text" x-model="formStudentLoan.nis" required placeholder="Nomor Induk Siswa" class="w-full p-2.5 bg-white border rounded-xl focus:ring-2 focus:ring-md3-primary focus:outline-none">
                 </div>
                 <div>
                     <label class="font-bold block mb-1 text-slate-700">No. HP / WhatsApp <span class="text-red-500">*</span></label>
